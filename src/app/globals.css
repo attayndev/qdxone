@@ -1,26 +1,115 @@
 @import "tailwindcss";
 
+/*
+  16 Handles New City — Hiring portal
+  Visual direction: energetic pink/magenta primary, cream surface, deep
+  navy text. Rounded, generous spacing, mobile-first, teen-friendly but
+  not childish.
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand-pink: #ff2d87;
+  --brand-pink-600: #e6157a;
+  --brand-pink-50: #ffe3f0;
+  --brand-cream: #fff7ee;
+  --brand-ink: #1a1530;
+  --brand-ink-muted: #4a4360;
+  --brand-line: #f1d9c8;
+  --brand-mint: #2bd4a8;
+  --brand-yellow: #ffd23f;
+
+  --background: var(--brand-cream);
+  --foreground: var(--brand-ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: var(--brand-pink);
+  --color-brand-strong: var(--brand-pink-600);
+  --color-brand-soft: var(--brand-pink-50);
+  --color-cream: var(--brand-cream);
+  --color-ink: var(--brand-ink);
+  --color-ink-muted: var(--brand-ink-muted);
+  --color-line: var(--brand-line);
+  --color-mint: var(--brand-mint);
+  --color-yellow: var(--brand-yellow);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html, body {
+  background: var(--background);
+  color: var(--foreground);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Reusable component classes (kept tiny — most styling is utility-driven) */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.4rem;
+  border-radius: 9999px;
+  background: var(--brand-pink);
+  color: white;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: transform 0.05s ease, background 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 6px 0 var(--brand-pink-600);
+}
+.btn-primary:hover { background: var(--brand-pink-600); }
+.btn-primary:active { transform: translateY(2px); box-shadow: 0 4px 0 var(--brand-pink-600); }
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--brand-ink);
+  font-weight: 600;
+  border: 2px solid var(--brand-ink);
+}
+.btn-ghost:hover { background: var(--brand-ink); color: var(--brand-cream); }
+
+.card {
+  background: white;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  border: 1px solid var(--brand-line);
+  box-shadow: 0 4px 14px rgba(26, 21, 48, 0.04);
+}
+
+.input {
+  width: 100%;
+  background: white;
+  border: 1.5px solid var(--brand-line);
+  border-radius: 0.85rem;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  color: var(--brand-ink);
+}
+.input:focus { outline: none; border-color: var(--brand-pink); box-shadow: 0 0 0 3px var(--brand-pink-50); }
+
+.label { display: block; font-weight: 600; margin-bottom: 0.4rem; color: var(--brand-ink); font-size: 0.95rem; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
