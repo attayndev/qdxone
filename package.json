@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts",
-    "db:link": "supabase link --project-ref $SUPABASE_PROJECT_REF",
+    "db:types": "supabase gen types typescript --project-id ptvcmfnlcwtiynosbmjc --schema public > src/lib/supabase/database.types.ts",
+    "db:link": "supabase link --project-ref ptvcmfnlcwtiynosbmjc",
     "db:push": "supabase db push"
   },
   "dependencies": {

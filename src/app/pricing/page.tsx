@@ -16,7 +16,7 @@ export default function PricingPage() {
             test types as your needs grow.
           </p>
 
-          <div className="mt-10 grid md:grid-cols-2 gap-6">
+          <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <PlanCard
               name="Starter"
               annualMonthly={25}
@@ -31,6 +31,7 @@ export default function PricingPage() {
               quota={25}
               highlight
             />
+            <EnterpriseCard />
           </div>
 
           <div className="card mt-10 text-center max-w-xl mx-auto">
@@ -106,6 +107,33 @@ function PlanCard({
         Overage: <strong>$3/test</strong> annual, <strong>$4/test</strong>{" "}
         monthly.
       </div>
+    </div>
+  );
+}
+
+function EnterpriseCard() {
+  return (
+    <div className="card">
+      <h3 className="text-2xl font-black tracking-tight">Enterprise</h3>
+      <div className="mt-3 flex items-baseline gap-2">
+        <span className="text-4xl font-black">Contact us</span>
+      </div>
+      <div className="mt-1 text-sm text-[color:var(--brand-ink-muted)]">
+        Custom pricing for multi-unit operators
+      </div>
+      <ul className="mt-5 space-y-2 text-[15px]">
+        <li>✓ Unlimited questionnaires per month</li>
+        <li>✓ Bring your own brandable domain</li>
+        <li>✓ Custom invitation links</li>
+        <li>✓ Scoring + risk flags + recommendations</li>
+        <li>✓ Internal notes &amp; hiring status tracking</li>
+      </ul>
+      <Link
+        href="/demo"
+        className="btn-primary w-full text-center inline-block mt-6"
+      >
+        Talk to us
+      </Link>
     </div>
   );
 }
