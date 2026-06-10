@@ -10,41 +10,22 @@ export function stripe(): Stripe {
   return cached;
 }
 
+export type PaidPlan = "starter" | "growth" | "pro";
+
 /**
- * Stripe Price IDs for each plan + cycle. Set these in your env after
- * creating the Products/Prices in your Stripe dashboard.
- *
- * The base prices are licensed (flat per period). The overage prices
- * are metered (usage-based).
+ * Stripe Price IDs per tier. All three are flat monthly per-location prices
+ * (Starter $49 / Growth $99 / Pro $249 — set the real amounts in Stripe).
+ * No metered/overage prices: the model is upgrade-the-tier, not overage.
+ * Enterprise is never self-serve, so it has no price here.
  */
-export const PRICE_IDS = {
-  starter_annual: process.env.STRIPE_PRICE_STARTER_ANNUAL,
-  starter_monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY,
-  growth_annual: process.env.STRIPE_PRICE_GROWTH_ANNUAL,
-  growth_monthly: process.env.STRIPE_PRICE_GROWTH_MONTHLY,
-  // Metered overage — annual/monthly cycles use different per-unit
-  // amounts ($3 vs $4) so they need separate Stripe Prices.
-  overage_questionnaire_annual:
-    process.env.STRIPE_PRICE_OVERAGE_QUESTIONNAIRE_ANNUAL,
-  overage_questionnaire_monthly:
-    process.env.STRIPE_PRICE_OVERAGE_QUESTIONNAIRE_MONTHLY,
-} as const;
+export const PRICE_IDS: Record<PaidPlan, string | undefined> = {
+  starter: process.env.STRIPE_PRICE_STARTER,
+  growth: process.env.STRIPE_PRICE_GROWTH,
+  pro: process.env.STRIPE_PRICE_PRO,
+};
 
-export function priceForPlan(args: {
-  plan: "starter" | "growth";
-  cycle: "annual" | "monthly";
-}): string {
-  const key = `${args.plan}_${args.cycle}` as const;
-  const id = PRICE_IDS[key];
-  if (!id) throw new Error(`Stripe price not configured: ${key}`);
-  return id;
-}
-
-export function overagePrice(cycle: "annual" | "monthly"): string {
-  const id =
-    cycle === "annual"
-      ? PRICE_IDS.overage_questionnaire_annual
-      : PRICE_IDS.overage_questionnaire_monthly;
-  if (!id) throw new Error(`Overage price not configured for ${cycle}`);
+export function priceForPlan(plan: PaidPlan): string {
+  const id = PRICE_IDS[plan];
+  if (!id) throw new Error(`Stripe price not configured: ${plan}`);
   return id;
 }

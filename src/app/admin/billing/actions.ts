@@ -19,8 +19,7 @@ export async function openBillingPortal() {
 }
 
 export async function startCheckoutForCurrentOrg(
-  plan: "starter" | "growth",
-  cycle: "annual" | "monthly"
+  plan: "starter" | "growth" | "pro"
 ) {
   const org = await currentOrgOrThrow();
   await requireMembership(org.id);
@@ -33,7 +32,6 @@ export async function startCheckoutForCurrentOrg(
     orgId: org.id,
     orgSlug: org.slug,
     plan,
-    cycle,
     email: user.email,
   });
   redirect(url);

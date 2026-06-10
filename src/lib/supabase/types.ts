@@ -22,7 +22,8 @@ export type Recommendation =
   | "borderline"
   | "do_not_interview";
 
-export type PlanTier = "trial" | "starter" | "growth" | "canceled";
+export type PlanTier = "starter" | "growth" | "pro" | "enterprise";
+export type OrgStatus = "trialing" | "active" | "past_due" | "canceled";
 export type BillingCycle = "annual" | "monthly";
 export type OrgRole = "owner" | "admin";
 export type TestTypeKey = "questionnaire" | "cashier_math" | "iq";
@@ -53,6 +54,7 @@ export interface OrganizationRow {
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   status: string;
+  monthly_assessment_quota: number | null;
   created_at: string;
   updated_at: string;
 }

@@ -30,16 +30,22 @@ export default async function AdminLayout({
               Dashboard
             </Link>
             <Link
-              href="/admin/invitations"
+              href="/admin/postings"
               className="font-semibold hover:text-[color:var(--brand-pink)]"
             >
-              Invitations
+              Postings
             </Link>
             <Link
               href="/admin/applicants"
               className="font-semibold hover:text-[color:var(--brand-pink)]"
             >
               Applicants
+            </Link>
+            <Link
+              href="/admin/locations"
+              className="font-semibold hover:text-[color:var(--brand-pink)]"
+            >
+              Store
             </Link>
             <Link
               href="/admin/settings"

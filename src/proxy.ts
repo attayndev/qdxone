@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/lib/supabase/database.types";
 import { extractSlugFromHost } from "@/lib/tenancy";
+import { authCookieDomain } from "@/lib/host";
 
 /**
  * Multi-tenant proxy.
@@ -44,7 +45,7 @@ export async function proxy(request: NextRequest) {
     "/demo",
     "/super",
   ];
-  const SUBDOMAIN_ONLY_PREFIXES = ["/admin", "/invite", "/apply"];
+  const SUBDOMAIN_ONLY_PREFIXES = ["/admin", "/invite", "/apply", "/j"];
 
   const isApex = !slug;
   const isSubdomain = !!slug;
@@ -71,8 +72,10 @@ export async function proxy(request: NextRequest) {
   ) {
     // Allow / on subdomain (it'll show the org's branded landing).
     if (path !== "/") {
-      const apexUrl = `${request.nextUrl.protocol}//${rootHost(host)}${path}`;
-      return NextResponse.redirect(apexUrl);
+      // Preserve the query string — the magic-link callback carries `?code=`
+      // and dropping it breaks the auth exchange.
+      const apexRedirect = `${request.nextUrl.protocol}//${rootHost(host)}${path}${request.nextUrl.search}`;
+      return NextResponse.redirect(apexRedirect);
     }
   }
 
@@ -86,9 +89,16 @@ export async function proxy(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(toSet) {
+          // Scope the session cookie to `.qdx.one` so one login is valid
+          // across the apex and every operator subdomain.
+          const domain = authCookieDomain(host);
           for (const { name, value, options } of toSet) {
             request.cookies.set(name, value);
-            response.cookies.set(name, value, options);
+            response.cookies.set(
+              name,
+              value,
+              domain ? { ...options, domain } : options
+            );
           }
         },
       },
@@ -109,7 +119,7 @@ export async function proxy(request: NextRequest) {
     // Confirm the user is a member of THIS org.
     const { data: org } = await supabase
       .from("organizations")
-      .select("id")
+      .select("id, status, trial_ends_at")
       .eq("slug", slug!)
       .maybeSingle();
     if (!org) {
@@ -128,6 +138,29 @@ export async function proxy(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/login";
       url.searchParams.set("error", "not_member");
+      return NextResponse.redirect(url);
+    }
+
+    // Billing gate. A lapsed org keeps its CANDIDATE funnel fully open
+    // (job posting / apply / assessment / status) — only the operator
+    // admin is restricted to the billing page until they fix payment.
+    const trialExpired =
+      org.status === "trialing" &&
+      !!org.trial_ends_at &&
+      new Date(org.trial_ends_at).getTime() < Date.now();
+    const lapsed =
+      org.status === "past_due" || org.status === "canceled" || trialExpired;
+    if (lapsed && !path.startsWith("/admin/billing")) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin/billing";
+      url.searchParams.set(
+        "reason",
+        org.status === "past_due"
+          ? "past_due"
+          : org.status === "canceled"
+            ? "canceled"
+            : "trial_expired"
+      );
       return NextResponse.redirect(url);
     }
   }

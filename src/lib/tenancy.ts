@@ -103,17 +103,15 @@ export async function requireMembership(orgId: string) {
  * Build the URL for an org's subdomain. Prefers https in production.
  */
 export function orgUrl(slug: string, path = ""): string {
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL ?? `https://${slug}.${ROOT_DOMAIN}`;
-  if (base.includes("localhost") || base.startsWith("http://")) {
-    // dev: use slug.localhost:PORT
-    try {
-      const u = new URL(base);
-      u.hostname = `${slug}.localhost`;
-      return `${u.toString().replace(/\/$/, "")}${path}`;
-    } catch {
-      // fall through
-    }
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? `https://${ROOT_DOMAIN}`;
+  try {
+    const u = new URL(base.includes("://") ? base : `https://${base}`);
+    // Prefix the org slug onto the configured apex host, port preserved:
+    //   qdx.one → slug.qdx.one · lvh.me:3000 → slug.lvh.me:3000 ·
+    //   localhost:3000 → slug.localhost:3000
+    u.hostname = `${slug}.${u.hostname}`;
+    return `${u.toString().replace(/\/$/, "")}${path}`;
+  } catch {
+    return `https://${slug}.${ROOT_DOMAIN}${path}`;
   }
-  return `https://${slug}.${ROOT_DOMAIN}${path}`;
 }

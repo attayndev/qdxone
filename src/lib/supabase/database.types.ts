@@ -149,6 +149,274 @@ export type Database = {
           },
         ]
       }
+      applications: {
+        Row: {
+          availability: Json
+          created_at: string
+          earliest_start_date: string | null
+          eligible_to_work: boolean | null
+          email: string
+          entry_source: Database["public"]["Enums"]["application_entry_source"]
+          first_name: string
+          id: string
+          job_posting_id: string | null
+          job_references: Json
+          last_name: string
+          location_id: string
+          org_id: string
+          phone: string | null
+          positions: string[]
+          postal_code: string | null
+          resume_token: string
+          resume_url: string | null
+          status: Database["public"]["Enums"]["application_status"]
+          submitted_at: string
+          updated_at: string
+          work_history: Json
+        }
+        Insert: {
+          availability?: Json
+          created_at?: string
+          earliest_start_date?: string | null
+          eligible_to_work?: boolean | null
+          email: string
+          entry_source?: Database["public"]["Enums"]["application_entry_source"]
+          first_name: string
+          id?: string
+          job_posting_id?: string | null
+          job_references?: Json
+          last_name: string
+          location_id: string
+          org_id: string
+          phone?: string | null
+          positions?: string[]
+          postal_code?: string | null
+          resume_token: string
+          resume_url?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          submitted_at?: string
+          updated_at?: string
+          work_history?: Json
+        }
+        Update: {
+          availability?: Json
+          created_at?: string
+          earliest_start_date?: string | null
+          eligible_to_work?: boolean | null
+          email?: string
+          entry_source?: Database["public"]["Enums"]["application_entry_source"]
+          first_name?: string
+          id?: string
+          job_posting_id?: string | null
+          job_references?: Json
+          last_name?: string
+          location_id?: string
+          org_id?: string
+          phone?: string | null
+          positions?: string[]
+          postal_code?: string | null
+          resume_token?: string
+          resume_url?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          submitted_at?: string
+          updated_at?: string
+          work_history?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_job_posting_id_fkey"
+            columns: ["job_posting_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_responses: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          item_kind: Database["public"]["Enums"]["assessment_item_kind"]
+          response_ms: number | null
+          sequence: number | null
+          session_id: string
+          value_int: number | null
+          value_text: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          item_kind?: Database["public"]["Enums"]["assessment_item_kind"]
+          response_ms?: number | null
+          sequence?: number | null
+          session_id: string
+          value_int?: number | null
+          value_text?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_kind?: Database["public"]["Enums"]["assessment_item_kind"]
+          response_ms?: number | null
+          sequence?: number | null
+          session_id?: string
+          value_int?: number | null
+          value_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_responses_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_sessions: {
+        Row: {
+          access_token: string
+          application_id: string | null
+          completed_at: string | null
+          created_at: string
+          delivery_channels: string[]
+          expires_at: string | null
+          form_item_ids: string[]
+          id: string
+          location_id: string | null
+          methodology_version: string
+          org_id: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["assessment_status"]
+          subject_type: Database["public"]["Enums"]["assessment_subject_type"]
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          application_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          delivery_channels?: string[]
+          expires_at?: string | null
+          form_item_ids?: string[]
+          id?: string
+          location_id?: string | null
+          methodology_version: string
+          org_id: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["assessment_status"]
+          subject_type?: Database["public"]["Enums"]["assessment_subject_type"]
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          application_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          delivery_channels?: string[]
+          expires_at?: string | null
+          form_item_ids?: string[]
+          id?: string
+          location_id?: string | null
+          methodology_version?: string
+          org_id?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["assessment_status"]
+          subject_type?: Database["public"]["Enums"]["assessment_subject_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_sessions_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_sessions_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_sessions_methodology_version_fkey"
+            columns: ["methodology_version"]
+            isOneToOne: false
+            referencedRelation: "methodology_versions"
+            referencedColumns: ["version"]
+          },
+          {
+            foreignKeyName: "assessment_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_taxonomy: {
+        Row: {
+          category_academic: string
+          category_ui: string
+          definition: string | null
+          facet: string
+          item_count: number | null
+          outcomes_predicted: string | null
+          sort_order: number
+          version: string
+          why_it_matters: string | null
+        }
+        Insert: {
+          category_academic: string
+          category_ui: string
+          definition?: string | null
+          facet: string
+          item_count?: number | null
+          outcomes_predicted?: string | null
+          sort_order?: number
+          version: string
+          why_it_matters?: string | null
+        }
+        Update: {
+          category_academic?: string
+          category_ui?: string
+          definition?: string | null
+          facet?: string
+          item_count?: number | null
+          outcomes_predicted?: string | null
+          sort_order?: number
+          version?: string
+          why_it_matters?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_taxonomy_version_fkey"
+            columns: ["version"]
+            isOneToOne: false
+            referencedRelation: "methodology_versions"
+            referencedColumns: ["version"]
+          },
+        ]
+      }
       audit_events: {
         Row: {
           applicant_id: string | null
@@ -194,6 +462,53 @@ export type Database = {
           },
           {
             foreignKeyName: "audit_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_user_id: string | null
+          created_at: string
+          id: string
+          meta: Json
+          org_id: string | null
+          reason_code: string | null
+          subject_id: string | null
+          subject_type: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json
+          org_id?: string | null
+          reason_code?: string | null
+          subject_id?: string | null
+          subject_type?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json
+          org_id?: string | null
+          reason_code?: string | null
+          subject_id?: string | null
+          subject_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -269,6 +584,184 @@ export type Database = {
           },
         ]
       }
+      item_bank_items: {
+        Row: {
+          category_academic: string
+          category_ui: string
+          facet: string
+          item_id: string
+          item_kind: Database["public"]["Enums"]["assessment_item_kind"]
+          item_text: string
+          keying: string
+          notes: string | null
+          sort_order: number
+          version: string
+        }
+        Insert: {
+          category_academic: string
+          category_ui: string
+          facet: string
+          item_id: string
+          item_kind?: Database["public"]["Enums"]["assessment_item_kind"]
+          item_text: string
+          keying: string
+          notes?: string | null
+          sort_order?: number
+          version: string
+        }
+        Update: {
+          category_academic?: string
+          category_ui?: string
+          facet?: string
+          item_id?: string
+          item_kind?: Database["public"]["Enums"]["assessment_item_kind"]
+          item_text?: string
+          keying?: string
+          notes?: string | null
+          sort_order?: number
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_bank_items_version_fkey"
+            columns: ["version"]
+            isOneToOne: false
+            referencedRelation: "methodology_versions"
+            referencedColumns: ["version"]
+          },
+        ]
+      }
+      job_postings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          location_id: string | null
+          org_id: string
+          public_token: string
+          role_type: Database["public"]["Enums"]["location_role_type"]
+          status: Database["public"]["Enums"]["job_posting_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location_id?: string | null
+          org_id: string
+          public_token: string
+          role_type?: Database["public"]["Enums"]["location_role_type"]
+          status?: Database["public"]["Enums"]["job_posting_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location_id?: string | null
+          org_id?: string
+          public_token?: string
+          role_type?: Database["public"]["Enums"]["location_role_type"]
+          status?: Database["public"]["Enums"]["job_posting_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_postings_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_postings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      locations: {
+        Row: {
+          address_line1: string | null
+          address_line2: string | null
+          city: string | null
+          created_at: string
+          id: string
+          name: string
+          org_id: string
+          postal_code: string | null
+          region: string | null
+          timezone: string
+          updated_at: string
+        }
+        Insert: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          org_id: string
+          postal_code?: string | null
+          region?: string | null
+          timezone?: string
+          updated_at?: string
+        }
+        Update: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          org_id?: string
+          postal_code?: string | null
+          region?: string | null
+          timezone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "locations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      methodology_versions: {
+        Row: {
+          created_at: string
+          io_psych_signoff_at: string | null
+          label: string
+          notes: string | null
+          status: Database["public"]["Enums"]["methodology_status"]
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          io_psych_signoff_at?: string | null
+          label: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["methodology_status"]
+          version: string
+        }
+        Update: {
+          created_at?: string
+          io_psych_signoff_at?: string | null
+          label?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["methodology_status"]
+          version?: string
+        }
+        Relationships: []
+      }
       org_members: {
         Row: {
           created_at: string
@@ -342,8 +835,9 @@ export type Database = {
           branding: Json
           created_at: string
           id: string
+          monthly_assessment_quota: number | null
           name: string
-          plan: Database["public"]["Enums"]["plan_tier"]
+          plan: string
           slug: string
           status: string
           stripe_customer_id: string | null
@@ -356,8 +850,9 @@ export type Database = {
           branding?: Json
           created_at?: string
           id?: string
+          monthly_assessment_quota?: number | null
           name: string
-          plan?: Database["public"]["Enums"]["plan_tier"]
+          plan?: string
           slug: string
           status?: string
           stripe_customer_id?: string | null
@@ -370,8 +865,9 @@ export type Database = {
           branding?: Json
           created_at?: string
           id?: string
+          monthly_assessment_quota?: number | null
           name?: string
-          plan?: Database["public"]["Enums"]["plan_tier"]
+          plan?: string
           slug?: string
           status?: string
           stripe_customer_id?: string | null
@@ -420,6 +916,70 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      scoring_config: {
+        Row: {
+          config: Json
+          created_at: string
+          version: string
+        }
+        Insert: {
+          config: Json
+          created_at?: string
+          version: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scoring_config_version_fkey"
+            columns: ["version"]
+            isOneToOne: true
+            referencedRelation: "methodology_versions"
+            referencedColumns: ["version"]
+          },
+        ]
+      }
+      screener_items: {
+        Row: {
+          format: string
+          item_id: string
+          options: Json | null
+          question: string
+          scoring_note: string | null
+          sort_order: number
+          version: string
+        }
+        Insert: {
+          format: string
+          item_id: string
+          options?: Json | null
+          question: string
+          scoring_note?: string | null
+          sort_order?: number
+          version: string
+        }
+        Update: {
+          format?: string
+          item_id?: string
+          options?: Json | null
+          question?: string
+          scoring_note?: string | null
+          sort_order?: number
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screener_items_version_fkey"
+            columns: ["version"]
+            isOneToOne: false
+            referencedRelation: "methodology_versions"
+            referencedColumns: ["version"]
           },
         ]
       }
@@ -481,6 +1041,15 @@ export type Database = {
       is_org_owner: { Args: { p_org: string }; Returns: boolean }
     }
     Enums: {
+      application_entry_source: "job_posting" | "standalone"
+      application_status:
+        | "new"
+        | "assessment_sent"
+        | "assessment_complete"
+        | "decision_made"
+      assessment_item_kind: "personality" | "screener" | "attention_check"
+      assessment_status: "sent" | "in_progress" | "complete" | "expired"
+      assessment_subject_type: "candidate" | "incumbent"
       billing_cycle: "annual" | "monthly"
       hiring_status:
         | "new"
@@ -495,6 +1064,9 @@ export type Database = {
         | "started"
         | "submitted"
         | "expired"
+      job_posting_status: "draft" | "open" | "closed"
+      location_role_type: "crew" | "shift_lead" | "gm"
+      methodology_status: "draft" | "active" | "retired"
       org_role: "owner" | "admin"
       plan_tier: "trial" | "starter" | "growth" | "canceled"
       recommendation:
@@ -630,6 +1202,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      application_entry_source: ["job_posting", "standalone"],
+      application_status: [
+        "new",
+        "assessment_sent",
+        "assessment_complete",
+        "decision_made",
+      ],
+      assessment_item_kind: ["personality", "screener", "attention_check"],
+      assessment_status: ["sent", "in_progress", "complete", "expired"],
+      assessment_subject_type: ["candidate", "incumbent"],
       billing_cycle: ["annual", "monthly"],
       hiring_status: [
         "new",
@@ -646,6 +1228,9 @@ export const Constants = {
         "submitted",
         "expired",
       ],
+      job_posting_status: ["draft", "open", "closed"],
+      location_role_type: ["crew", "shift_lead", "gm"],
+      methodology_status: ["draft", "active", "retired"],
       org_role: ["owner", "admin"],
       plan_tier: ["trial", "starter", "growth", "canceled"],
       recommendation: [

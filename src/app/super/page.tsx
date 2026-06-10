@@ -38,18 +38,18 @@ export default async function SuperAdminPage() {
 
   const totals = {
     active: list.filter((o) => o.status === "active").length,
-    trial: list.filter((o) => o.plan === "trial").length,
+    trial: list.filter((o) => o.status === "trialing").length,
     pastDue: list.filter((o) => o.status === "past_due").length,
     canceled: list.filter((o) => o.status === "canceled").length,
   };
 
-  // Rough MRR (annual cycles count as monthlyEquivalent of $25 / $50)
+  // Rough MRR — only actively-paying orgs (trialing not yet counted).
   const mrr = list.reduce((sum, o) => {
-    if (o.status !== "active" || o.plan === "trial") return sum;
-    const isMonthly = o.billing_cycle === "monthly";
-    if (o.plan === "starter") return sum + (isMonthly ? 35 : 25);
-    if (o.plan === "growth") return sum + (isMonthly ? 65 : 50);
-    return sum;
+    if (o.status !== "active") return sum;
+    if (o.plan === "starter") return sum + 49;
+    if (o.plan === "growth") return sum + 99;
+    if (o.plan === "pro") return sum + 249;
+    return sum; // enterprise: custom pricing, not counted
   }, 0);
 
   return (

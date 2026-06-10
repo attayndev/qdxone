@@ -4,10 +4,8 @@ import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
 import { createClient as createServerSupa } from "@/lib/supabase/server";
 import { ROOT_DOMAIN, isReservedSubdomain, orgUrl } from "@/lib/tenancy";
-import type {
-  BillingCycle,
-  PlanTier,
-} from "@/lib/supabase/types";
+import { apexUrl } from "@/lib/host";
+import type { BillingCycle } from "@/lib/supabase/types";
 
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$/;
 
@@ -19,8 +17,7 @@ const SignupSchema = z.object({
     .min(2)
     .max(30)
     .regex(SLUG_RE, "Letters, numbers, and dashes only"),
-  plan: z.enum(["starter", "growth"]),
-  cycle: z.enum(["annual", "monthly"]),
+  plan: z.enum(["starter", "growth", "pro"]),
 });
 
 export type SignupResult =
@@ -49,7 +46,6 @@ export async function signup(
     email: formData.get("email"),
     slug: (formData.get("slug") ?? "").toString().toLowerCase().trim(),
     plan: formData.get("plan"),
-    cycle: formData.get("cycle"),
   });
   if (!parsed.success) {
     return {
@@ -75,14 +71,13 @@ export async function signup(
     return { ok: false, error: "That subdomain is taken.", field: "slug" };
   }
 
-  const isAnnual = v.cycle === "annual";
-  const trialEnds = isAnnual
-    ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-    : null;
-  const initialPlan: PlanTier = isAnnual ? "trial" : v.plan;
-  const billingCycle: BillingCycle = v.cycle;
-  const monthlyQuota = v.plan === "growth" ? 25 : 10;
-  const overageCents = isAnnual ? 300 : 400;
+  // Everyone gets a 30-day trial with a card captured at signup. Monthly
+  // per-location billing. The org trigger derives monthly_assessment_quota
+  // from the plan, so we don't set it here.
+  const trialEnds = new Date(
+    Date.now() + 30 * 24 * 60 * 60 * 1000
+  ).toISOString();
+  const billingCycle: BillingCycle = "monthly";
 
   const { data: org, error: oerr } = await supa
     .from("organizations")
@@ -90,10 +85,10 @@ export async function signup(
       slug: v.slug,
       name: v.name,
       branding: {},
-      plan: initialPlan,
+      plan: v.plan,
       billing_cycle: billingCycle,
       trial_ends_at: trialEnds,
-      status: "active",
+      status: "trialing",
     })
     .select("id, slug")
     .single();
@@ -102,32 +97,24 @@ export async function signup(
     return { ok: false, error: "Could not create organization. Try again." };
   }
 
-  // Seed the questionnaire test type for this org with the chosen quota.
-  await supa.from("org_test_types").insert({
-    org_id: org.id,
-    type_key: "questionnaire",
-    monthly_quota: monthlyQuota,
-    overage_unit_cents: overageCents,
-    enabled: true,
-  });
-
   await supa.from("audit_events").insert({
     org_id: org.id,
     kind: "org.created",
     meta: {
       plan: v.plan,
-      cycle: v.cycle,
       requested_by: v.email,
     },
   });
 
   // Send the magic link. The email confirmation completes signup by
-  // adding the user as the org owner (handled in /auth/callback).
-  // We carry the new org's id in the redirect's `org` param so the
-  // callback can promote them.
-  const callbackUrl = orgUrl(
-    org.slug,
-    `/auth/callback?signup=${encodeURIComponent(org.id)}&next=${encodeURIComponent("/admin")}`
+  // adding the user as the org owner (handled in /auth/callback, which
+  // reads the org id from the user's auth metadata — never a URL param).
+  // The callback lands on the APEX: a subdomain /auth/callback gets
+  // zone-redirected by the proxy, and the session cookie is scoped to
+  // `.qdx.one`, so the apex callback sets it once and it carries to the
+  // operator's subdomain admin.
+  const callbackUrl = apexUrl(
+    `/auth/callback?next=${encodeURIComponent("/admin")}`
   );
 
   // Send via the regular auth client so Supabase emails the OTP itself.
@@ -149,17 +136,16 @@ export async function signup(
     };
   }
 
-  // For monthly signups, also kick off Stripe Checkout in parallel —
-  // they'll be billed before they ever land on the admin dashboard.
+  // Kick off Stripe Checkout to capture the card for the 30-day trial.
+  // Skipped automatically in dev when Stripe isn't configured.
   let checkoutUrl: string | undefined;
-  if (!isAnnual && process.env.STRIPE_SECRET_KEY) {
+  if (process.env.STRIPE_SECRET_KEY) {
     try {
       const { createCheckoutSessionForOrg } = await import("@/lib/billing");
       checkoutUrl = await createCheckoutSessionForOrg({
         orgId: org.id,
         orgSlug: org.slug,
         plan: v.plan,
-        cycle: v.cycle,
         email: v.email,
       });
     } catch (e) {

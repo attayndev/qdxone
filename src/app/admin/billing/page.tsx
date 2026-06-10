@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { currentOrg } from "@/lib/tenancy";
-import { getUsageForPeriod } from "@/lib/usage";
+import { adminClient } from "@/lib/supabase/admin";
 import {
   openBillingPortal,
   startCheckoutForCurrentOrg,
@@ -8,7 +8,11 @@ import {
 import type { OrganizationRow } from "@/lib/supabase/types";
 
 interface PageProps {
-  searchParams: Promise<{ success?: string; canceled?: string }>;
+  searchParams: Promise<{
+    success?: string;
+    canceled?: string;
+    reason?: string;
+  }>;
 }
 
 export default async function BillingPage({ searchParams }: PageProps) {
@@ -16,77 +20,91 @@ export default async function BillingPage({ searchParams }: PageProps) {
   const org = await currentOrg();
   if (!org) notFound();
 
-  const usage = await getUsageForPeriod({
-    orgId: org.id,
-    typeKey: "questionnaire",
-  });
+  // Completed candidate assessments this calendar month = the billable unit.
+  const now = new Date();
+  const monthStart = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+  ).toISOString();
+  const supa = adminClient();
+  const { count } = await supa
+    .from("assessment_sessions")
+    .select("*", { count: "exact", head: true })
+    .eq("org_id", org.id)
+    .eq("subject_type", "candidate")
+    .eq("status", "complete")
+    .gte("completed_at", monthStart);
 
-  const cycle = org.billing_cycle ?? "annual";
-  const overagePerCents = cycle === "monthly" ? 400 : 300;
-  const overageCost = (usage.overage * overagePerCents) / 100;
-  const trialEnds = org.trial_ends_at
-    ? new Date(org.trial_ends_at)
-    : null;
-  const inTrial = org.plan === "trial" && trialEnds && trialEnds > new Date();
+  const used = count ?? 0;
+  const quota = org.monthly_assessment_quota; // null = unlimited
+  const trialEnds = org.trial_ends_at ? new Date(org.trial_ends_at) : null;
+  const inTrial = org.status === "trialing" && trialEnds && trialEnds > now;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-black tracking-tight">Billing & usage</h1>
         <p className="text-[color:var(--brand-ink-muted)]">
-          Plan, usage this month, and projected charges.
+          Plan, completed assessments this month, and trial status.
         </p>
       </div>
 
+      {sp.reason && (
+        <p className="card bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] font-semibold">
+          {sp.reason === "trial_expired"
+            ? "Your free trial has ended. Add a plan to keep reviewing candidates."
+            : sp.reason === "past_due"
+              ? "Your last payment failed. Update your card to restore access."
+              : "Your subscription was canceled. Resubscribe to continue."}
+        </p>
+      )}
       {sp.success && (
         <p className="card text-emerald-700 bg-emerald-50">
-          Subscription activated. Welcome aboard.
+          You&apos;re all set — trial started. Welcome aboard.
         </p>
       )}
-      {sp.canceled && (
-        <p className="card">
-          Checkout canceled — you can finish later.
-        </p>
-      )}
+      {sp.canceled && <p className="card">Checkout canceled — you can finish later.</p>}
 
       <div className="grid md:grid-cols-3 gap-4">
         <Stat label="Plan" value={planLabel(org)} />
-        <Stat label="Cycle" value={cycle === "monthly" ? "Monthly" : "Annual"} />
+        <Stat label="Status" value={statusLabel(org.status)} />
         <Stat
-          label={inTrial ? "Trial ends" : "Status"}
+          label={inTrial ? "Trial ends" : "Member since"}
           value={
             inTrial && trialEnds
               ? trialEnds.toLocaleDateString()
-              : org.status
+              : new Date(org.created_at).toLocaleDateString()
           }
         />
       </div>
 
       <div className="card">
         <h2 className="font-extrabold text-lg">This month</h2>
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Stat label="Used" value={usage.used} small />
-          <Stat label="Included" value={usage.quota} small />
-          <Stat label="Overage" value={usage.overage} small />
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <Stat label="Completed assessments" value={used} small />
           <Stat
-            label="Overage charges"
-            value={`$${overageCost.toFixed(2)}`}
+            label="Included"
+            value={quota === null ? "Unlimited" : quota}
+            small
+          />
+          <Stat
+            label="Remaining"
+            value={quota === null ? "∞" : Math.max(0, quota - used)}
             small
           />
         </div>
-        <p className="mt-3 text-xs text-[color:var(--brand-ink-muted)]">
-          Each overage test bills at $
-          {(overagePerCents / 100).toFixed(2)} on the{" "}
-          {cycle === "monthly" ? "monthly" : "annual"} cycle.
-        </p>
+        {quota !== null && used >= quota && (
+          <p className="mt-3 text-sm text-[color:var(--brand-pink-600)] font-semibold">
+            You&apos;ve reached your monthly assessments. Candidates can still
+            apply — upgrade for more headroom.
+          </p>
+        )}
       </div>
 
       <div className="card flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-extrabold text-lg">Manage billing</h2>
           <p className="text-sm text-[color:var(--brand-ink-muted)]">
-            Update payment method, cancel, or download invoices in the
-            Stripe-hosted portal.
+            Update your card, change plan, or download invoices.
           </p>
         </div>
         {org.stripe_customer_id ? (
@@ -97,30 +115,36 @@ export default async function BillingPage({ searchParams }: PageProps) {
           </form>
         ) : (
           <div className="flex flex-wrap gap-2">
-            <form
-              action={async () => {
-                "use server";
-                await startCheckoutForCurrentOrg("starter", cycle);
-              }}
-            >
-              <button type="submit" className="btn-primary">
-                Subscribe — Starter
-              </button>
-            </form>
-            <form
-              action={async () => {
-                "use server";
-                await startCheckoutForCurrentOrg("growth", cycle);
-              }}
-            >
-              <button type="submit" className="btn-ghost">
-                Subscribe — Growth
-              </button>
-            </form>
+            <SubscribeButton plan="starter" label="Starter — 25/mo" primary />
+            <SubscribeButton plan="growth" label="Growth — 100/mo" />
+            <SubscribeButton plan="pro" label="Pro — unlimited" />
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function SubscribeButton({
+  plan,
+  label,
+  primary,
+}: {
+  plan: "starter" | "growth" | "pro";
+  label: string;
+  primary?: boolean;
+}) {
+  return (
+    <form
+      action={async () => {
+        "use server";
+        await startCheckoutForCurrentOrg(plan);
+      }}
+    >
+      <button type="submit" className={primary ? "btn-primary" : "btn-ghost"}>
+        {label}
+      </button>
+    </form>
   );
 }
 
@@ -146,8 +170,26 @@ function Stat({
 }
 
 function planLabel(org: OrganizationRow): string {
-  if (org.plan === "trial") return "Trial";
-  if (org.plan === "starter") return "Starter (10/mo)";
-  if (org.plan === "growth") return "Growth (25/mo)";
-  return "Canceled";
+  switch (org.plan) {
+    case "starter":
+      return "Starter (25/mo)";
+    case "growth":
+      return "Growth (100/mo)";
+    case "pro":
+      return "Pro (unlimited)";
+    case "enterprise":
+      return "Enterprise";
+    default:
+      return "—";
+  }
+}
+
+function statusLabel(status: string): string {
+  return status === "trialing"
+    ? "Trialing"
+    : status === "active"
+      ? "Active"
+      : status === "past_due"
+        ? "Past due"
+        : "Canceled";
 }
