@@ -1,16 +1,17 @@
 import { adminClient } from "./supabase/admin";
-import { stripe, priceForPlan, overagePrice } from "./stripe";
+import { stripe, priceForPlan, type PaidPlan } from "./stripe";
 import { orgUrl } from "./tenancy";
 
 /**
- * Create a Stripe Checkout Session for a brand-new monthly subscriber.
- * Returns the redirect URL.
+ * Create a Stripe Checkout Session for a new subscriber. Monthly per-location
+ * subscription with a 30-day trial; the card is captured at checkout
+ * (`payment_method_collection: 'always'`) and auto-charges when the trial
+ * ends. No metered/overage line item — the model is upgrade-the-tier.
  */
 export async function createCheckoutSessionForOrg(args: {
   orgId: string;
   orgSlug: string;
-  plan: "starter" | "growth";
-  cycle: "annual" | "monthly";
+  plan: PaidPlan;
   email: string;
 }): Promise<string> {
   const supa = adminClient();
@@ -44,24 +45,14 @@ export async function createCheckoutSessionForOrg(args: {
     customer: customerId,
     success_url: successUrl,
     cancel_url: cancelUrl,
-    line_items: [
-      { price: priceForPlan(args), quantity: 1 },
-      { price: overagePrice(args.cycle) }, // metered
-    ],
+    line_items: [{ price: priceForPlan(args.plan), quantity: 1 }],
+    // Capture the card during the 30-day trial so it auto-converts.
+    payment_method_collection: "always",
     subscription_data: {
-      metadata: {
-        org_id: args.orgId,
-        plan: args.plan,
-        cycle: args.cycle,
-      },
-      // Annual plans get a 7-day trial. Monthly plans don't.
-      trial_period_days: args.cycle === "annual" ? 7 : undefined,
+      trial_period_days: 30,
+      metadata: { org_id: args.orgId, plan: args.plan },
     },
-    metadata: {
-      org_id: args.orgId,
-      plan: args.plan,
-      cycle: args.cycle,
-    },
+    metadata: { org_id: args.orgId, plan: args.plan },
   });
   if (!session.url) throw new Error("Stripe did not return a checkout URL");
   return session.url;

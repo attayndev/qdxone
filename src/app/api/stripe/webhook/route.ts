@@ -5,6 +5,19 @@ import { adminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
+const PAID_PLANS = ["starter", "growth", "pro"];
+
+function quotaForPlan(plan: string): number | null {
+  return plan === "starter" ? 25 : plan === "growth" ? 100 : null; // pro = unlimited
+}
+
+function mapStatus(s: Stripe.Subscription.Status): string {
+  if (s === "trialing") return "trialing";
+  if (s === "active") return "active";
+  if (s === "past_due" || s === "unpaid") return "past_due";
+  return "canceled";
+}
+
 /**
  * Stripe webhook handler. Set STRIPE_WEBHOOK_SECRET to the value from
  *   stripe listen --forward-to <host>/api/stripe/webhook
@@ -45,39 +58,25 @@ export async function POST(request: NextRequest) {
             ? session.subscription
             : session.subscription?.id;
         if (!subId) break;
-        const sub = await stripe().subscriptions.retrieve(subId, {
-          expand: ["items.data.price"],
-        });
+        const sub = await stripe().subscriptions.retrieve(subId);
+        const plan = PAID_PLANS.includes(session.metadata?.plan ?? "")
+          ? (session.metadata!.plan as string)
+          : "starter";
 
         await supa
           .from("organizations")
           .update({
             stripe_subscription_id: sub.id,
-            plan:
-              session.metadata?.plan === "growth" ? "growth" : "starter",
-            billing_cycle:
-              session.metadata?.cycle === "monthly" ? "monthly" : "annual",
-            status: "active",
+            plan,
+            monthly_assessment_quota: quotaForPlan(plan),
+            status: mapStatus(sub.status),
           })
           .eq("id", orgId);
-
-        // Find the metered overage item and persist its id so we can
-        // increment usage against it later.
-        const overageItem = sub.items.data.find(
-          (it) => it.price.recurring?.usage_type === "metered"
-        );
-        if (overageItem) {
-          await supa
-            .from("org_test_types")
-            .update({ stripe_subscription_item_id: overageItem.id })
-            .eq("org_id", orgId)
-            .eq("type_key", "questionnaire");
-        }
 
         await supa.from("audit_events").insert({
           org_id: orgId,
           kind: "billing.checkout_completed",
-          meta: { subscription_id: sub.id },
+          meta: { subscription_id: sub.id, plan },
         });
         break;
       }
@@ -87,12 +86,7 @@ export async function POST(request: NextRequest) {
         const sub = event.data.object as Stripe.Subscription;
         const orgId = sub.metadata?.org_id;
         if (!orgId) break;
-        const status =
-          sub.status === "canceled" || sub.status === "unpaid"
-            ? "canceled"
-            : sub.status === "past_due"
-              ? "past_due"
-              : "active";
+        const status = mapStatus(sub.status);
         await supa
           .from("organizations")
           .update({ status, stripe_subscription_id: sub.id })

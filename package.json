@@ -7,14 +7,15 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "db:types": "supabase gen types typescript --project-id ptvcmfnlcwtiynosbmjc --schema public > src/lib/supabase/database.types.ts",
-    "db:link": "supabase link --project-ref ptvcmfnlcwtiynosbmjc",
+    "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts",
+    "db:link": "supabase link --project-ref tctukuzzjxihmqqeoifz",
     "db:push": "supabase db push"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.104.1",
-    "next": "16.2.4",
+    "next": "^16.2.9",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "resend": "^6.12.2",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "supabase": "^2.95.3",

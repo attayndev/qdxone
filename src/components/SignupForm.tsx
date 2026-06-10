@@ -19,19 +19,31 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
   if (result?.ok) {
     return (
       <div>
-        <h2 className="font-extrabold text-xl">Check your email</h2>
-        {result.magicLinkSent ? (
-          <p className="mt-2 text-[color:var(--brand-ink-muted)]">
-            We sent a sign-in link. After you click it, you&apos;ll land in
-            your new admin dashboard.
-          </p>
+        <h2 className="font-extrabold text-xl">You&apos;re almost in</h2>
+        {result.checkoutUrl ? (
+          <>
+            <p className="mt-2 text-[color:var(--brand-ink-muted)]">
+              Add a card to start your <strong>30-day free trial</strong>.
+              You won&apos;t be charged until it ends, and you can cancel
+              anytime.
+            </p>
+            <a href={result.checkoutUrl} className="btn-primary mt-4 inline-block">
+              Add card &amp; start trial
+            </a>
+          </>
         ) : (
           <p className="mt-2 text-[color:var(--brand-ink-muted)]">
-            Your organization is created, but we couldn&apos;t send the
-            email automatically. You can sign in here:
+            Your workspace is created. Your 30-day trial has started.
           </p>
         )}
-        <p className="mt-3 text-sm font-mono break-all">{result.orgUrl}</p>
+        <p className="mt-4 text-sm text-[color:var(--brand-ink-muted)]">
+          {result.magicLinkSent
+            ? "We also emailed you a sign-in link — click it to reach your dashboard."
+            : "Sign in here when you're ready:"}
+        </p>
+        {!result.magicLinkSent && (
+          <p className="mt-1 text-sm font-mono break-all">{result.orgUrl}</p>
+        )}
       </div>
     );
   }
@@ -87,19 +99,16 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
       </div>
 
       <fieldset>
-        <legend className="label">Plan</legend>
-        <div className="grid grid-cols-2 gap-2">
-          <RadioCard name="plan" value="starter" defaultChecked label="Starter" sub="10 questionnaires/mo" />
-          <RadioCard name="plan" value="growth" label="Growth" sub="25 questionnaires/mo" />
+        <legend className="label">Plan — 30-day free trial on all</legend>
+        <div className="grid grid-cols-3 gap-2">
+          <RadioCard name="plan" value="starter" defaultChecked label="Starter" sub="25 assessments/mo" />
+          <RadioCard name="plan" value="growth" label="Growth" sub="100 assessments/mo" />
+          <RadioCard name="plan" value="pro" label="Pro" sub="Unlimited" />
         </div>
-      </fieldset>
-
-      <fieldset>
-        <legend className="label">Billing cycle</legend>
-        <div className="grid grid-cols-2 gap-2">
-          <RadioCard name="cycle" value="annual" defaultChecked label="Annual" sub="7-day free trial · best price" />
-          <RadioCard name="cycle" value="monthly" label="Monthly" sub="No trial · pay on signup" />
-        </div>
+        <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
+          Monthly, per location. Card captured now, first charge after your
+          30-day trial. Bigger or multi-brand? <span className="font-semibold">Enterprise</span> is custom — talk to us.
+        </p>
       </fieldset>
 
       {result && !result.ok && (
