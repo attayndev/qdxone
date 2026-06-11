@@ -8,8 +8,8 @@ import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
 
 const PostingSchema = z.object({
-  title: z.string().min(1, "Title is required").max(120),
-  role_type: z.enum(["crew", "shift_lead", "gm"]),
+  // The posting is for a role the operator defined (e.g. "Team Member").
+  title: z.string().min(1, "Pick a role").max(120),
 });
 
 export type CreatePostingResult =
@@ -24,7 +24,6 @@ export async function createPosting(
 
   const parsed = PostingSchema.safeParse({
     title: formData.get("title") ?? "",
-    role_type: formData.get("role_type") ?? "crew",
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -43,7 +42,6 @@ export async function createPosting(
       org_id: org.id,
       location_id: location.id,
       title: parsed.data.title,
-      role_type: parsed.data.role_type,
       public_token: token,
       status: "open",
       created_by: m.user_id,
@@ -61,7 +59,7 @@ export async function createPosting(
     actor_user_id: m.user_id,
     action: "posting.created",
     subject_type: "job_posting",
-    meta: { title: parsed.data.title, role_type: parsed.data.role_type },
+    meta: { role: parsed.data.title },
   });
 
   revalidatePath("/admin/postings");

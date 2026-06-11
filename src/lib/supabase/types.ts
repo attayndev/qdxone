@@ -41,6 +41,8 @@ export interface OrgBranding {
   // Custom rules to substitute into questionnaire prompts
   custom_rule_text?: string;
   custom_rule_label?: string;
+  // Operator-defined role names used when creating job postings.
+  roles?: string[];
 }
 
 export interface OrganizationRow {

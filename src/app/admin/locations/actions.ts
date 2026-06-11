@@ -63,3 +63,31 @@ export async function saveLocation(
   revalidatePath("/admin/postings");
   return { ok: true };
 }
+
+/**
+ * Save the org's role list (operator-defined; e.g. Team Member, Shift Lead).
+ * Postings pick from these, and the chosen role is recorded on each
+ * application so scoring/benchmarks can be computed per role later.
+ */
+export async function saveRoles(
+  roles: string[]
+): Promise<SaveLocationResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+
+  const clean = Array.from(
+    new Set(roles.map((r) => r.trim()).filter(Boolean))
+  ).slice(0, 25);
+  if (clean.length === 0) {
+    return { ok: false, error: "Add at least one role." };
+  }
+
+  const supa = adminClient();
+  const branding = { ...(org.branding ?? {}), roles: clean };
+  await supa.from("organizations").update({ branding }).eq("id", org.id);
+
+  revalidatePath("/admin/locations");
+  revalidatePath("/admin/postings");
+  revalidatePath("/");
+  return { ok: true };
+}

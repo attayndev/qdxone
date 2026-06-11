@@ -1,49 +1,41 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { BrandHeader, BrandFooter } from "@/components/Brand";
-import { lookupInvitation, bumpInvitationStatus } from "@/lib/invitations";
-import Questionnaire from "@/components/Questionnaire";
-import { buildQuestions } from "@/lib/questionnaire/schema";
-import { submitApplication } from "@/app/apply/[token]/actions";
 import { currentOrg } from "@/lib/tenancy";
+import { adminClient } from "@/lib/supabase/admin";
+import ApplicationForm from "@/components/ApplicationForm";
+import { submitApplication } from "@/app/apply/[token]/actions";
 
 interface PageProps {
   params: Promise<{ token: string }>;
 }
 
+/**
+ * Inbound application form, keyed on a job posting's public token.
+ * (Replaces the legacy invitation-based flow.)
+ */
 export default async function ApplyPage({ params }: PageProps) {
   const { token } = await params;
   const org = await currentOrg();
   if (!org) notFound();
-  const result = await lookupInvitation(token, org.id);
 
-  if (!result.ok) {
-    if (result.reason === "submitted") {
-      redirect(`/apply/${encodeURIComponent(token)}/thank-you`);
-    }
-    notFound();
-  }
-
-  await bumpInvitationStatus(token, "started");
-  const inv = result.invitation;
-  const questions = buildQuestions(org.branding);
+  const supa = adminClient();
+  const { data: posting } = await supa
+    .from("job_postings")
+    .select("title, status")
+    .eq("public_token", token)
+    .eq("org_id", org.id)
+    .maybeSingle();
+  if (!posting || posting.status !== "open") notFound();
 
   return (
     <>
       <BrandHeader org={org} />
       <main className="flex-1 px-4 sm:px-6 py-6 sm:py-10">
-        <div className="max-w-xl mx-auto">
-          <Questionnaire
-            token={token}
-            questions={questions}
-            prefill={{
-              first_name: inv.first_name ?? "",
-              last_name: inv.last_name ?? "",
-              email: inv.email ?? "",
-              phone: inv.phone ?? "",
-            }}
-            submitAction={submitApplication}
-          />
-        </div>
+        <ApplicationForm
+          token={token}
+          postingTitle={posting.title}
+          submitAction={submitApplication}
+        />
       </main>
       <BrandFooter org={org} />
     </>

@@ -6,28 +6,23 @@ import { createPosting, setPostingStatus } from "@/app/admin/postings/actions";
 export type PostingView = {
   id: string;
   title: string;
-  role_type: "crew" | "shift_lead" | "gm";
   status: "draft" | "open" | "closed";
   url: string;
   qrSvg: string;
 };
 
-const ROLE_LABELS: Record<PostingView["role_type"], string> = {
-  crew: "Crew",
-  shift_lead: "Shift Lead",
-  gm: "General Manager",
-};
-
 export default function PostingsClient({
   postings,
   hasLocation,
+  roles,
 }: {
   postings: PostingView[];
   hasLocation: boolean;
+  roles: string[];
 }) {
   return (
     <div className="grid lg:grid-cols-[1fr_2fr] gap-6 mt-6">
-      <CreateForm hasLocation={hasLocation} />
+      <CreateForm hasLocation={hasLocation} roles={roles} />
       <div className="card">
         <h2 className="font-extrabold text-lg">Your postings</h2>
         <ul className="mt-3 space-y-4">
@@ -45,7 +40,13 @@ export default function PostingsClient({
   );
 }
 
-function CreateForm({ hasLocation }: { hasLocation: boolean }) {
+function CreateForm({
+  hasLocation,
+  roles,
+}: {
+  hasLocation: boolean;
+  roles: string[];
+}) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -61,7 +62,8 @@ function CreateForm({ hasLocation }: { hasLocation: boolean }) {
     <div className="card">
       <h2 className="font-extrabold text-lg">New posting</h2>
       <p className="text-[color:var(--brand-ink-muted)] text-sm mt-1">
-        Creates a shareable link + QR code for in-store flyers.
+        Pick a role to hire for — you get a shareable link + QR for in-store
+        flyers.
       </p>
       {!hasLocation && (
         <p className="mt-3 text-sm text-[color:var(--brand-pink-600)]">
@@ -70,21 +72,17 @@ function CreateForm({ hasLocation }: { hasLocation: boolean }) {
       )}
       <form action={onSubmit} className="mt-4 space-y-3">
         <div>
-          <label className="label">Title</label>
-          <input
-            className="input"
-            name="title"
-            placeholder="e.g. Crew Member — Weekends"
-            required
-          />
-        </div>
-        <div>
           <label className="label">Role</label>
-          <select className="input" name="role_type" defaultValue="crew">
-            <option value="crew">Crew</option>
-            <option value="shift_lead">Shift Lead</option>
-            <option value="gm">General Manager</option>
+          <select className="input" name="title" defaultValue={roles[0] ?? ""}>
+            {roles.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
           </select>
+          <p className="mt-1 text-xs text-[color:var(--brand-ink-muted)]">
+            Edit your role list in Store setup.
+          </p>
         </div>
         <button
           type="submit"
@@ -108,9 +106,7 @@ function PostingItem({ posting }: { posting: PostingView }) {
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <div className="font-semibold">{posting.title}</div>
-          <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5 flex gap-2">
-            <span>{ROLE_LABELS[posting.role_type]}</span>
-            <span>·</span>
+          <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
             <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)]">
               {posting.status}
             </span>
