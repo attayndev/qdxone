@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
+export const metadata = {
+  title: "QDX pricing — per-location restaurant hiring",
+  description:
+    "Every plan has the full platform. Pay for the volume of completed assessments that fits your restaurant. 30-day free trial.",
+};
+
 export default function PricingPage() {
   return (
     <>
@@ -9,46 +15,35 @@ export default function PricingPage() {
       <main className="flex-1 px-4 sm:px-6 py-12">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-center">
-            Simple pricing.
+            Simple, per-location pricing.
           </h1>
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
-            Pay annual to save 30% and get a 7-day free trial. Add on extra
-            test types as your needs grow.
+            Every plan includes the full platform. You only pay for completed
+            assessments — pick the volume that fits your restaurant. 30-day free
+            trial on all of them.
           </p>
 
-          <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <PlanCard
-              name="Starter"
-              annualMonthly={25}
-              monthly={35}
-              quota={10}
-              highlight={false}
-            />
-            <PlanCard
-              name="Growth"
-              annualMonthly={50}
-              monthly={65}
-              quota={25}
-              highlight
-            />
+          <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <PlanCard name="Starter" price={49} quota="25" />
+            <PlanCard name="Growth" price={99} quota="100" highlight />
+            <PlanCard name="Pro" price={249} quota="Unlimited" />
             <EnterpriseCard />
           </div>
 
-          <div className="card mt-10 text-center max-w-xl mx-auto">
-            <h2 className="font-extrabold text-lg">Add-on test types</h2>
-            <p className="text-[color:var(--brand-ink-muted)] mt-2 text-sm">
-              IQ, Cashier Math, and more (coming soon).{" "}
-              <strong>$10/mo annual</strong> or <strong>$15/mo monthly</strong>{" "}
-              per type, includes 5 tests/month.
-            </p>
-          </div>
+          <p className="mt-6 text-center text-sm text-[color:var(--brand-ink-muted)] max-w-2xl mx-auto">
+            A completed assessment is the billable unit — a candidate who
+            applies but doesn&apos;t finish costs nothing. Hit your monthly
+            number and candidates can still apply; you just upgrade for more
+            headroom. No overage surprises.
+          </p>
 
           <div className="mt-12 text-center">
             <Link href="/signup" className="btn-primary">
-              Start a 7-day trial
+              Start free
             </Link>
             <p className="mt-3 text-xs text-[color:var(--brand-ink-muted)]">
-              Trial available on annual plans. Monthly bills on signup.
+              30-day free trial. Card captured at signup, first charge after
+              the trial. Cancel anytime.
             </p>
           </div>
         </div>
@@ -58,26 +53,31 @@ export default function PricingPage() {
   );
 }
 
+const FEATURES = [
+  "Branded hiring page + QR codes",
+  "Configurable application form & roles",
+  "5-minute validated assessment",
+  "Verbal bands + fit recommendation",
+  "Quality + screener flags",
+  "Candidate pipeline & review",
+];
+
 function PlanCard({
   name,
-  annualMonthly,
-  monthly,
+  price,
   quota,
   highlight,
 }: {
   name: string;
-  annualMonthly: number;
-  monthly: number;
-  quota: number;
-  highlight: boolean;
+  price: number;
+  quota: string;
+  highlight?: boolean;
 }) {
   return (
     <div
       className={[
         "card",
-        highlight
-          ? "border-2 border-[color:var(--brand-pink)] relative"
-          : "",
+        highlight ? "border-2 border-[color:var(--brand-pink)] relative" : "",
       ].join(" ")}
     >
       {highlight && (
@@ -87,26 +87,20 @@ function PlanCard({
       )}
       <h3 className="text-2xl font-black tracking-tight">{name}</h3>
       <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-4xl font-black">${annualMonthly}</span>
-        <span className="text-[color:var(--brand-ink-muted)]">
-          /mo billed annually
+        <span className="text-4xl font-black">${price}</span>
+        <span className="text-[color:var(--brand-ink-muted)] text-sm">
+          /mo per location
         </span>
       </div>
-      <div className="mt-1 text-sm text-[color:var(--brand-ink-muted)]">
-        or <strong>${monthly}/mo</strong> billed monthly
+      <div className="mt-1 text-sm font-semibold text-[color:var(--brand-pink-600)]">
+        {quota} completed assessments / mo
       </div>
       <ul className="mt-5 space-y-2 text-[15px]">
-        <li>✓ {quota} questionnaires per month</li>
-        <li>✓ Branded subdomain on qdx.one</li>
-        <li>✓ Custom invitation links</li>
-        <li>✓ Scoring + risk flags + recommendations</li>
-        <li>✓ Internal notes &amp; hiring status tracking</li>
-        <li>✓ 7-day free trial (annual plans only)</li>
+        {FEATURES.map((f) => (
+          <li key={f}>✓ {f}</li>
+        ))}
+        <li>✓ 30-day free trial</li>
       </ul>
-      <div className="mt-5 text-xs text-[color:var(--brand-ink-muted)]">
-        Overage: <strong>$3/test</strong> annual, <strong>$4/test</strong>{" "}
-        monthly.
-      </div>
     </div>
   );
 }
@@ -116,17 +110,17 @@ function EnterpriseCard() {
     <div className="card">
       <h3 className="text-2xl font-black tracking-tight">Enterprise</h3>
       <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-4xl font-black">Contact us</span>
+        <span className="text-3xl font-black">Contact us</span>
       </div>
       <div className="mt-1 text-sm text-[color:var(--brand-ink-muted)]">
-        Custom pricing for multi-unit operators
+        For brands & large multi-unit groups
       </div>
       <ul className="mt-5 space-y-2 text-[15px]">
-        <li>✓ Unlimited questionnaires per month</li>
-        <li>✓ Bring your own brandable domain</li>
-        <li>✓ Custom invitation links</li>
-        <li>✓ Scoring + risk flags + recommendations</li>
-        <li>✓ Internal notes &amp; hiring status tracking</li>
+        <li>✓ Everything in Pro, unlimited</li>
+        <li>✓ Brand-level rollup reporting</li>
+        <li>✓ Multi-location & franchise hierarchy</li>
+        <li>✓ Bring your own domain</li>
+        <li>✓ SSO & dedicated support</li>
       </ul>
       <Link
         href="/demo"

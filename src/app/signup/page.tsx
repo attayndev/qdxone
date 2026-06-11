@@ -13,7 +13,7 @@ export default function SignupPage() {
             Start hiring smarter.
           </h1>
           <p className="text-[color:var(--brand-ink-muted)] mt-2">
-            7-day free trial on annual plans. Pick a name, claim your
+            30-day free trial on every plan. Pick a name, claim your
             subdomain, and we&apos;ll email you a magic link to finish.
           </p>
 

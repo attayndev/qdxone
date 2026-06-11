@@ -30,13 +30,11 @@ export type SignupResult =
   | { ok: false; error: string; field?: string };
 
 /**
- * Self-serve signup. Creates the organization in 'trial' state on
- * annual plans (7-day trial) or 'starter'/'growth' on monthly (no trial,
- * Stripe billing required). Sends a magic link to the email; on
- * callback the user is added as the org owner and lands in the admin
- * dashboard at the org's subdomain.
- *
- * Phase 3 will hand off to Stripe Checkout for monthly plans.
+ * Self-serve signup. Creates the organization on the chosen plan in
+ * 'trialing' status with a 30-day trial. Sends a magic link to the email;
+ * on callback the user is added as the org owner and lands in the admin
+ * dashboard at the org's subdomain. Stripe Checkout (card captured for the
+ * trial) is kicked off in parallel when configured.
  */
 export async function signup(
   formData: FormData

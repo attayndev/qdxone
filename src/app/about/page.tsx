@@ -4,7 +4,7 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 export const metadata = {
   title: "About QDX — built by an operator, for operators",
   description:
-    "QDX was built by Yan, the owner-operator of a 16 Handles franchise. Behavioral pre-screening for restaurants, made from real operating pain.",
+    "QDX was built by Yan, the owner-operator of a 16 Handles franchise. The hiring platform for restaurants, made from real operating pain.",
 };
 
 export default function AboutPage() {
@@ -113,7 +113,7 @@ export default function AboutPage() {
               />
               <Principle
                 t="Honest signal, not a black box."
-                b="Operators see the questions. They see the risk flags. They see why a candidate scored the way they did. No vibes-based AI shrouded in mystery."
+                b="Operators see plain-English bands and flags, and why a candidate landed where they did. Recommendations support your call — they never auto-reject anyone. No vibes-based AI shrouded in mystery."
               />
               <Principle
                 t="Built in a real shop, tested in real shops."
@@ -130,7 +130,7 @@ export default function AboutPage() {
             </h2>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/signup" className="btn-primary">
-                Start a 7-day trial
+                Start free
               </Link>
               <Link
                 href="/demo"
