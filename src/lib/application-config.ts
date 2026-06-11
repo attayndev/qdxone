@@ -1,8 +1,9 @@
-import type { OrgBranding, FieldMode } from "./supabase/types";
+import type { OrgBranding, FieldMode, CustomQuestion } from "./supabase/types";
 
 export interface ApplicationConfig {
   work_experience: FieldMode;
   references: FieldMode;
+  custom_questions: CustomQuestion[];
 }
 
 /** Application-form field config, defaulting both to optional. */
@@ -12,5 +13,6 @@ export function applicationConfig(
   return {
     work_experience: branding?.application_config?.work_experience ?? "optional",
     references: branding?.application_config?.references ?? "optional",
+    custom_questions: branding?.application_config?.custom_questions ?? [],
   };
 }

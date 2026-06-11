@@ -30,6 +30,15 @@ const ApplicationSchema = z.object({
   work_history: z.array(WorkHistory).max(2).default([]),
   job_references: z.array(Reference).max(3).default([]),
   earliest_start_date: z.string().max(20).optional().nullable(),
+  custom_answers: z
+    .array(
+      z.object({
+        id: z.string().max(60),
+        label: z.string().max(200),
+        value: z.string().max(1000),
+      })
+    )
+    .default([]),
 });
 
 export type ApplicationInput = z.infer<typeof ApplicationSchema>;
@@ -70,6 +79,13 @@ export async function submitApplication(
   ) {
     return { ok: false, error: "Please add a reference." };
   }
+  // Required custom questions must be answered.
+  const answerById = new Map(v.custom_answers.map((a) => [a.id, a.value.trim()]));
+  for (const q of cfg.custom_questions) {
+    if (q.required && !answerById.get(q.id)) {
+      return { ok: false, error: `Please answer: ${q.label}` };
+    }
+  }
 
   // Resolve the location: a single-store posting carries one; a brand-wide
   // posting (location_id null) falls back to the org's primary location.
@@ -100,6 +116,7 @@ export async function submitApplication(
       job_references: v.job_references,
       positions: [posting.title],
       earliest_start_date: v.earliest_start_date || null,
+      custom_answers: v.custom_answers,
       status: "new",
       resume_token: generateToken(),
     })

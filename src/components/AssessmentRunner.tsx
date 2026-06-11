@@ -70,7 +70,8 @@ export default function AssessmentRunner({
       startTransition(async () => {
         await save;
         await completeAssessment(token);
-        setDone(true);
+        // Continue to the voluntary EEO step (separate, final, optional).
+        window.location.href = `/eeo/${encodeURIComponent(token)}`;
       });
     } else {
       void save;

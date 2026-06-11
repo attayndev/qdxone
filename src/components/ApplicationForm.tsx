@@ -50,6 +50,7 @@ export default function ApplicationForm({
   ]);
   const [refName, setRefName] = useState("");
   const [refContact, setRefContact] = useState("");
+  const [customAnswers, setCustomAnswers] = useState<Record<string, string>>({});
 
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -60,8 +61,17 @@ export default function ApplicationForm({
     jobs.some((j) => j.employer.trim() && j.role.trim());
   const refsOk =
     config.references !== "required" || (!!refName.trim() && !!refContact.trim());
+  const customsOk = config.custom_questions
+    .filter((q) => q.required)
+    .every((q) => (customAnswers[q.id] ?? "").trim());
   const canSubmit =
-    first.trim() && last.trim() && emailValid && eligible !== null && workOk && refsOk;
+    first.trim() &&
+    last.trim() &&
+    emailValid &&
+    eligible !== null &&
+    workOk &&
+    refsOk &&
+    customsOk;
 
   function toggle(day: string, block: string) {
     setAvail((prev) => {
@@ -103,6 +113,11 @@ export default function ApplicationForm({
             : refName.trim() || refContact.trim()
               ? [{ name: refName.trim(), contact: refContact.trim() }]
               : [],
+        custom_answers: config.custom_questions.map((q) => ({
+          id: q.id,
+          label: q.label,
+          value: (customAnswers[q.id] ?? "").trim(),
+        })),
         earliest_start_date: start || null,
       };
       const res = await submitAction(token, input);
@@ -261,6 +276,62 @@ export default function ApplicationForm({
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
             <input className="input" placeholder="Name" value={refName} onChange={(e) => setRefName(e.target.value)} />
             <input className="input" placeholder="Phone or email" value={refContact} onChange={(e) => setRefContact(e.target.value)} />
+          </div>
+        </section>
+      )}
+
+      {/* Custom questions */}
+      {config.custom_questions.length > 0 && (
+        <section className="card mt-4">
+          <h2 className="font-extrabold">A few more questions</h2>
+          <div className="mt-3 space-y-4">
+            {config.custom_questions.map((q) => (
+              <div key={q.id}>
+                <label className="label">
+                  {q.label}{" "}
+                  {q.required && (
+                    <span className="text-[color:var(--brand-pink-600)]">*</span>
+                  )}
+                </label>
+                {q.type === "long_text" ? (
+                  <textarea
+                    className="input min-h-[90px]"
+                    value={customAnswers[q.id] ?? ""}
+                    onChange={(e) =>
+                      setCustomAnswers((p) => ({ ...p, [q.id]: e.target.value }))
+                    }
+                  />
+                ) : q.type === "yes_no" ? (
+                  <div className="flex gap-2">
+                    {["Yes", "No"].map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() =>
+                          setCustomAnswers((p) => ({ ...p, [q.id]: opt }))
+                        }
+                        className={[
+                          "flex-1 h-11 rounded-xl border-2 font-bold transition",
+                          customAnswers[q.id] === opt
+                            ? "border-[color:var(--brand-pink)] bg-[color:var(--brand-pink)] text-white"
+                            : "border-[color:var(--brand-line)] bg-white",
+                        ].join(" ")}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <input
+                    className="input"
+                    value={customAnswers[q.id] ?? ""}
+                    onChange={(e) =>
+                      setCustomAnswers((p) => ({ ...p, [q.id]: e.target.value }))
+                    }
+                  />
+                )}
+              </div>
+            ))}
           </div>
         </section>
       )}

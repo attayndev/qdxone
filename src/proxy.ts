@@ -47,7 +47,14 @@ export async function proxy(request: NextRequest) {
   ];
   // Note: "/a/" (assessment) must keep the trailing slash so it doesn't
   // swallow apex marketing routes like /about and /assessments.
-  const SUBDOMAIN_ONLY_PREFIXES = ["/admin", "/invite", "/apply", "/j/", "/a/"];
+  const SUBDOMAIN_ONLY_PREFIXES = [
+    "/admin",
+    "/invite",
+    "/apply",
+    "/j/",
+    "/a/",
+    "/eeo/",
+  ];
 
   const isApex = !slug;
   const isSubdomain = !!slug;

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
+import type { CustomQuestion } from "@/lib/supabase/types";
 
 const LocationSchema = z.object({
   name: z.string().min(1, "Store name is required").max(120),
@@ -116,7 +117,38 @@ export async function saveApplicationConfig(config: {
   const org = await currentOrgOrThrow();
   await requireMembership(org.id);
   const supa = adminClient();
-  const branding = { ...(org.branding ?? {}), application_config: config };
+  const branding = {
+    ...(org.branding ?? {}),
+    application_config: { ...(org.branding?.application_config ?? {}), ...config },
+  };
+  await supa.from("organizations").update({ branding }).eq("id", org.id);
+  revalidatePath("/admin/locations");
+  return { ok: true };
+}
+
+/** Save the operator's custom application questions. */
+export async function saveCustomQuestions(
+  questions: CustomQuestion[]
+): Promise<SaveLocationResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const clean = questions
+    .map((q) => ({
+      id: q.id,
+      label: q.label.trim(),
+      type: q.type,
+      required: !!q.required,
+    }))
+    .filter((q) => q.label)
+    .slice(0, 15);
+  const supa = adminClient();
+  const branding = {
+    ...(org.branding ?? {}),
+    application_config: {
+      ...(org.branding?.application_config ?? {}),
+      custom_questions: clean,
+    },
+  };
   await supa.from("organizations").update({ branding }).eq("id", org.id);
   revalidatePath("/admin/locations");
   return { ok: true };
