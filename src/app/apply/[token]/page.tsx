@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { BrandHeader, BrandFooter } from "@/components/Brand";
 import { currentOrg } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
+import { applicationConfig } from "@/lib/application-config";
 import ApplicationForm from "@/components/ApplicationForm";
 import { submitApplication } from "@/app/apply/[token]/actions";
 
@@ -34,6 +35,7 @@ export default async function ApplyPage({ params }: PageProps) {
         <ApplicationForm
           token={token}
           postingTitle={posting.title}
+          config={applicationConfig(org.branding)}
           submitAction={submitApplication}
         />
       </main>
