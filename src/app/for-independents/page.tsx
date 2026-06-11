@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "QDX for independent and mom-and-pop restaurants",
+  title: "QDX for independent & owner-operated restaurants",
   description:
-    "When you don't have HR, you have an inbox and a gut feeling. QDX gives you a quick read on a candidate before you waste an evening on the wrong interview.",
+    "When you don't have HR, you have an inbox and a gut feeling. QDX gives you a scored read on every applicant before you waste an evening on the wrong interview.",
 };
 
 export default function ForIndependentsPage() {
@@ -15,7 +15,7 @@ export default function ForIndependentsPage() {
         <section className="px-4 sm:px-6 pt-12 pb-10">
           <div className="max-w-3xl mx-auto">
             <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] mb-4">
-              For independent & mom-and-pop
+              For independent & owner-operated
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
               You don&apos;t have HR.{" "}
@@ -25,10 +25,10 @@ export default function ForIndependentsPage() {
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)]">
               When you&apos;re running the floor, the office, the schedule,
-              and the hiring, one bad call can ruin a Friday night. QDX
-              gives you a quick, opinionated read on a candidate before you
-              sit down with them — so you spend interview time on the people
-              who could actually make it work.
+              and the hiring, one bad call can ruin a Friday night. QDX gives
+              you a scored read on every applicant before you sit down with
+              them — so you spend interview time on the people who could
+              actually make it work.
             </p>
           </div>
         </section>
@@ -41,7 +41,7 @@ export default function ForIndependentsPage() {
             <div className="mt-6 grid sm:grid-cols-2 gap-4">
               <Trap
                 t="You're the recruiter."
-                b="Posting the ad, reading the replies, replying to the no-shows. All while running prep and covering the line."
+                b="Posting the ad, reading the replies, chasing the no-shows. All while running prep and covering the line."
               />
               <Trap
                 t="You're the interviewer."
@@ -66,25 +66,24 @@ export default function ForIndependentsPage() {
             </h2>
             <ul className="mt-6 space-y-4 text-[16px] leading-relaxed">
               <Bullet>
-                <strong>5 minutes of their time.</strong> 30 seconds of
-                yours. The report tells you whether the in-person 20 minutes
-                is worth it.
+                <strong>Post once, screen on autopilot.</strong> Share a link
+                or QR code. Candidates apply and take a 5-minute assessment on
+                their phone — you just open the scored shortlist.
               </Bullet>
               <Bullet>
-                <strong>Built for ages 16–22.</strong> The questions assume
-                little or no formal work history. School, sports, family,
-                clubs — it all counts.
+                <strong>Built for entry-level applicants.</strong> Plain
+                language, no assumption of formal work history. School,
+                sports, family, clubs — it all counts.
               </Bullet>
               <Bullet>
-                <strong>Risk flags surface what to ask about.</strong>{" "}
-                &ldquo;Casual about lateness.&rdquo; &ldquo;Possible
-                phone-policy issue.&rdquo; You walk into the interview with
-                a real agenda.
+                <strong>Flags tell you what to ask about.</strong> Past
+                attendance, tenure expectation, quality concerns. You walk
+                into the interview with a real agenda.
               </Bullet>
               <Bullet>
-                <strong>Your brand, not ours.</strong> The applicant sees
-                your shop name and your wording. The behind-the-scenes
-                scoring is yours alone.
+                <strong>Your brand, not ours.</strong> The applicant sees your
+                restaurant&apos;s name and your wording. The scoring behind the
+                scenes is yours alone — and nobody gets auto-rejected.
               </Bullet>
             </ul>
           </div>
@@ -96,11 +95,11 @@ export default function ForIndependentsPage() {
               Try it on your next applicant.
             </h2>
             <p className="mt-4 text-white/80">
-              7-day free trial on annual plans. $25/month after.
+              30-day free trial. Starter is $49/month per location after that.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/signup" className="btn-primary">
-                Start a 7-day trial
+                Start free
               </Link>
               <Link
                 href="/pricing"

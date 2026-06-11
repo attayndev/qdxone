@@ -3,7 +3,7 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 /**
  * Apex marketing site — qdx.one
- * Operator-focused: behavioral pre-screening for restaurants.
+ * QDX One: applicant intake + screening platform for quick-service restaurants.
  */
 export default function ApexLanding() {
   return (
@@ -32,30 +32,30 @@ function Hero() {
     <section className="px-4 sm:px-6 pt-12 sm:pt-20 pb-10">
       <div className="max-w-4xl mx-auto text-center">
         <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] mb-5">
-          Behavioral pre-screening for restaurants
+          Hiring built for restaurants
         </span>
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.02]">
-          You can&apos;t afford a bad hire.
+          Post the job.
           <br />
           <span className="text-[color:var(--brand-pink)]">
-            You can&apos;t afford to find out the slow way, either.
+            Get back a scored shortlist.
           </span>
         </h1>
         <p className="mt-6 text-lg sm:text-xl text-[color:var(--brand-ink-muted)] max-w-2xl mx-auto">
-          A 5-minute behavioral assessment built for QSR, fast-casual, and
-          independent restaurants. Send a link. Get a scored report. Skip
-          the interviews that were going to be a waste anyway.
+          QDX One is your hiring page, application, and a 5-minute assessment —
+          all on the candidate&apos;s phone. Share a link or QR code, and crew
+          come back ranked on reliability, people skills, and ownership.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/signup" className="btn-primary">
-            Start a 7-day trial
+            Start free
           </Link>
-          <Link href="/assessments" className="btn-ghost">
-            See sample questions
+          <Link href="/how-it-works" className="btn-ghost">
+            See how it works
           </Link>
         </div>
         <p className="mt-4 text-sm text-[color:var(--brand-ink-muted)]">
-          7-day trial on annual plans. No card needed.
+          30-day free trial. Cancel anytime.
         </p>
       </div>
     </section>
@@ -67,11 +67,11 @@ function PainStrip() {
   const items = [
     {
       icon: "⚡",
-      body: "One bad hire wrecks a shift, the team, and a week of your time.",
+      body: "One no-call/no-show wrecks a shift, the team, and a week of your time.",
     },
     {
       icon: "⏱",
-      body: "The average 20-minute interview tells you almost nothing about whether they&apos;ll show up.",
+      body: "A 20-minute interview tells you almost nothing about whether they&apos;ll show up.",
     },
     {
       icon: "📉",
@@ -101,23 +101,23 @@ function HowItWorks() {
     <section className="px-4 sm:px-6 py-16 border-b border-[color:var(--brand-line)]">
       <div className="max-w-5xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-center">
-          Three steps. Twenty minutes start to finish.
+          From posting to scored shortlist.
         </h2>
         <div className="mt-10 grid sm:grid-cols-3 gap-4">
           <Step
             n="1"
-            title="Invite the candidate"
-            body="Add a name and an email or phone. We generate a unique, secure link."
+            title="Post the role"
+            body="Pick a role and get a shareable link + QR code for your counter, window, or socials. Candidates apply from their phone."
           />
           <Step
             n="2"
-            title="They take the assessment on their phone"
-            body="5–7 minutes. Mobile-first. No login. No download. No friction."
+            title="They apply & assess"
+            body="A quick application, then a 5-minute assessment — mobile-first, plain language, no login or download. About 8 minutes total."
           />
           <Step
             n="3"
-            title="You read the report"
-            body="Six trait scores, risk flags, recommendation tier. Decide whose interview is worth your hour."
+            title="You get a scored shortlist"
+            body="Each candidate comes back with verbal bands, a fit recommendation, and quality flags. You decide whose interview is worth your hour."
           />
         </div>
         <div className="text-center mt-10">
@@ -149,30 +149,22 @@ function Step({ n, title, body }: { n: string; title: string; body: string }) {
 
 // ─────────────────────────────────────────────────────────────────────
 function WhatWeMeasure() {
-  const traits = [
+  const cats = [
     {
-      name: "Reliability",
-      body: "If they say they'll be there, they're there — five minutes early.",
+      name: "Reliability & Drive",
+      body: "Shows up on time, follows through, and pushes to get better — the #1 predictor of attendance and tenure.",
     },
     {
-      name: "Coachability",
-      body: "Feedback sharpens them. It doesn't put them on defense.",
+      name: "People Skills",
+      body: "Genuine warmth with customers, cooperation with the team, and openness to coaching.",
     },
     {
       name: "Ownership",
-      body: "\"What was my part?\" before \"Whose fault was that?\"",
-    },
-    {
-      name: "Rule-fit",
-      body: "Comfortable with structure — even rules they don't love.",
+      body: "Owns outcomes and mistakes, and does what needs doing without waiting to be told.",
     },
     {
       name: "Composure",
-      body: "Stays calm when the line is out the door or a guest is upset.",
-    },
-    {
-      name: "Customer instincts",
-      body: "Apologizes, fixes it, stays in the conversation.",
+      body: "Stays calm and bounces back when the line is out the door or a guest is upset.",
     },
   ];
   return (
@@ -184,12 +176,12 @@ function WhatWeMeasure() {
           </h2>
           <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg">
             Hiring frontline staff isn&apos;t about the perfect résumé. It&apos;s
-            about whether they&apos;ll show up, follow the playbook, and treat
-            your customers right.
+            about whether they&apos;ll show up, work the team, and treat your
+            customers right. We measure four things that predict exactly that.
           </p>
         </div>
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {traits.map((t) => (
+        <div className="mt-8 grid sm:grid-cols-2 gap-4">
+          {cats.map((t) => (
             <div key={t.name} className="card">
               <h3 className="font-extrabold">{t.name}</h3>
               <p className="text-[color:var(--brand-ink-muted)] mt-1 text-[15px] leading-relaxed">
@@ -198,6 +190,11 @@ function WhatWeMeasure() {
             </div>
           ))}
         </div>
+        <p className="mt-6 text-sm text-[color:var(--brand-ink-muted)]">
+          Built on validated personality and motivation research, reviewed by a
+          credentialed I/O psychologist. You get plain-English bands — never a
+          black-box number.
+        </p>
       </div>
     </section>
   );
@@ -207,20 +204,20 @@ function WhatWeMeasure() {
 function LookInside() {
   const samples = [
     {
-      q: "When work is slow, what do you usually do?",
-      measures: ["Initiative", "Productive without supervision"],
+      q: "I show up on time, even when I don't feel like going.",
+      measures: ["Dependability"],
     },
     {
-      q: "How do you usually respond when a manager corrects you?",
-      measures: ["Coachability", "Defensiveness"],
+      q: "When my manager points out a mistake, I focus on fixing it instead of defending myself.",
+      measures: ["Coachability"],
     },
     {
-      q: "What does being on time mean to you?",
-      measures: ["Reliability", "Punctuality mindset"],
+      q: "When I see something that needs doing, I do it without waiting to be told.",
+      measures: ["Initiative & Ownership"],
     },
     {
-      q: "A customer is upset, and honestly it isn't really your fault. What do you do?",
-      measures: ["Customer instincts", "Ownership"],
+      q: "I stay calm when things get busy.",
+      measures: ["Composure"],
     },
   ];
   return (
@@ -231,14 +228,15 @@ function LookInside() {
             A look inside the assessment
           </span>
           <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-            Real questions. Real signal.{" "}
+            Real statements. Real signal.{" "}
             <span className="text-[color:var(--brand-pink)]">
               Not personality astrology.
             </span>
           </h2>
           <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg">
-            A few of the questions a candidate sees. Each maps to a behavior
-            that decides whether they&apos;ll earn their shift.
+            Candidates rate short, honest statements on a 5-point scale. Each
+            one maps to a behavior that decides whether they&apos;ll earn their
+            shift.
           </p>
         </div>
 
@@ -249,7 +247,7 @@ function LookInside() {
               className="card border-l-4 border-l-[color:var(--brand-pink)]"
             >
               <div className="text-xs uppercase tracking-wider text-[color:var(--brand-ink-muted)] font-semibold">
-                Sample question
+                Sample item
               </div>
               <p className="mt-2 font-bold text-[17px] leading-snug">
                 &ldquo;{s.q}&rdquo;
@@ -269,18 +267,9 @@ function LookInside() {
         </div>
 
         <p className="mt-6 text-sm text-[color:var(--brand-ink-muted)]">
-          Assessments can be tailored by role and operator preference — for
-          example, opt in to a stricter phone-on-the-floor question if that&apos;s
-          a non-negotiable in your shop.
+          We also run quiet quality checks — attention items and response-time
+          flags — so you can trust the result, not just the answers.
         </p>
-        <div className="mt-4">
-          <Link
-            href="/assessments"
-            className="font-semibold text-[color:var(--brand-pink-600)] hover:underline"
-          >
-            See more sample questions and the trait map →
-          </Link>
-        </div>
       </div>
     </section>
   );
@@ -296,15 +285,15 @@ function AudienceSplit() {
         </h2>
         <div className="mt-10 grid md:grid-cols-2 gap-5">
           <AudienceCard
-            chip="QSR & multi-unit"
-            title="Built for the QSR pace."
-            body="Frontline turnover is brutal. Manager hours are scarce. Brand consistency matters. QDX standardizes how you screen across stores so a strong candidate at one location looks like a strong candidate at all of them. Cut weak applicants from the funnel before they cost a shift leader 30 minutes."
+            chip="Multi-unit & franchise"
+            title="Consistent hiring across every location."
+            body="Frontline turnover is brutal and manager hours are scarce — whether it's a fast-casual counter or a full-service floor. QDX standardizes how you screen across locations, so a strong candidate at one restaurant looks like a strong candidate at all of them, and your managers only interview the people worth their time."
             href="/for-qsr"
           />
           <AudienceCard
-            chip="Mom & pop"
+            chip="Independent & owner-operated"
             title="Built for the operator who doesn't have HR."
-            body="When you're running the floor and the office, one bad hire is one ruined Friday night. QDX gives you a quick, opinionated read on a candidate before you sit down with them — so you spend interview time on the people who could actually make it work."
+            body="When you're running the floor and the office, one bad hire is one ruined Friday night. QDX gives you a clear, scored read on every applicant before you sit down — so interview time goes to the people who could actually make it work."
             href="/for-independents"
           />
         </div>
@@ -368,10 +357,10 @@ function FounderBlock() {
           </p>
           <p>The math doesn&apos;t work. Not for me, not for any operator I know.</p>
           <p>
-            So I built QDX — a 5-minute behavioral screen that tells me,
-            before I waste my time, whether a candidate is worth interviewing.
-            Today it&apos;s a product. It started as a tool I needed in my own
-            store.
+            So I built QDX — a hiring page, application, and a 5-minute
+            assessment that tells me, before I waste my time, who&apos;s worth
+            interviewing. Today it&apos;s a product. It started as a tool I
+            needed in my own store.
           </p>
         </div>
         <div className="mt-7">
@@ -393,33 +382,27 @@ function PricingPeek() {
     <section className="px-4 sm:px-6 py-16">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-          Operator pricing.{" "}
+          Per-location pricing.{" "}
           <span className="text-[color:var(--brand-pink)]">No fluff.</span>
         </h2>
         <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg max-w-xl mx-auto">
-          Two plans. Pay annual to save 30%. Add-on test types when you&apos;re
-          ready to layer in cashier math or other skills.
+          Every plan has the full platform. You only pay for completed
+          assessments — pick the volume that fits your store.
         </p>
-        <div className="mt-8 grid sm:grid-cols-2 gap-4 text-left">
-          <PricePeek
-            name="Starter"
-            annualMonthly={25}
-            monthly={35}
-            quota={10}
-          />
-          <PricePeek
-            name="Growth"
-            annualMonthly={50}
-            monthly={65}
-            quota={25}
-            highlight
-          />
+        <div className="mt-8 grid sm:grid-cols-3 gap-4 text-left">
+          <PricePeek name="Starter" price={49} quota="25 / mo" />
+          <PricePeek name="Growth" price={99} quota="100 / mo" highlight />
+          <PricePeek name="Pro" price={249} quota="Unlimited" />
         </div>
         <div className="mt-7">
           <Link href="/pricing" className="btn-primary">
             See full pricing
           </Link>
         </div>
+        <p className="mt-3 text-sm text-[color:var(--brand-ink-muted)]">
+          30-day free trial on every plan. Bigger or multi-brand? Enterprise is
+          custom.
+        </p>
       </div>
     </section>
   );
@@ -427,15 +410,13 @@ function PricingPeek() {
 
 function PricePeek({
   name,
-  annualMonthly,
-  monthly,
+  price,
   quota,
   highlight,
 }: {
   name: string;
-  annualMonthly: number;
-  monthly: number;
-  quota: number;
+  price: number;
+  quota: string;
   highlight?: boolean;
 }) {
   return (
@@ -454,13 +435,13 @@ function PricePeek({
         )}
       </div>
       <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-3xl font-black">${annualMonthly}</span>
+        <span className="text-3xl font-black">${price}</span>
         <span className="text-[color:var(--brand-ink-muted)] text-sm">
-          /mo, annual
+          /mo per location
         </span>
       </div>
       <div className="text-xs text-[color:var(--brand-ink-muted)] mt-1">
-        or ${monthly}/mo monthly · {quota} questionnaires/month
+        {quota} completed assessments
       </div>
     </div>
   );
@@ -470,39 +451,40 @@ function PricePeek({
 function Faq() {
   const items: Array<{ q: string; a: React.ReactNode }> = [
     {
-      q: "How long does the assessment take?",
-      a: "5–7 minutes on a phone. Most candidates finish in under six.",
+      q: "How long does it take a candidate?",
+      a: "About 8 minutes total — a short application plus a 5-minute assessment, all on their phone. No login, no app.",
     },
     {
-      q: "What does the assessment actually look like?",
+      q: "What does the assessment look like?",
       a: (
         <>
-          Multiple-choice and short-answer questions, mixed with a couple of
-          agreement-scale questions. Mobile-first, no login.{" "}
+          Short, plain-language statements candidates rate on a 5-point scale,
+          written at a 6th-grade reading level and mobile-first. Built on
+          validated personality and motivation constructs.{" "}
           <Link
             href="/assessments"
             className="underline text-[color:var(--brand-pink-600)]"
           >
-            See sample questions →
+            See sample items →
           </Link>
         </>
       ),
     },
     {
-      q: "Can I customize the questions for my concept?",
-      a: "Yes. The default screen is built around frontline restaurant behaviors. Operators can opt in to specific rule questions (phone policy, cash handling, alcohol service) and add concept-specific scenarios.",
+      q: "Do you auto-reject candidates?",
+      a: "Never. QDX gives you verbal bands and a fit recommendation — decision support, not a filter. You make every hire/no-hire call.",
     },
     {
-      q: "Will candidates feel screened out?",
-      a: "No. The applicant flow is a clean, branded \"you're invited to apply\" experience. Scoring stays internal.",
+      q: "Can I control the application form and roles?",
+      a: "Yes. You define your own roles, choose which application fields are required or hidden, and can review applications before sending the assessment if you want to filter out joke submissions.",
     },
     {
       q: "How is this different from a personality test?",
-      a: "Personality tests profile who someone is. QDX scores what they're likely to do on a shift — show up on time, take feedback, stay productive when it's slow, follow rules they don't love. We're predicting frontline behavior, not labeling traits.",
+      a: "Personality tests profile who someone is. QDX predicts what they're likely to do on a shift — show up on time, take feedback, stay productive when it's slow. We're predicting frontline behavior, not labeling traits.",
     },
     {
       q: "Do you integrate with my POS or scheduling software?",
-      a: "Not yet. QDX runs as a standalone hiring layer — invite, screen, decide. Integrations land later.",
+      a: "Not yet. QDX runs as a standalone hiring layer — post, apply, assess, decide. Integrations land later.",
     },
   ];
   return (
@@ -551,7 +533,7 @@ function FinalCta() {
         </p>
         <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/signup" className="btn-primary">
-            Start a 7-day trial
+            Start your 30-day trial
           </Link>
           <Link
             href="/demo"

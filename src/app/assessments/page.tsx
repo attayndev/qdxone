@@ -4,61 +4,53 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 export const metadata = {
   title: "What QDX measures — a look inside the assessment",
   description:
-    "Sample questions and the trait map behind QDX's behavioral pre-screening. Real questions, real signal, not personality astrology.",
+    "Sample items and the four categories behind QDX's restaurant hiring assessment. Real statements, real signal — not personality astrology.",
 };
 
 const SAMPLES = [
   {
-    q: "When work is slow, what do you usually do?",
-    why: "Frontline jobs aren't just about the rush. The way someone handles a slow Tuesday tells you whether they'll wipe down the counter, restock, prep, study the menu — or stand around waiting to be told.",
-    measures: ["Initiative", "Productive without supervision"],
+    q: "I show up on time, even when I don't feel like going.",
+    why: "Attendance is the #1 operator pain and the single best predictor of whether a hire lasts. Dependability shows up here.",
+    measures: ["Dependability"],
   },
   {
-    q: "How do you usually respond when a manager corrects you?",
-    why: "Frontline jobs are 80% feedback loop. Defensive hires don't improve. We screen for candidates who can hear a correction without blowing up or shutting down.",
-    measures: ["Coachability", "Defensiveness"],
+    q: "When my manager points out a mistake, I focus on fixing it instead of defending myself.",
+    why: "Frontline work is one long feedback loop. Coachable hires improve fast; defensive ones don't.",
+    measures: ["Coachability"],
   },
   {
-    q: "What does being on time mean to you?",
-    why: "There's a difference between \"I show up at 4:00 because I'm on the schedule for 4:00\" and \"I'm there at 3:50, ready to go.\" Both call themselves on time. Only one will protect your shift.",
-    measures: ["Reliability", "Punctuality mindset"],
+    q: "When I see something that needs doing, I do it without waiting to be told.",
+    why: "The difference between a hire who runs the slow Tuesday and one who stands around waiting for instructions.",
+    measures: ["Initiative & Ownership"],
   },
   {
-    q: "A customer is upset, and honestly it isn't really your fault. What do you do?",
-    why: "The instinct to apologize and make it right is often there or it isn't. We find out before you do.",
-    measures: ["Customer instincts", "Ownership"],
+    q: "I stay calm when things get busy.",
+    why: "The line gets long, a guest gets loud, the cooler dies. Composure is what guests notice — and what keeps a shift from unraveling.",
+    measures: ["Composure"],
   },
   {
-    q: "Tell me about a rule at school, work, or on a team that you didn't love but still followed. Why did you stick with it?",
-    why: "Restaurants run on rules — health code, cash handling, phone policy. Candidates who can articulate why a rule exists are usually the ones who follow it.",
-    measures: ["Rule-fit", "Maturity"],
+    q: "I want customers to leave happier than they came in.",
+    why: "Frontline service is emotional labor. Genuine warmth differentiates 'fine' service from the kind guests come back for.",
+    measures: ["Customer Warmth"],
   },
 ];
 
-const TRAITS = [
+const CATEGORIES = [
   {
-    name: "Reliability",
-    body: "Shifts without the right number of bodies are shifts that break.",
+    name: "Reliability & Drive",
+    body: "Shows up, follows through, and pushes to get better. Dependability + Achievement.",
   },
   {
-    name: "Coachability",
-    body: "Frontline jobs are 80% feedback-loop. Defensive hires don't improve.",
+    name: "People Skills",
+    body: "Customer warmth, team cooperation, and openness to coaching. The behaviors guests and crew feel.",
   },
   {
     name: "Ownership",
-    body: "Owners look for fixes; non-owners look for someone to blame.",
-  },
-  {
-    name: "Rule-fit",
-    body: "Health code, cash handling, phone policy. Rules aren't optional.",
+    body: "Believes effort drives outcomes, and acts on it — owning mistakes and self-starting.",
   },
   {
     name: "Composure",
-    body: "The line gets long. The customer gets loud. The cooler dies.",
-  },
-  {
-    name: "Customer instincts",
-    body: "\"Sorry about that, let me make it right\" is a learnable behavior — but you'd rather hire it.",
+    body: "Stays calm under pressure and bounces back from a bad shift without rumination.",
   },
 ];
 
@@ -73,14 +65,15 @@ export default function AssessmentsPage() {
               Inside the assessment
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
-              Real questions.{" "}
+              Real statements.{" "}
               <span className="text-[color:var(--brand-pink)]">Real signal.</span>{" "}
               Not personality astrology.
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)]">
-              Below are five of the questions a candidate sees, paired with
-              the behavior each one is measuring. The full assessment runs
-              5–7 minutes on a phone.
+              Candidates rate short, honest statements on a 5-point scale.
+              Below are a few, paired with the behavior each one measures. The
+              full assessment runs about 5 minutes on a phone, plus a quick
+              motivation screener.
             </p>
           </div>
         </section>
@@ -93,7 +86,7 @@ export default function AssessmentsPage() {
                 className="card border-l-4 border-l-[color:var(--brand-pink)]"
               >
                 <div className="text-xs uppercase tracking-wider text-[color:var(--brand-ink-muted)] font-semibold">
-                  Sample question {i + 1}
+                  Sample item {i + 1}
                 </div>
                 <p className="mt-2 font-black text-xl leading-snug">
                   &ldquo;{s.q}&rdquo;
@@ -122,14 +115,15 @@ export default function AssessmentsPage() {
         <section className="px-4 sm:px-6 py-16">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-              The trait map.
+              Four categories.
             </h2>
             <p className="mt-3 text-lg text-[color:var(--brand-ink-muted)]">
-              Six categories, each tied to behaviors that decide whether a
-              hire will earn their shift.
+              Each tied to behaviors that decide whether a hire will earn
+              their shift — measured across eight facets and reported as plain
+              Low / Mid / High bands.
             </p>
             <div className="mt-8 grid sm:grid-cols-2 gap-4">
-              {TRAITS.map((t) => (
+              {CATEGORIES.map((t) => (
                 <div key={t.name} className="card">
                   <h3 className="font-extrabold">{t.name}</h3>
                   <p className="text-[color:var(--brand-ink-muted)] mt-1 text-[15px] leading-relaxed">
@@ -138,41 +132,42 @@ export default function AssessmentsPage() {
                 </div>
               ))}
             </div>
+            <p className="mt-6 text-sm text-[color:var(--brand-ink-muted)]">
+              A separate 5-item motivation screener captures past attendance,
+              goals, and tenure expectation — reported as flags, not a score.
+              Built on validated research and reviewed by a credentialed I/O
+              psychologist; candidates are never auto-rejected.
+            </p>
           </div>
         </section>
 
         <section className="px-4 sm:px-6 py-16 bg-[color:var(--brand-cream)] border-y border-[color:var(--brand-line)]">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Tailored to your concept.
+              You&apos;re in control.
             </h2>
             <p className="mt-3 text-[color:var(--brand-ink-muted)]">
-              The default screen is built around frontline restaurant
-              behaviors. Operators can customize:
+              The assessment is consistent for fairness, but the rest of the
+              hiring flow is yours to shape:
             </p>
             <ul className="mt-4 space-y-2 text-[15px]">
+              <li>✓ Define your own roles — whatever you call them.</li>
               <li>
-                ✓ Specific rules — phone-on-the-floor, cash-handling, alcohol
-                service.
+                ✓ Choose which application fields are required, optional, or
+                hidden.
               </li>
               <li>
-                ✓ Wording for your concept — &ldquo;froyo shop,&rdquo;
-                &ldquo;coffee bar,&rdquo; &ldquo;sandwich line.&rdquo;
+                ✓ Auto-send the assessment, or review applications first to
+                filter out joke submissions.
               </li>
               <li>
-                ✓ Phrasing of your hero copy and welcome message — applicants
-                see your brand, not ours.
-              </li>
-              <li>
-                ✓ Add-on test types (cashier math, IQ, more on the way) for
-                roles where skills matter beyond behavior.
+                ✓ Your branding — applicants see your restaurant&apos;s name
+                and hiring page, not ours.
               </li>
             </ul>
             <p className="mt-5 text-sm text-[color:var(--brand-ink-muted)] italic">
-              We deliberately don&apos;t publish the full question list or the
-              scoring weights — that would let candidates game the test. Once
-              you sign up, your admin dashboard shows the entire screen and
-              the per-question logic.
+              We deliberately don&apos;t publish the full item list or the
+              scoring weights — that would let candidates game the assessment.
             </p>
           </div>
         </section>
@@ -184,7 +179,7 @@ export default function AssessmentsPage() {
             </h2>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/signup" className="btn-primary">
-                Start a 7-day trial
+                Start free
               </Link>
               <Link
                 href="/demo"

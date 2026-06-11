@@ -3,8 +3,8 @@ import Link from "next/link";
 const NAV = [
   { href: "/how-it-works", label: "How it works" },
   { href: "/assessments", label: "Assessments" },
-  { href: "/for-qsr", label: "For QSR" },
-  { href: "/for-independents", label: "Mom & Pop" },
+  { href: "/for-qsr", label: "Multi-unit" },
+  { href: "/for-independents", label: "Independents" },
   { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About" },
 ];
@@ -85,7 +85,7 @@ export function ApexFooter() {
             </span>
           </div>
           <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
-            Behavioral pre-screening built for restaurant operators.
+            The hiring platform built for restaurants.
           </p>
         </div>
         <FooterCol title="Product">
@@ -95,8 +95,8 @@ export function ApexFooter() {
           <FL href="/demo">Book a demo</FL>
         </FooterCol>
         <FooterCol title="For operators">
-          <FL href="/for-qsr">For QSR</FL>
-          <FL href="/for-independents">For mom & pop</FL>
+          <FL href="/for-qsr">Multi-unit</FL>
+          <FL href="/for-independents">Independents</FL>
         </FooterCol>
         <FooterCol title="Company">
           <FL href="/about">About</FL>

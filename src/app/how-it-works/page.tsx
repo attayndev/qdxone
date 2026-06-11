@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "How QDX works — pre-screening for restaurant hiring",
+  title: "How QDX works — restaurant hiring, end to end",
   description:
-    "Send a link. Candidate takes a 5-minute behavioral assessment. You get a scored report. Decide whose interview is worth your hour.",
+    "Post a role, candidates apply and take a 5-minute assessment on their phone, and you get a scored shortlist with bands and a fit recommendation.",
 };
 
 export default function HowItWorksPage() {
@@ -18,13 +18,13 @@ export default function HowItWorksPage() {
               How it works
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
-              Twenty minutes from invitation to decision.
+              Post a role. Get a scored shortlist.
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)]">
-              QDX sits in front of your interview funnel. It screens
-              candidates on the behaviors that decide whether they&apos;ll
-              earn their shift — so the only people you sit down with are
-              the ones worth your hour.
+              QDX is your whole top-of-funnel — the hiring page, the
+              application, and the assessment. Candidates apply from their
+              phone, and the only people you sit down with are the ones worth
+              your hour.
             </p>
           </div>
         </section>
@@ -33,21 +33,21 @@ export default function HowItWorksPage() {
           <div className="max-w-4xl mx-auto space-y-6">
             <Step
               n="1"
-              title="Invite the candidate"
-              body="Add the candidate's name, email, and phone in the admin dashboard. We generate a unique, secure link tied to that one application. You can email it directly, copy it, or text it."
-              detail="Each link expires in 30 days. Once submitted, it can't be reopened."
+              title="Post the role"
+              body="Pick a role you've defined (Team Member, Shift Lead, whatever you call them) and QDX gives you a shareable link plus a QR code for your counter, window, or socials. You control the application fields and your own roles."
+              detail="No job board fees. Candidates land on your branded hiring page."
             />
             <Step
               n="2"
-              title="They take the assessment on their phone"
-              body="Branded landing → 5–7 minutes of mobile-first questions → done. No login, no download, no account creation. Most candidates finish in under six minutes."
-              detail="Honest answers are the goal — the questions are written for ages 16–22 with little or no formal work history."
+              title="They apply and take a 5-minute assessment"
+              body="A short, mobile-first application, then a 5-minute assessment — plain-language statements rated on a 5-point scale, written at a 6th-grade reading level. No login, no download. About 8 minutes total, and they can pick up where they left off for 72 hours."
+              detail="Quiet quality checks (attention items, response timing) keep the results trustworthy."
             />
             <Step
               n="3"
-              title="You read the report"
-              body="Six trait scores (reliability, coachability, ownership, rule-fit, composure, customer instincts), risk flags surfaced when answers signal concerns, and a recommendation tier — Strong Interview, Interview, Borderline, or Do Not Interview."
-              detail="One-page report. No fluff. Decide who's worth the call."
+              title="You get a scored shortlist"
+              body="Each candidate comes back with verbal bands across four categories — Reliability & Drive, People Skills, Ownership, Composure — an overall fit recommendation (Strong fit, Consider, Caution, Not recommended), and screener flags like past attendance and tenure expectation."
+              detail="Bands, not black-box numbers. Recommendations are decision support — you make every call."
             />
           </div>
         </section>
@@ -62,7 +62,7 @@ export default function HowItWorksPage() {
               <li>❌ Train someone who was never going to follow a rule.</li>
               <li>❌ Cover a Saturday because someone called out by week two.</li>
               <li>❌ Read 40 résumés that all say the same thing.</li>
-              <li>❌ Run personality tests that profile vibes instead of work.</li>
+              <li>❌ Auto-reject anyone — QDX recommends, you decide.</li>
             </ul>
           </div>
         </section>
@@ -74,13 +74,13 @@ export default function HowItWorksPage() {
             </h2>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/signup" className="btn-primary">
-                Start a 7-day trial
+                Start free
               </Link>
               <Link
                 href="/assessments"
                 className="btn-ghost !text-white !border-white hover:!bg-white hover:!text-[color:var(--brand-ink)]"
               >
-                See sample questions
+                See sample items
               </Link>
             </div>
           </div>
