@@ -153,6 +153,7 @@ export type Database = {
         Row: {
           availability: Json
           created_at: string
+          custom_answers: Json
           earliest_start_date: string | null
           eligible_to_work: boolean | null
           email: string
@@ -177,6 +178,7 @@ export type Database = {
         Insert: {
           availability?: Json
           created_at?: string
+          custom_answers?: Json
           earliest_start_date?: string | null
           eligible_to_work?: boolean | null
           email: string
@@ -201,6 +203,7 @@ export type Database = {
         Update: {
           availability?: Json
           created_at?: string
+          custom_answers?: Json
           earliest_start_date?: string | null
           eligible_to_work?: boolean | null
           email?: string

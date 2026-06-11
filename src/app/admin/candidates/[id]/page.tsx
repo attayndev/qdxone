@@ -145,6 +145,11 @@ export default async function CandidateDetail({ params }: PageProps) {
     dates?: string;
   }[];
   const refs = (a.job_references ?? []) as { name: string; contact: string }[];
+  const customAnswers = (a.custom_answers ?? []) as {
+    id: string;
+    label: string;
+    value: string;
+  }[];
 
   return (
     <div>
@@ -230,6 +235,24 @@ export default async function CandidateDetail({ params }: PageProps) {
                 <li key={i}>{[r.name, r.contact].filter(Boolean).join(" · ")}</li>
               ))}
             </ul>
+          )}
+
+          {customAnswers.some((c) => c.value) && (
+            <>
+              <h3 className="font-bold mt-4">More questions</h3>
+              <ul className="mt-1 text-sm space-y-1">
+                {customAnswers
+                  .filter((c) => c.value)
+                  .map((c) => (
+                    <li key={c.id}>
+                      <span className="text-[color:var(--brand-ink-muted)]">
+                        {c.label}:
+                      </span>{" "}
+                      {c.value}
+                    </li>
+                  ))}
+              </ul>
+            </>
           )}
         </div>
 

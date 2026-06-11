@@ -50,10 +50,20 @@ export interface OrgBranding {
   application_config?: {
     work_experience?: FieldMode;
     references?: FieldMode;
+    custom_questions?: CustomQuestion[];
   };
 }
 
 export type FieldMode = "hidden" | "optional" | "required";
+
+export type CustomQuestionType = "short_text" | "long_text" | "yes_no";
+
+export type CustomQuestion = {
+  id: string;
+  label: string;
+  type: CustomQuestionType;
+  required: boolean;
+};
 
 export interface OrganizationRow {
   id: string;
