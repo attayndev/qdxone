@@ -2,9 +2,11 @@ import { notFound } from "next/navigation";
 import { currentOrg } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
 import { orgRoles } from "@/lib/roles";
+import { applicationConfig } from "@/lib/application-config";
 import LocationForm from "@/components/admin/LocationForm";
 import RolesEditor from "@/components/admin/RolesEditor";
 import AssessmentModeToggle from "@/components/admin/AssessmentModeToggle";
+import ApplicationFormSettings from "@/components/admin/ApplicationFormSettings";
 
 export default async function LocationsPage() {
   const org = await currentOrg();
@@ -20,6 +22,7 @@ export default async function LocationsPage() {
       </p>
       <LocationForm location={location} />
       <RolesEditor initialRoles={orgRoles(org.branding)} />
+      <ApplicationFormSettings config={applicationConfig(org.branding)} />
       <AssessmentModeToggle
         autoSend={org.branding?.auto_send_assessment !== false}
       />

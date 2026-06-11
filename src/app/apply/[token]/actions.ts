@@ -5,11 +5,13 @@ import { adminClient } from "@/lib/supabase/admin";
 import { generateToken } from "@/lib/invitations";
 import { currentOrgOrThrow } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
+import { applicationConfig } from "@/lib/application-config";
 
 const WorkHistory = z.object({
   employer: z.string().max(120),
   role: z.string().max(120),
-  dates: z.string().max(80),
+  from: z.string().max(40).default(""),
+  to: z.string().max(40).default(""),
 });
 const Reference = z.object({
   name: z.string().max(120),
@@ -54,6 +56,20 @@ export async function submitApplication(
     return { ok: false, error: "Some answers were missing or invalid." };
   }
   const v = parsed.data;
+
+  const cfg = applicationConfig(org.branding);
+  if (
+    cfg.work_experience === "required" &&
+    !v.work_history.some((j) => j.employer.trim() && j.role.trim())
+  ) {
+    return { ok: false, error: "Please add at least one recent job." };
+  }
+  if (
+    cfg.references === "required" &&
+    !v.job_references.some((r) => r.name.trim() && r.contact.trim())
+  ) {
+    return { ok: false, error: "Please add a reference." };
+  }
 
   // Resolve the location: a single-store posting carries one; a brand-wide
   // posting (location_id null) falls back to the org's primary location.

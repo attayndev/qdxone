@@ -107,3 +107,17 @@ export async function saveAssessmentMode(
   revalidatePath("/admin/locations");
   return { ok: true };
 }
+
+/** Save the application-form field config (work experience / references). */
+export async function saveApplicationConfig(config: {
+  work_experience: "hidden" | "optional" | "required";
+  references: "hidden" | "optional" | "required";
+}): Promise<SaveLocationResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const supa = adminClient();
+  const branding = { ...(org.branding ?? {}), application_config: config };
+  await supa.from("organizations").update({ branding }).eq("id", org.id);
+  revalidatePath("/admin/locations");
+  return { ok: true };
+}

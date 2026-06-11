@@ -91,7 +91,13 @@ export default async function CandidateDetail({ params }: PageProps) {
 
   const availability = (a.availability ?? {}) as Record<string, string[]>;
   const availDays = Object.entries(availability).filter(([, v]) => Array.isArray(v) && v.length);
-  const workHistory = (a.work_history ?? []) as { employer: string; role: string; dates: string }[];
+  const workHistory = (a.work_history ?? []) as {
+    employer: string;
+    role: string;
+    from?: string;
+    to?: string;
+    dates?: string;
+  }[];
   const refs = (a.job_references ?? []) as { name: string; contact: string }[];
 
   return (
@@ -153,11 +159,14 @@ export default async function CandidateDetail({ params }: PageProps) {
             <p className="text-sm text-[color:var(--brand-ink-muted)]">None listed.</p>
           ) : (
             <ul className="mt-1 text-sm space-y-1">
-              {workHistory.map((j, i) => (
-                <li key={i}>
-                  {[j.role, j.employer, j.dates].filter(Boolean).join(" · ")}
-                </li>
-              ))}
+              {workHistory.map((j, i) => {
+                const span = [j.from, j.to].filter(Boolean).join(" – ") || j.dates;
+                return (
+                  <li key={i}>
+                    {[j.role, j.employer, span].filter(Boolean).join(" · ")}
+                  </li>
+                );
+              })}
             </ul>
           )}
 

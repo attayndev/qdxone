@@ -46,7 +46,14 @@ export interface OrgBranding {
   // When false, applications don't auto-fire the assessment — the manager
   // reviews and sends it manually (filters joke applications). Default: auto.
   auto_send_assessment?: boolean;
+  // Per-field visibility/requirement on the application form.
+  application_config?: {
+    work_experience?: FieldMode;
+    references?: FieldMode;
+  };
 }
+
+export type FieldMode = "hidden" | "optional" | "required";
 
 export interface OrganizationRow {
   id: string;

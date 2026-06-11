@@ -2,10 +2,12 @@
 
 import { useState, useTransition } from "react";
 import type { ApplicationInput } from "@/app/apply/[token]/actions";
+import type { ApplicationConfig } from "@/lib/application-config";
 
 type Props = {
   token: string;
   postingTitle: string;
+  config: ApplicationConfig;
   submitAction: (
     token: string,
     input: ApplicationInput
@@ -27,9 +29,14 @@ const BLOCKS = [
   ["evening", "PM"],
 ] as const;
 
-type Job = { employer: string; role: string; dates: string };
+type Job = { employer: string; role: string; from: string; to: string };
 
-export default function ApplicationForm({ token, postingTitle, submitAction }: Props) {
+export default function ApplicationForm({
+  token,
+  postingTitle,
+  config,
+  submitAction,
+}: Props) {
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
   const [email, setEmail] = useState("");
@@ -38,7 +45,9 @@ export default function ApplicationForm({ token, postingTitle, submitAction }: P
   const [eligible, setEligible] = useState<boolean | null>(null);
   const [avail, setAvail] = useState<Record<string, string[]>>({});
   const [start, setStart] = useState("");
-  const [jobs, setJobs] = useState<Job[]>([{ employer: "", role: "", dates: "" }]);
+  const [jobs, setJobs] = useState<Job[]>([
+    { employer: "", role: "", from: "", to: "" },
+  ]);
   const [refName, setRefName] = useState("");
   const [refContact, setRefContact] = useState("");
 
@@ -46,8 +55,13 @@ export default function ApplicationForm({ token, postingTitle, submitAction }: P
   const [error, setError] = useState<string | null>(null);
 
   const emailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+  const workOk =
+    config.work_experience !== "required" ||
+    jobs.some((j) => j.employer.trim() && j.role.trim());
+  const refsOk =
+    config.references !== "required" || (!!refName.trim() && !!refContact.trim());
   const canSubmit =
-    first.trim() && last.trim() && emailValid && eligible !== null;
+    first.trim() && last.trim() && emailValid && eligible !== null && workOk && refsOk;
 
   function toggle(day: string, block: string) {
     setAvail((prev) => {
@@ -72,17 +86,23 @@ export default function ApplicationForm({ token, postingTitle, submitAction }: P
         availability: Object.fromEntries(
           Object.entries(avail).filter(([, v]) => v.length > 0)
         ),
-        work_history: jobs
-          .filter((j) => j.employer.trim() || j.role.trim())
-          .map((j) => ({
-            employer: j.employer.trim(),
-            role: j.role.trim(),
-            dates: j.dates.trim(),
-          })),
+        work_history:
+          config.work_experience === "hidden"
+            ? []
+            : jobs
+                .filter((j) => j.employer.trim() || j.role.trim())
+                .map((j) => ({
+                  employer: j.employer.trim(),
+                  role: j.role.trim(),
+                  from: j.from.trim(),
+                  to: j.to.trim(),
+                })),
         job_references:
-          refName.trim() || refContact.trim()
-            ? [{ name: refName.trim(), contact: refContact.trim() }]
-            : [],
+          config.references === "hidden"
+            ? []
+            : refName.trim() || refContact.trim()
+              ? [{ name: refName.trim(), contact: refContact.trim() }]
+              : [],
         earliest_start_date: start || null,
       };
       const res = await submitAction(token, input);
@@ -198,33 +218,52 @@ export default function ApplicationForm({ token, postingTitle, submitAction }: P
         </div>
       </section>
 
-      {/* Work history (optional) */}
-      <section className="card mt-4">
-        <h2 className="font-extrabold">Recent jobs <span className="font-normal text-[color:var(--brand-ink-muted)] text-sm">(optional)</span></h2>
-        <div className="mt-3 space-y-4">
-          {jobs.map((job, i) => (
-            <div key={i} className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <input className="input" placeholder="Employer" value={job.employer} onChange={(e) => setJobs((j) => j.map((x, k) => (k === i ? { ...x, employer: e.target.value } : x)))} />
-              <input className="input" placeholder="Role" value={job.role} onChange={(e) => setJobs((j) => j.map((x, k) => (k === i ? { ...x, role: e.target.value } : x)))} />
-              <input className="input" placeholder="When" value={job.dates} onChange={(e) => setJobs((j) => j.map((x, k) => (k === i ? { ...x, dates: e.target.value } : x)))} />
-            </div>
-          ))}
-          {jobs.length < 2 && (
-            <button type="button" className="btn-ghost" onClick={() => setJobs((j) => [...j, { employer: "", role: "", dates: "" }])}>
-              + Add another
-            </button>
-          )}
-        </div>
-      </section>
+      {/* Work history */}
+      {config.work_experience !== "hidden" && (
+        <section className="card mt-4">
+          <h2 className="font-extrabold">
+            Recent jobs <ModeTag mode={config.work_experience} />
+          </h2>
+          <div className="mt-3 space-y-4">
+            {jobs.map((job, i) => (
+              <div key={i} className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input className="input" placeholder="Employer" value={job.employer} onChange={(e) => setJobs((j) => j.map((x, k) => (k === i ? { ...x, employer: e.target.value } : x)))} />
+                  <input className="input" placeholder="Role" value={job.role} onChange={(e) => setJobs((j) => j.map((x, k) => (k === i ? { ...x, role: e.target.value } : x)))} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="label">From</label>
+                    <input className="input" type="month" value={job.from} onChange={(e) => setJobs((j) => j.map((x, k) => (k === i ? { ...x, from: e.target.value } : x)))} />
+                  </div>
+                  <div>
+                    <label className="label">To</label>
+                    <input className="input" type="month" value={job.to} onChange={(e) => setJobs((j) => j.map((x, k) => (k === i ? { ...x, to: e.target.value } : x)))} />
+                  </div>
+                </div>
+              </div>
+            ))}
+            {jobs.length < 2 && (
+              <button type="button" className="btn-ghost" onClick={() => setJobs((j) => [...j, { employer: "", role: "", from: "", to: "" }])}>
+                + Add another
+              </button>
+            )}
+          </div>
+        </section>
+      )}
 
-      {/* Reference (optional) */}
-      <section className="card mt-4">
-        <h2 className="font-extrabold">A reference <span className="font-normal text-[color:var(--brand-ink-muted)] text-sm">(optional)</span></h2>
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <input className="input" placeholder="Name" value={refName} onChange={(e) => setRefName(e.target.value)} />
-          <input className="input" placeholder="Phone or email" value={refContact} onChange={(e) => setRefContact(e.target.value)} />
-        </div>
-      </section>
+      {/* Reference */}
+      {config.references !== "hidden" && (
+        <section className="card mt-4">
+          <h2 className="font-extrabold">
+            A reference <ModeTag mode={config.references} />
+          </h2>
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input className="input" placeholder="Name" value={refName} onChange={(e) => setRefName(e.target.value)} />
+            <input className="input" placeholder="Phone or email" value={refContact} onChange={(e) => setRefContact(e.target.value)} />
+          </div>
+        </section>
+      )}
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
@@ -240,6 +279,17 @@ export default function ApplicationForm({ token, postingTitle, submitAction }: P
         Next, a short assessment — about 5 minutes, on your phone.
       </p>
     </div>
+  );
+}
+
+function ModeTag({ mode }: { mode: "optional" | "required" | "hidden" }) {
+  if (mode === "required") {
+    return <span className="text-sm text-[color:var(--brand-pink-600)]">(required)</span>;
+  }
+  return (
+    <span className="font-normal text-[color:var(--brand-ink-muted)] text-sm">
+      (optional)
+    </span>
   );
 }
 

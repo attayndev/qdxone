@@ -156,6 +156,14 @@ export default function AssessmentRunner({
   );
 }
 
+const SCALE = [
+  "Strongly disagree",
+  "Disagree",
+  "Neutral",
+  "Agree",
+  "Strongly agree",
+];
+
 function Likert({
   onPick,
   disabled,
@@ -164,25 +172,22 @@ function Likert({
   disabled: boolean;
 }) {
   return (
-    <div className="mt-5">
-      <div className="flex items-center justify-between gap-2">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            disabled={disabled}
-            onClick={() => onPick(n)}
-            className="flex-1 h-12 rounded-xl border-2 border-[color:var(--brand-line)] bg-white font-bold text-lg hover:border-[color:var(--brand-pink)] hover:bg-[color:var(--brand-pink-50)] transition disabled:opacity-50"
-            aria-label={`${n} of 5`}
-          >
-            {n}
-          </button>
-        ))}
-      </div>
-      <div className="mt-2 flex justify-between text-xs text-[color:var(--brand-ink-muted)]">
-        <span>Strongly disagree</span>
-        <span>Strongly agree</span>
-      </div>
+    <div className="mt-5 flex items-stretch gap-1.5">
+      {SCALE.map((label, i) => (
+        <button
+          key={i}
+          type="button"
+          disabled={disabled}
+          onClick={() => onPick(i + 1)}
+          className="flex-1 rounded-xl border-2 border-[color:var(--brand-line)] bg-white py-2 px-0.5 flex flex-col items-center gap-1 hover:border-[color:var(--brand-pink)] hover:bg-[color:var(--brand-pink-50)] transition disabled:opacity-50"
+          aria-label={`${i + 1} — ${label}`}
+        >
+          <span className="text-lg font-bold leading-none">{i + 1}</span>
+          <span className="text-[10px] leading-tight text-center text-[color:var(--brand-ink-muted)]">
+            {label}
+          </span>
+        </button>
+      ))}
     </div>
   );
 }
