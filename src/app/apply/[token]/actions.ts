@@ -103,6 +103,12 @@ export async function submitApplication(
     meta: { job_posting_id: posting.id },
   });
 
+  // If the operator reviews applications first, don't auto-fire the
+  // assessment — it stays "new" until the manager sends it.
+  if (org.branding?.auto_send_assessment === false) {
+    return { ok: true };
+  }
+
   // Fire the assessment: create the session (selects the 30-item form) and
   // return its token so the candidate continues straight into it. Email is
   // best-effort as a resume backup; SMS provider is a follow-up.

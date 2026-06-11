@@ -1,7 +1,7 @@
 import { cookies, headers } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "./database.types";
-import { authCookieDomain } from "@/lib/host";
+import { authCookieOverrides } from "@/lib/host";
 
 /**
  * Server-side Supabase client bound to the user's auth cookies.
@@ -10,7 +10,7 @@ import { authCookieDomain } from "@/lib/host";
  */
 export async function createClient() {
   const cookieStore = await cookies();
-  const domain = authCookieDomain((await headers()).get("host"));
+  const overrides = authCookieOverrides((await headers()).get("host"));
   return createServerClient<Database>(
     requireEnv("NEXT_PUBLIC_SUPABASE_URL"),
     requireEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
@@ -22,11 +22,7 @@ export async function createClient() {
         setAll(toSet) {
           try {
             for (const { name, value, options } of toSet) {
-              cookieStore.set(
-                name,
-                value,
-                domain ? { ...options, domain } : options
-              );
+              cookieStore.set(name, value, { ...options, ...overrides });
             }
           } catch {
             // Called from a Server Component — cookies are read-only.

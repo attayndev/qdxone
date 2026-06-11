@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/lib/supabase/database.types";
 import { extractSlugFromHost } from "@/lib/tenancy";
-import { authCookieDomain } from "@/lib/host";
+import { authCookieOverrides } from "@/lib/host";
 
 /**
  * Multi-tenant proxy.
@@ -92,15 +92,11 @@ export async function proxy(request: NextRequest) {
         },
         setAll(toSet) {
           // Scope the session cookie to `.qdx.one` so one login is valid
-          // across the apex and every operator subdomain.
-          const domain = authCookieDomain(host);
+          // across the apex and every operator subdomain; non-secure in dev.
+          const overrides = authCookieOverrides(host);
           for (const { name, value, options } of toSet) {
             request.cookies.set(name, value);
-            response.cookies.set(
-              name,
-              value,
-              domain ? { ...options, domain } : options
-            );
+            response.cookies.set(name, value, { ...options, ...overrides });
           }
         },
       },

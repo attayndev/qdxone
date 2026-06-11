@@ -43,6 +43,9 @@ export interface OrgBranding {
   custom_rule_label?: string;
   // Operator-defined role names used when creating job postings.
   roles?: string[];
+  // When false, applications don't auto-fire the assessment — the manager
+  // reviews and sends it manually (filters joke applications). Default: auto.
+  auto_send_assessment?: boolean;
 }
 
 export interface OrganizationRow {

@@ -52,12 +52,12 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
               fancy resume. Apply in a few minutes, right from your phone.
             </p>
             <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link href="#openings" className="btn-primary">
+              <a href="#openings" className="btn-primary">
                 See open roles
-              </Link>
-              <Link href="#what-were-looking-for" className="btn-ghost">
+              </a>
+              <a href="#what-were-looking-for" className="btn-ghost">
                 What we look for
-              </Link>
+              </a>
             </div>
           </div>
         </section>

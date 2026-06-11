@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { BrandHeader, BrandFooter } from "@/components/Brand";
 import LoginForm from "@/components/LoginForm";
+import DevSignIn from "@/components/DevSignIn";
 import { currentOrg } from "@/lib/tenancy";
 
 interface PageProps {
@@ -36,6 +37,9 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
               <LoginForm next={sp.next ?? "/admin"} />
             </Suspense>
           </div>
+          {process.env.NODE_ENV !== "production" && (
+            <DevSignIn defaultSlug={org?.slug} />
+          )}
         </div>
       </main>
       <BrandFooter org={org} />

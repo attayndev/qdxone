@@ -28,6 +28,28 @@ export function authCookieDomain(host: string | null): string | undefined {
 }
 
 /**
+ * Cookie option overrides for the Supabase auth cookies:
+ *  - `domain` so the session is shared across `*.qdx.one` / `*.lvh.me`
+ *  - `secure: false` on http dev hosts, so the browser doesn't silently
+ *    drop the cookie (Secure cookies are rejected over http).
+ */
+export function authCookieOverrides(
+  host: string | null
+): { domain?: string; secure?: boolean } {
+  const h = (host ?? "").split(":")[0].toLowerCase();
+  const httpDev =
+    h === "localhost" ||
+    h.endsWith(".localhost") ||
+    h === "lvh.me" ||
+    h.endsWith(".lvh.me");
+  const overrides: { domain?: string; secure?: boolean } = {};
+  const domain = authCookieDomain(host);
+  if (domain) overrides.domain = domain;
+  if (httpDev) overrides.secure = false;
+  return overrides;
+}
+
+/**
  * Apex (no-subdomain) URL. Auth callbacks for signup/login land here so
  * the session cookie is written once on the apex and — thanks to the
  * `.qdx.one` cookie domain — carries to the operator's subdomain.

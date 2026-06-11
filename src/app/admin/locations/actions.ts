@@ -91,3 +91,19 @@ export async function saveRoles(
   revalidatePath("/");
   return { ok: true };
 }
+
+/**
+ * Toggle whether applications auto-send the assessment, or the manager
+ * reviews first and sends it manually (to filter joke applications).
+ */
+export async function saveAssessmentMode(
+  autoSend: boolean
+): Promise<SaveLocationResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const supa = adminClient();
+  const branding = { ...(org.branding ?? {}), auto_send_assessment: autoSend };
+  await supa.from("organizations").update({ branding }).eq("id", org.id);
+  revalidatePath("/admin/locations");
+  return { ok: true };
+}
