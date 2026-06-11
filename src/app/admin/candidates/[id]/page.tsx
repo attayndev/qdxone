@@ -3,6 +3,14 @@ import Link from "next/link";
 import { currentOrg } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
 import { ATTENTION_CHECKS } from "@/lib/assessment/session";
+import {
+  scoreAssessment,
+  screenerProfile,
+  type ScoredItem,
+  type ScoreResult,
+  type ScreenerFlag,
+  type Band,
+} from "@/lib/assessment/scoring";
 import DeleteCandidateButton from "@/components/admin/DeleteCandidateButton";
 import SendAssessmentButton from "@/components/admin/SendAssessmentButton";
 import type { Database } from "@/lib/supabase/database.types";
@@ -46,6 +54,8 @@ export default async function CandidateDetail({ params }: PageProps) {
   let responses: RespRow[] = [];
   const itemText = new Map<string, string>();
   const screenerQ = new Map<string, { question: string; options: { value: number; label: string }[] }>();
+  let score: ScoreResult | null = null;
+  let screenerFlags: ScreenerFlag[] = [];
   if (session) {
     const { data: resp } = await supa
       .from("assessment_responses")
@@ -57,10 +67,40 @@ export default async function CandidateDetail({ params }: PageProps) {
     const pIds = responses.filter((r) => r.item_kind === "personality").map((r) => r.item_id);
     const { data: items } = await supa
       .from("item_bank_items")
-      .select("item_id, item_text")
+      .select("item_id, item_text, facet, category_academic, category_ui, keying")
       .eq("version", session.methodology_version)
       .in("item_id", pIds.length ? pIds : ["__none__"]);
-    for (const i of items ?? []) itemText.set(i.item_id, i.item_text);
+    type Meta = {
+      item_id: string;
+      item_text: string;
+      facet: string;
+      category_academic: string;
+      category_ui: string;
+      keying: string;
+    };
+    const meta = new Map<string, Meta>();
+    for (const i of (items as Meta[] | null) ?? []) {
+      itemText.set(i.item_id, i.item_text);
+      meta.set(i.item_id, i);
+    }
+
+    // Score the personality responses.
+    const scoredItems: ScoredItem[] = responses
+      .filter((r) => r.item_kind === "personality" && r.value_int != null && meta.has(r.item_id))
+      .map((r) => {
+        const m = meta.get(r.item_id)!;
+        return {
+          value: r.value_int as number,
+          facet: m.facet,
+          category: m.category_academic,
+          keying: (m.keying === "reverse" ? "reverse" : "positive") as
+            | "positive"
+            | "reverse",
+        };
+      });
+    const categoryUi: Record<string, string> = {};
+    for (const m of meta.values()) categoryUi[m.category_academic] = m.category_ui;
+    if (scoredItems.length) score = scoreAssessment(scoredItems, categoryUi);
 
     const sIds = responses.filter((r) => r.item_kind === "screener").map((r) => r.item_id);
     const { data: scr } = await supa
@@ -74,6 +114,12 @@ export default async function CandidateDetail({ params }: PageProps) {
         options: (s.options as { value: number; label: string }[] | null) ?? [],
       });
     }
+
+    const screenerAnswers: Record<string, number | null> = {};
+    for (const r of responses.filter((r) => r.item_kind === "screener")) {
+      screenerAnswers[r.item_id] = r.value_int;
+    }
+    screenerFlags = screenerProfile(screenerAnswers);
   }
 
   // Careless-response flags.
@@ -125,10 +171,15 @@ export default async function CandidateDetail({ params }: PageProps) {
         </span>
       </div>
 
-      <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
-        Scoring isn&apos;t enabled yet — this shows raw responses and quality
-        flags. Bands &amp; recommendations come with the scoring engine.
-      </p>
+      {score && score.overall !== "Incomplete" ? (
+        <ReportCard score={score} flags={screenerFlags} />
+      ) : (
+        <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
+          {session
+            ? "Assessment in progress — the full report appears once it's complete."
+            : "No assessment yet."}
+        </p>
+      )}
 
       <div className="grid lg:grid-cols-[1fr_1fr] gap-6 mt-6">
         {/* Application */}
@@ -240,6 +291,114 @@ export default async function CandidateDetail({ params }: PageProps) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+const BAND_TONE: Record<Band, string> = {
+  High: "bg-emerald-100 text-emerald-800",
+  Mid: "bg-amber-100 text-amber-800",
+  Low: "bg-rose-100 text-rose-700",
+};
+const OVERALL_TONE: Record<string, string> = {
+  "Strong fit": "bg-emerald-600 text-white",
+  Consider: "bg-emerald-100 text-emerald-900",
+  Caution: "bg-amber-100 text-amber-900",
+  "Not recommended": "bg-rose-600 text-white",
+};
+
+function ReportCard({
+  score,
+  flags,
+}: {
+  score: ScoreResult;
+  flags: ScreenerFlag[];
+}) {
+  return (
+    <div className="card mt-4">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <span
+            className={`px-3 py-1 rounded-full font-extrabold ${OVERALL_TONE[score.overall] ?? ""}`}
+          >
+            {score.overall}
+          </span>
+          <span className="text-lg tracking-wide" aria-label={`${score.stars} of 5`}>
+            {"★".repeat(score.stars)}
+            <span className="text-[color:var(--brand-line)]">
+              {"★".repeat(5 - score.stars)}
+            </span>
+          </span>
+        </div>
+        <span className="text-xs text-[color:var(--brand-ink-muted)]">
+          Pre-pilot · verbal bands
+        </span>
+      </div>
+
+      <div className="mt-4 grid sm:grid-cols-2 gap-3">
+        {score.categories.map((c) => (
+          <div
+            key={c.category}
+            className="rounded-xl border border-[color:var(--brand-line)] p-3"
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-bold">{c.categoryUi}</span>
+              <span className={`chip ${BAND_TONE[c.band]}`}>{c.band}</span>
+            </div>
+            <ul className="mt-2 space-y-1">
+              {c.facets.map((f) => (
+                <li
+                  key={f.facet}
+                  className="flex items-center justify-between text-sm"
+                >
+                  <span className="text-[color:var(--brand-ink-muted)]">{f.facet}</span>
+                  <span className={`chip ${BAND_TONE[f.band]}`}>{f.band}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {score.attitude && (
+        <div className="mt-3 flex items-center gap-2 text-sm flex-wrap">
+          <span className="font-bold">Attitude composite</span>
+          <span className={`chip ${BAND_TONE[score.attitude.band]}`}>
+            {score.attitude.band}
+          </span>
+          <span className="text-xs text-[color:var(--brand-ink-muted)]">
+            (coachability + warmth + cooperation)
+          </span>
+        </div>
+      )}
+
+      {flags.length > 0 && (
+        <div className="mt-4">
+          <h3 className="font-bold text-sm">Screener</h3>
+          <ul className="mt-1 space-y-0.5">
+            {flags.map((f, i) => (
+              <li
+                key={i}
+                className={`text-sm ${
+                  f.tone === "positive"
+                    ? "text-emerald-700"
+                    : f.tone === "concern"
+                      ? "text-rose-700"
+                      : "text-[color:var(--brand-ink-muted)]"
+                }`}
+              >
+                {f.tone === "positive" ? "✓ " : f.tone === "concern" ? "⚠ " : "• "}
+                {f.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <p className="mt-4 text-xs text-[color:var(--brand-ink-muted)]">
+        Bands use raw anchors (pre-pilot). Recommendations are decision support
+        — you always make the call.
+      </p>
     </div>
   );
 }
