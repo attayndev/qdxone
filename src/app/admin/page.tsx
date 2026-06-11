@@ -1,53 +1,36 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { RECOMMENDATION_LABELS } from "@/lib/questionnaire/scoring";
-import type {
-  ApplicantRow,
-  InvitationRow,
-} from "@/lib/supabase/types";
 import { currentOrg } from "@/lib/tenancy";
+import { adminClient } from "@/lib/supabase/admin";
+import type { Database } from "@/lib/supabase/database.types";
+
+type AppRow = Database["public"]["Tables"]["applications"]["Row"];
 
 export default async function AdminDashboard() {
   const org = await currentOrg();
   if (!org) notFound();
-  const supa = await createClient();
+  const supa = adminClient();
 
-  const [{ data: invs }, { data: apps }] = await Promise.all([
+  const [{ data: apps }, { count: openPostings }] = await Promise.all([
     supa
-      .from("invitations")
-      .select("*")
-      .eq("org_id", org.id)
-      .order("created_at", { ascending: false })
-      .limit(200),
-    supa
-      .from("applicants")
+      .from("applications")
       .select("*")
       .eq("org_id", org.id)
       .order("submitted_at", { ascending: false })
       .limit(200),
+    supa
+      .from("job_postings")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", org.id)
+      .eq("status", "open"),
   ]);
 
-  const invitations = (invs ?? []) as InvitationRow[];
-  const applicants = (apps ?? []) as ApplicantRow[];
-
-  const sent = invitations.filter((i) =>
-    ["sent", "opened", "started", "submitted"].includes(i.status)
+  const applications = (apps as AppRow[] | null) ?? [];
+  const total = applications.length;
+  const assessed = applications.filter(
+    (a) => a.status === "assessment_complete" || a.status === "decision_made"
   ).length;
-  const opened = invitations.filter((i) =>
-    ["opened", "started", "submitted"].includes(i.status)
-  ).length;
-  const started = invitations.filter((i) =>
-    ["started", "submitted"].includes(i.status)
-  ).length;
-  const submitted = invitations.filter((i) => i.status === "submitted").length;
-  const avgScore =
-    applicants.length === 0
-      ? 0
-      : Math.round(
-          applicants.reduce((s, a) => s + (a.total_score ?? 0), 0) /
-            applicants.length
-        );
+  const awaiting = applications.filter((a) => a.status === "assessment_sent").length;
 
   return (
     <div>
@@ -55,92 +38,52 @@ export default async function AdminDashboard() {
         <div>
           <h1 className="text-3xl font-black tracking-tight">Dashboard</h1>
           <p className="text-[color:var(--brand-ink-muted)]">
-            At a glance — invitations, applicants, and recent activity.
+            Applications, assessments, and what needs your attention.
           </p>
         </div>
-        <Link href="/admin/invitations" className="btn-primary">
-          + New invitation
+        <Link href="/admin/postings" className="btn-primary">
+          + New posting
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-6">
-        <Stat label="Invites sent" value={sent} />
-        <Stat label="Opened" value={opened} />
-        <Stat label="Started" value={started} />
-        <Stat label="Submitted" value={submitted} />
-        <Stat label="Avg. score" value={avgScore} />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+        <Stat label="Applications" value={total} />
+        <Stat label="Assessments done" value={assessed} />
+        <Stat label="Awaiting assessment" value={awaiting} />
+        <Stat label="Open postings" value={openPostings ?? 0} />
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6 mt-8">
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <h2 className="font-extrabold text-lg">Recent applicants</h2>
-            <Link
-              href="/admin/applicants"
-              className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
-            >
-              View all
-            </Link>
-          </div>
-          {applicants.length === 0 ? (
-            <p className="text-[color:var(--brand-ink-muted)] mt-3 text-sm">
-              No applications yet.
-            </p>
-          ) : (
-            <ul className="mt-3 divide-y divide-[color:var(--brand-line)]">
-              {applicants.slice(0, 8).map((a) => (
-                <li key={a.id} className="py-3 flex items-center justify-between gap-3">
-                  <Link
-                    href={`/admin/applicants/${a.id}`}
-                    className="font-semibold hover:text-[color:var(--brand-pink-600)]"
-                  >
-                    {a.first_name} {a.last_name}
-                  </Link>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono">
-                      {a.total_score ?? "—"}
-                    </span>
-                    {a.recommendation && (
-                      <RecommendationBadge value={a.recommendation} />
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+      <div className="card mt-8">
+        <div className="flex items-center justify-between">
+          <h2 className="font-extrabold text-lg">Recent candidates</h2>
+          <Link
+            href="/admin/candidates"
+            className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+          >
+            View all
+          </Link>
         </div>
-
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <h2 className="font-extrabold text-lg">Recent invitations</h2>
-            <Link
-              href="/admin/invitations"
-              className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
-            >
-              Manage
-            </Link>
-          </div>
-          {invitations.length === 0 ? (
-            <p className="text-[color:var(--brand-ink-muted)] mt-3 text-sm">
-              No invitations yet.
-            </p>
-          ) : (
-            <ul className="mt-3 divide-y divide-[color:var(--brand-line)]">
-              {invitations.slice(0, 8).map((i) => (
-                <li key={i.id} className="py-3 flex items-center justify-between gap-3">
-                  <span className="font-semibold truncate">
-                    {[i.first_name, i.last_name].filter(Boolean).join(" ") ||
-                      i.email ||
-                      "Unnamed"}
-                  </span>
-                  <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)]">
-                    {i.status}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        {applications.length === 0 ? (
+          <p className="text-[color:var(--brand-ink-muted)] mt-3 text-sm">
+            No applications yet. Share a posting to start collecting candidates.
+          </p>
+        ) : (
+          <ul className="mt-3 divide-y divide-[color:var(--brand-line)]">
+            {applications.slice(0, 10).map((a) => (
+              <li key={a.id} className="py-3 flex items-center justify-between gap-3">
+                <Link
+                  href={`/admin/candidates/${a.id}`}
+                  className="font-semibold hover:text-[color:var(--brand-pink-600)]"
+                >
+                  {a.first_name} {a.last_name}
+                </Link>
+                <span className="text-xs text-[color:var(--brand-ink-muted)]">
+                  {a.positions?.[0] ?? "—"} · {a.status.replace(/_/g, " ")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
@@ -155,20 +98,4 @@ function Stat({ label, value }: { label: string; value: number }) {
       <div className="text-3xl font-black mt-1">{value}</div>
     </div>
   );
-}
-
-function RecommendationBadge({
-  value,
-}: {
-  value: keyof typeof RECOMMENDATION_LABELS;
-}) {
-  const tone =
-    value === "strong_interview"
-      ? "bg-[color:var(--brand-mint)]/30 text-[color:var(--brand-ink)]"
-      : value === "interview"
-        ? "bg-[color:var(--brand-yellow)]/40 text-[color:var(--brand-ink)]"
-        : value === "borderline"
-          ? "bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)]"
-          : "bg-[color:var(--brand-ink)] text-white";
-  return <span className={`chip ${tone}`}>{RECOMMENDATION_LABELS[value]}</span>;
 }

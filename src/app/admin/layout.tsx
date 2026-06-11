@@ -36,10 +36,10 @@ export default async function AdminLayout({
               Postings
             </Link>
             <Link
-              href="/admin/applicants"
+              href="/admin/candidates"
               className="font-semibold hover:text-[color:var(--brand-pink)]"
             >
-              Applicants
+              Candidates
             </Link>
             <Link
               href="/admin/locations"
