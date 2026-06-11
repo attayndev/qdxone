@@ -1,21 +1,38 @@
 import Link from "next/link";
 import { BrandHeader, BrandFooter } from "@/components/Brand";
-import InviteCodeForm from "@/components/InviteCodeForm";
+import { adminClient } from "@/lib/supabase/admin";
 import type { OrganizationRow } from "@/lib/supabase/types";
+import type { Database } from "@/lib/supabase/database.types";
+
+type PostingRow = Database["public"]["Tables"]["job_postings"]["Row"];
 
 /**
- * The branded org landing — shown at the org's subdomain root.
- * Pulls all wording from `org.branding`.
+ * The branded org landing — shown at the org's subdomain root. The store's
+ * public careers page: hero + open positions anyone can apply to. Pulls
+ * wording from `org.branding`.
  */
-export default function OrgLanding({ org }: { org: OrganizationRow }) {
+export default async function OrgLanding({ org }: { org: OrganizationRow }) {
   const b = org.branding;
-  const eyebrow = b.hero_copy_eyebrow ?? `Now hiring · ${b.location_subtitle ?? org.name}`;
+  const eyebrow =
+    b.hero_copy_eyebrow ?? `Now hiring · ${b.location_subtitle ?? org.name}`;
   const h1Pre = b.hero_copy_h1_pre ?? "Join the team.";
   const h1Post = b.hero_copy_h1_post ?? "Earn it.";
   const phoneEnabled = b.phone_policy_enabled !== false;
   const phoneText =
     b.phone_policy_text ??
     "Phones live in the office during shifts. Phone use on the floor is a firing offense — no exceptions.";
+
+  const supa = adminClient();
+  const { data } = await supa
+    .from("job_postings")
+    .select("id, title, public_token")
+    .eq("org_id", org.id)
+    .eq("status", "open")
+    .order("created_at", { ascending: false });
+  const postings = (data as Pick<
+    PostingRow,
+    "id" | "title" | "public_token"
+  >[] | null) ?? [];
 
   return (
     <>
@@ -32,19 +49,16 @@ export default function OrgLanding({ org }: { org: OrganizationRow }) {
             </h1>
             <p className="mt-5 text-lg sm:text-xl text-[color:var(--brand-ink-muted)] max-w-xl mx-auto">
               We&apos;re picky about who joins the crew. Strong attitude beats
-              fancy resume.
+              fancy resume. Apply in a few minutes, right from your phone.
             </p>
             <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link href="#start" className="btn-primary">
-                Enter your invitation
+              <Link href="#openings" className="btn-primary">
+                See open roles
               </Link>
               <Link href="#what-were-looking-for" className="btn-ghost">
                 What we look for
               </Link>
             </div>
-            <p className="mt-5 text-sm text-[color:var(--brand-ink-muted)]">
-              Applications are by invitation only.
-            </p>
           </div>
         </section>
 
@@ -104,23 +118,36 @@ export default function OrgLanding({ org }: { org: OrganizationRow }) {
         </section>
 
         <section
-          id="start"
+          id="openings"
           className="px-4 sm:px-6 py-12 bg-[color:var(--brand-ink)] text-white"
         >
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Got an invitation?
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-center">
+              Open positions
             </h2>
-            <p className="mt-2 text-white/70">
-              Paste your code or open the link from your email or text.
-            </p>
-            <div className="mt-6">
-              <InviteCodeForm />
-            </div>
-            <p className="mt-6 text-sm text-white/60">
-              No invitation yet? Stop by {org.name} or contact the manager
-              directly. We don&apos;t accept open applications online.
-            </p>
+            {postings.length === 0 ? (
+              <p className="mt-4 text-center text-white/70">
+                No open roles posted right now — check back soon, or stop by{" "}
+                {org.name} and ask.
+              </p>
+            ) : (
+              <ul className="mt-6 space-y-3">
+                {postings.map((p) => (
+                  <li
+                    key={p.id}
+                    className="rounded-2xl bg-white/5 border border-white/10 p-4 flex items-center justify-between gap-3 flex-wrap"
+                  >
+                    <div className="font-bold text-lg">{p.title}</div>
+                    <Link
+                      href={`/j/${encodeURIComponent(p.public_token)}`}
+                      className="btn-primary"
+                    >
+                      Apply
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </section>
       </main>

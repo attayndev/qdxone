@@ -3,6 +3,7 @@ import Link from "next/link";
 import { currentOrg, orgUrl } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
 import { getPrimaryLocation } from "@/lib/locations";
+import { orgRoles } from "@/lib/roles";
 import { qrSvg } from "@/lib/qr";
 import PostingsClient, {
   type PostingView,
@@ -31,7 +32,6 @@ export default async function PostingsPage() {
       return {
         id: p.id,
         title: p.title,
-        role_type: p.role_type,
         status: p.status,
         url,
         qrSvg: await qrSvg(url),
@@ -56,7 +56,11 @@ export default async function PostingsPage() {
         )}
       </div>
 
-      <PostingsClient postings={postings} hasLocation={!!location} />
+      <PostingsClient
+        postings={postings}
+        hasLocation={!!location}
+        roles={orgRoles(org.branding)}
+      />
     </div>
   );
 }

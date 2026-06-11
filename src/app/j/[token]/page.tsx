@@ -8,16 +8,9 @@ interface PageProps {
   params: Promise<{ token: string }>;
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  crew: "Crew Member",
-  shift_lead: "Shift Lead",
-  gm: "General Manager",
-};
-
 /**
  * Public job posting landing (per-org subdomain). The candidate scans the
- * QR / opens the link and starts the application here. The application form
- * itself is Module B.
+ * QR / opens the link and starts the application here.
  */
 export default async function JobPostingPage({ params }: PageProps) {
   const { token } = await params;
@@ -27,7 +20,7 @@ export default async function JobPostingPage({ params }: PageProps) {
   const supa = adminClient();
   const { data: posting } = await supa
     .from("job_postings")
-    .select("id, title, role_type, status, org_id")
+    .select("id, title, status, org_id")
     .eq("public_token", token)
     .eq("org_id", org.id)
     .maybeSingle();
@@ -46,8 +39,7 @@ export default async function JobPostingPage({ params }: PageProps) {
             {posting.title}
           </h1>
           <p className="mt-3 text-lg text-[color:var(--brand-ink-muted)]">
-            {ROLE_LABELS[posting.role_type] ?? posting.role_type} at{" "}
-            <strong>{org.name}</strong>
+            at <strong>{org.name}</strong>
           </p>
 
           <div className="card mt-8">

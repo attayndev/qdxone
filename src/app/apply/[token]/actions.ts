@@ -1,153 +1,141 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
-import { lookupInvitation } from "@/lib/invitations";
-import { scoreAnswers } from "@/lib/questionnaire/scoring";
+import { generateToken } from "@/lib/invitations";
 import { currentOrgOrThrow } from "@/lib/tenancy";
-import { recordUsage } from "@/lib/usage";
+import { getPrimaryLocation } from "@/lib/locations";
 
-const ContactSchema = z.object({
+const WorkHistory = z.object({
+  employer: z.string().max(120),
+  role: z.string().max(120),
+  dates: z.string().max(80),
+});
+const Reference = z.object({
+  name: z.string().max(120),
+  contact: z.string().max(120),
+});
+
+const ApplicationSchema = z.object({
   first_name: z.string().min(1, "Required").max(80),
   last_name: z.string().min(1, "Required").max(80),
   email: z.string().email().max(200),
   phone: z.string().max(40).optional().nullable(),
+  postal_code: z.string().max(20).optional().nullable(),
+  eligible_to_work: z.boolean(),
+  // day-of-week → ["morning","afternoon","evening"]
+  availability: z.record(z.string(), z.array(z.string())).default({}),
+  work_history: z.array(WorkHistory).max(2).default([]),
+  job_references: z.array(Reference).max(3).default([]),
+  earliest_start_date: z.string().max(20).optional().nullable(),
 });
 
-const SubmissionSchema = z.object({
-  contact: ContactSchema,
-  answers: z.record(z.string(), z.unknown()),
-});
-
-export type SubmissionInput = z.infer<typeof SubmissionSchema>;
+export type ApplicationInput = z.infer<typeof ApplicationSchema>;
 
 export async function submitApplication(
   token: string,
-  input: SubmissionInput
-): Promise<{ ok: true } | { ok: false; error: string }> {
+  input: ApplicationInput
+): Promise<{ ok: true; assessmentToken?: string } | { ok: false; error: string }> {
   const org = await currentOrgOrThrow();
-  const lookup = await lookupInvitation(token, org.id);
-  if (!lookup.ok) {
-    return { ok: false, error: "Invitation is no longer valid." };
+  const supa = adminClient();
+
+  const { data: posting } = await supa
+    .from("job_postings")
+    .select("id, location_id, title, status")
+    .eq("public_token", token)
+    .eq("org_id", org.id)
+    .maybeSingle();
+  if (!posting || posting.status !== "open") {
+    return { ok: false, error: "This posting is no longer accepting applications." };
   }
-  const parsed = SubmissionSchema.safeParse(input);
+
+  const parsed = ApplicationSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "Some answers were missing or invalid." };
   }
+  const v = parsed.data;
 
-  const { contact, answers } = parsed.data;
-  const scoring = scoreAnswers(answers);
-  const supa = adminClient();
+  // Resolve the location: a single-store posting carries one; a brand-wide
+  // posting (location_id null) falls back to the org's primary location.
+  let locationId = posting.location_id;
+  if (!locationId) {
+    const loc = await getPrimaryLocation(org.id);
+    locationId = loc?.id ?? null;
+  }
+  if (!locationId) {
+    return { ok: false, error: "This store isn't finished setting up yet." };
+  }
 
-  const { data: applicant, error: aerr } = await supa
-    .from("applicants")
+  const { data: app, error } = await supa
+    .from("applications")
     .insert({
       org_id: org.id,
-      invitation_id: lookup.invitation.id,
-      first_name: contact.first_name.trim(),
-      last_name: contact.last_name.trim(),
-      email: contact.email.trim().toLowerCase(),
-      phone: contact.phone?.trim() || null,
-      age_band: typeof answers.age_band === "string" ? answers.age_band : null,
-      total_score: scoring.total,
-      recommendation: scoring.recommendation,
-      category_scores: scoring.categoryScores as never,
-      risk_flags: scoring.riskFlags as never,
+      location_id: locationId,
+      job_posting_id: posting.id,
+      entry_source: "job_posting",
+      first_name: v.first_name.trim(),
+      last_name: v.last_name.trim(),
+      email: v.email.trim().toLowerCase(),
+      phone: v.phone?.trim() || null,
+      postal_code: v.postal_code?.trim() || null,
+      eligible_to_work: v.eligible_to_work,
+      availability: v.availability,
+      work_history: v.work_history,
+      job_references: v.job_references,
+      positions: [posting.title],
+      earliest_start_date: v.earliest_start_date || null,
+      status: "new",
+      resume_token: generateToken(),
     })
     .select("id")
     .single();
 
-  if (aerr || !applicant) {
-    console.error("applicant insert failed", aerr);
-    return { ok: false, error: "Could not save your application. Try again." };
+  if (error || !app) {
+    console.error("application insert failed", error);
+    return { ok: false, error: "Could not submit your application. Try again." };
   }
 
-  const rows = Object.entries(answers).map(([question_key, answer]) => ({
+  await supa.from("audit_log").insert({
     org_id: org.id,
-    applicant_id: applicant.id,
-    question_key,
-    answer: (answer ?? null) as never,
-  }));
-  if (rows.length) {
-    const { error: rerr } = await supa.from("responses").insert(rows);
-    if (rerr) console.error("responses insert failed", rerr);
-  }
-
-  await supa
-    .from("invitations")
-    .update({
-      status: "submitted",
-      submitted_at: new Date().toISOString(),
-    })
-    .eq("id", lookup.invitation.id);
-
-  await supa.from("audit_events").insert({
-    org_id: org.id,
-    invitation_id: lookup.invitation.id,
-    applicant_id: applicant.id,
-    kind: "invite.submitted",
+    action: "application.submitted",
+    subject_type: "application",
+    subject_id: app.id,
+    meta: { job_posting_id: posting.id },
   });
 
-  // Meter the usage. recordUsage decides included-vs-overage and (in
-  // phase 3) reports overage to Stripe. Errors here don't block the
-  // applicant flow.
+  // Fire the assessment: create the session (selects the 30-item form) and
+  // return its token so the candidate continues straight into it. Email is
+  // best-effort as a resume backup; SMS provider is a follow-up.
+  let assessmentToken: string | undefined;
   try {
-    await recordUsage({
+    const { createCandidateAssessment } = await import("@/lib/assessment/session");
+    assessmentToken = await createCandidateAssessment({
       orgId: org.id,
-      typeKey: "questionnaire",
-      applicantId: applicant.id,
+      locationId,
+      applicationId: app.id,
     });
+    await supa
+      .from("applications")
+      .update({ status: "assessment_sent" })
+      .eq("id", app.id);
+
+    if (process.env.RESEND_API_KEY && assessmentToken) {
+      try {
+        const { sendAssessmentEmail } = await import("@/lib/email");
+        await sendAssessmentEmail({
+          to: v.email,
+          firstName: v.first_name,
+          orgSlug: org.slug,
+          orgName: org.name,
+          token: assessmentToken,
+        });
+      } catch (e) {
+        console.error("assessment email failed", e);
+      }
+    }
   } catch (e) {
-    console.error("usage event failed", e);
+    console.error("assessment session creation failed", e);
   }
 
-  void notifyAdminIfStrong({
-    orgId: org.id,
-    recommendation: scoring.recommendation,
-    name: `${contact.first_name} ${contact.last_name}`,
-    applicantId: applicant.id,
-  });
-  void notifyApplicant({
-    orgName: org.name,
-    email: contact.email,
-    firstName: contact.first_name,
-  });
-
-  return { ok: true };
-}
-
-export async function submitAndRedirect(
-  token: string,
-  input: SubmissionInput
-): Promise<{ ok: false; error: string } | never> {
-  const result = await submitApplication(token, input);
-  if (!result.ok) return result;
-  redirect(`/apply/${encodeURIComponent(token)}/thank-you`);
-}
-
-async function notifyAdminIfStrong(args: {
-  orgId: string;
-  recommendation: string;
-  name: string;
-  applicantId: string;
-}) {
-  if (args.recommendation !== "strong_interview") return;
-  if (!process.env.RESEND_API_KEY) return;
-  const { sendAdminStrongCandidateEmail } = await import("@/lib/email");
-  await sendAdminStrongCandidateEmail(args).catch((e) =>
-    console.error("admin alert failed", e)
-  );
-}
-
-async function notifyApplicant(args: {
-  orgName: string;
-  email: string;
-  firstName: string;
-}) {
-  if (!process.env.RESEND_API_KEY) return;
-  const { sendApplicantConfirmationEmail } = await import("@/lib/email");
-  await sendApplicantConfirmationEmail(args).catch((e) =>
-    console.error("applicant email failed", e)
-  );
+  return { ok: true, assessmentToken };
 }

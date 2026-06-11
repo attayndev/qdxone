@@ -115,6 +115,36 @@ export async function sendAdminStrongCandidateEmail(args: {
   });
 }
 
+export async function sendAssessmentEmail(args: {
+  to: string;
+  firstName: string;
+  orgSlug: string;
+  orgName: string;
+  token: string;
+}) {
+  const link = orgUrl(args.orgSlug, `/a/${args.token}`);
+  await client().emails.send({
+    from: FROM,
+    to: args.to,
+    subject: `One quick step — your ${args.orgName} assessment`,
+    html: `
+      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#1a1530">
+        <p style="font-size:18px">Hey ${escape(args.firstName)},</p>
+        <p>Thanks for applying to <strong>${escape(args.orgName)}</strong>. There's one short step left — a quick assessment, about <strong>5 minutes</strong>, right on your phone.</p>
+        <p style="margin:28px 0">
+          <a href="${link}" style="background:#ff2d87;color:white;padding:14px 22px;border-radius:9999px;text-decoration:none;font-weight:700;display:inline-block">
+            Start the assessment
+          </a>
+        </p>
+        <p style="font-size:13px;color:#4a4360">This link works for 72 hours. Or paste it in your browser:<br>
+          <span style="word-break:break-all">${link}</span>
+        </p>
+      </div>
+    `,
+    text: `Hey ${args.firstName},\n\nThanks for applying to ${args.orgName}. One short step left — a quick assessment, about 5 minutes, on your phone.\n\nStart here (valid 72 hours): ${link}`,
+  });
+}
+
 function escape(s: string): string {
   return s
     .replace(/&/g, "&amp;")
