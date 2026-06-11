@@ -62,8 +62,8 @@ export function BrandHeader({
           <BrandMark org={org} />
         </Link>
         {showApply && (
-          <span className="text-xs sm:text-sm text-[color:var(--brand-ink-muted)] font-medium">
-            Careers · Invitation only
+          <span className="text-xs sm:text-sm text-[color:var(--brand-pink-600)] font-semibold">
+            Careers · Now hiring
           </span>
         )}
       </div>

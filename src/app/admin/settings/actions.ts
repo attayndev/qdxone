@@ -14,8 +14,6 @@ const BrandingSchema = z.object({
   hero_copy_h1_post: z.string().max(120).optional().or(z.literal("")),
   primary_color: z.string().max(20).optional().or(z.literal("")),
   industry: z.string().max(40).optional().or(z.literal("")),
-  phone_policy_enabled: z.coerce.boolean().optional(),
-  phone_policy_text: z.string().max(400).optional().or(z.literal("")),
 });
 
 export async function updateBranding(formData: FormData) {
@@ -31,14 +29,15 @@ export async function updateBranding(formData: FormData) {
     hero_copy_h1_post: formData.get("hero_copy_h1_post") ?? "",
     primary_color: formData.get("primary_color") ?? "",
     industry: formData.get("industry") ?? "",
-    phone_policy_enabled: formData.get("phone_policy_enabled") === "on",
-    phone_policy_text: formData.get("phone_policy_text") ?? "",
   });
   if (!parsed.success) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
   const v = parsed.data;
+  // Spread existing branding so settings saves don't wipe roles,
+  // application_config, custom questions, etc.
   const branding = {
+    ...(org.branding ?? {}),
     display_name: v.display_name || undefined,
     location_subtitle: v.location_subtitle || undefined,
     hero_copy_eyebrow: v.hero_copy_eyebrow || undefined,
@@ -46,8 +45,6 @@ export async function updateBranding(formData: FormData) {
     hero_copy_h1_post: v.hero_copy_h1_post || undefined,
     primary_color: v.primary_color || undefined,
     industry: v.industry || undefined,
-    phone_policy_enabled: v.phone_policy_enabled !== false,
-    phone_policy_text: v.phone_policy_text || undefined,
   };
 
   const supa = adminClient();
