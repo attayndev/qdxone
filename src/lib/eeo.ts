@@ -57,3 +57,5 @@ export const DISABILITY_OPTIONS: EeoOption[] = [
 
 export const RACE_LABELS = Object.fromEntries(RACE_OPTIONS.map((o) => [o.value, o.label]));
 export const GENDER_LABELS = Object.fromEntries(GENDER_OPTIONS.map((o) => [o.value, o.label]));
+export const VETERAN_LABELS = Object.fromEntries(VETERAN_OPTIONS.map((o) => [o.value, o.label]));
+export const DISABILITY_LABELS = Object.fromEntries(DISABILITY_OPTIONS.map((o) => [o.value, o.label]));
