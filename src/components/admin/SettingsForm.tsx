@@ -102,27 +102,10 @@ export default function SettingsForm({ org }: { org: OrganizationRow }) {
         </div>
       </div>
 
-      <div className="border-t border-[color:var(--brand-line)] pt-4">
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            name="phone_policy_enabled"
-            defaultChecked={b.phone_policy_enabled !== false}
-          />
-          <span className="font-semibold">
-            Show a phone-on-the-floor policy in the application
-          </span>
-        </label>
-        <p className="text-xs text-[color:var(--brand-ink-muted)] mt-1">
-          Adds a question that screens for comfort with the rule.
-        </p>
-        <textarea
-          name="phone_policy_text"
-          className="input mt-3 min-h-[80px]"
-          placeholder="Phones are left in the manager's office during your shift. Phone use on the floor is a firing offense."
-          defaultValue={b.phone_policy_text ?? ""}
-        />
-      </div>
+      <p className="text-xs text-[color:var(--brand-ink-muted)] border-t border-[color:var(--brand-line)] pt-4">
+        Have a specific policy candidates should acknowledge (e.g. phones off
+        the floor)? Add it as a <strong>custom question</strong> in Store setup.
+      </p>
 
       {msg && (
         <p
