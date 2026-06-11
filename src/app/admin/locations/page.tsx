@@ -4,6 +4,7 @@ import { getPrimaryLocation } from "@/lib/locations";
 import { orgRoles } from "@/lib/roles";
 import LocationForm from "@/components/admin/LocationForm";
 import RolesEditor from "@/components/admin/RolesEditor";
+import AssessmentModeToggle from "@/components/admin/AssessmentModeToggle";
 
 export default async function LocationsPage() {
   const org = await currentOrg();
@@ -19,6 +20,9 @@ export default async function LocationsPage() {
       </p>
       <LocationForm location={location} />
       <RolesEditor initialRoles={orgRoles(org.branding)} />
+      <AssessmentModeToggle
+        autoSend={org.branding?.auto_send_assessment !== false}
+      />
     </div>
   );
 }

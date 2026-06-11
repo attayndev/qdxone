@@ -3,6 +3,8 @@ import Link from "next/link";
 import { currentOrg } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
 import { ATTENTION_CHECKS } from "@/lib/assessment/session";
+import DeleteCandidateButton from "@/components/admin/DeleteCandidateButton";
+import SendAssessmentButton from "@/components/admin/SendAssessmentButton";
 import type { Database } from "@/lib/supabase/database.types";
 
 type AppRow = Database["public"]["Tables"]["applications"]["Row"];
@@ -94,9 +96,12 @@ export default async function CandidateDetail({ params }: PageProps) {
 
   return (
     <div>
-      <Link href="/admin/candidates" className="text-sm text-[color:var(--brand-ink-muted)] hover:underline">
-        ← All candidates
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link href="/admin/candidates" className="text-sm text-[color:var(--brand-ink-muted)] hover:underline">
+          ← All candidates
+        </Link>
+        <DeleteCandidateButton id={a.id} name={`${a.first_name} ${a.last_name}`} />
+      </div>
 
       <div className="mt-3 flex items-center justify-between gap-3 flex-wrap">
         <div>
@@ -184,9 +189,18 @@ export default async function CandidateDetail({ params }: PageProps) {
           <div className="card">
             <h2 className="font-extrabold text-lg">Assessment responses</h2>
             {responses.length === 0 ? (
-              <p className="text-sm text-[color:var(--brand-ink-muted)] mt-2">
-                {session ? "Not started yet." : "No assessment session."}
-              </p>
+              session ? (
+                <p className="text-sm text-[color:var(--brand-ink-muted)] mt-2">
+                  Sent — not started yet.
+                </p>
+              ) : (
+                <div className="mt-3">
+                  <p className="text-sm text-[color:var(--brand-ink-muted)] mb-3">
+                    No assessment sent yet. Review the application, then send it.
+                  </p>
+                  <SendAssessmentButton id={a.id} />
+                </div>
+              )
             ) : (
               <div className="mt-3 space-y-3">
                 {responses.map((r) => (

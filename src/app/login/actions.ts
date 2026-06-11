@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { adminClient } from "@/lib/supabase/admin";
 import { createClient as createServerSupa } from "@/lib/supabase/server";
 import { orgUrl } from "@/lib/tenancy";
@@ -11,9 +10,11 @@ import { orgUrl } from "@/lib/tenancy";
  * user owns it, sets a temp password, and signs in (sets the session cookie).
  * No email / OTP / PKCE — entirely self-contained so it can't half-work.
  */
-export async function devSignIn(formData: FormData) {
+export async function devSignIn(
+  formData: FormData
+): Promise<{ ok: true; redirectTo: string } | { ok: false; error: string }> {
   if (process.env.NODE_ENV === "production") {
-    throw new Error("Dev sign-in is disabled in production.");
+    return { ok: false, error: "Dev sign-in is disabled in production." };
   }
   const email = String(formData.get("email") ?? "")
     .trim()
@@ -22,7 +23,7 @@ export async function devSignIn(formData: FormData) {
     String(formData.get("slug") ?? "")
       .trim()
       .toLowerCase() || "16handlesnewcity";
-  if (!email) return;
+  if (!email) return { ok: false, error: "Enter an email." };
 
   const admin = adminClient();
 
@@ -38,7 +39,7 @@ export async function devSignIn(formData: FormData) {
     });
     userId = created.data.user?.id ?? null;
   }
-  if (!userId) throw new Error("Dev sign-in: could not resolve a user.");
+  if (!userId) return { ok: false, error: "Could not resolve a user." };
 
   // 2. Set a temp password so we can sign in without email.
   const tempPassword = `dev-pw-${userId}`;
@@ -70,7 +71,7 @@ export async function devSignIn(formData: FormData) {
       .single();
     org = ins.data;
   }
-  if (!org) throw new Error("Dev sign-in: could not ensure org.");
+  if (!org) return { ok: false, error: "Could not ensure org." };
 
   // 4. Ensure the user owns it.
   await admin
@@ -85,8 +86,10 @@ export async function devSignIn(formData: FormData) {
   });
   if (error) {
     console.error("[devSignIn] password sign-in failed:", error.message);
-    throw new Error("Dev sign-in failed: " + error.message);
+    return { ok: false, error: "Sign-in failed: " + error.message };
   }
 
-  redirect(orgUrl(org.slug, "/admin"));
+  // Return the URL; the client navigates (a full reload carries the cookie
+  // and works across subdomains, unlike a server-action redirect).
+  return { ok: true, redirectTo: orgUrl(org.slug, "/admin") };
 }
