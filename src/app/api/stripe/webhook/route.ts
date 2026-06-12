@@ -5,10 +5,10 @@ import { adminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
-const PAID_PLANS = ["starter", "growth", "pro"];
+const PAID_PLANS = ["starter", "growth"];
 
 function quotaForPlan(plan: string): number | null {
-  return plan === "starter" ? 25 : plan === "growth" ? 100 : null; // pro = unlimited
+  return plan === "starter" ? 25 : plan === "growth" ? 75 : null; // multi_unit = unlimited
 }
 
 function mapStatus(s: Stripe.Subscription.Status): string {

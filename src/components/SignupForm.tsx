@@ -99,15 +99,18 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
       </div>
 
       <fieldset>
-        <legend className="label">Plan — 30-day free trial on all</legend>
-        <div className="grid grid-cols-3 gap-2">
-          <RadioCard name="plan" value="starter" defaultChecked label="Starter" sub="25 assessments/mo" />
-          <RadioCard name="plan" value="growth" label="Growth" sub="100 assessments/mo" />
-          <RadioCard name="plan" value="pro" label="Pro" sub="Unlimited" />
+        <legend className="label">Plan — 30-day free trial on both</legend>
+        <div className="grid grid-cols-2 gap-2">
+          <RadioCard name="plan" value="starter" defaultChecked label="Starter — $49" sub="25/mo, then $3 ea · 1 user" />
+          <RadioCard name="plan" value="growth" label="Growth — $99" sub="75/mo, then $2 ea · 3 users" />
         </div>
         <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
           Monthly, per location. Card captured now, first charge after your
-          30-day trial. Bigger or multi-brand? <span className="font-semibold">Enterprise</span> is custom — talk to us.
+          30-day trial. Multiple locations or a brand?{" "}
+          <a href="/demo" className="font-semibold underline">
+            Multi-unit
+          </a>{" "}
+          is custom — talk to us.
         </p>
       </fieldset>
 

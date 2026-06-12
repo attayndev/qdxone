@@ -10,18 +10,19 @@ export function stripe(): Stripe {
   return cached;
 }
 
-export type PaidPlan = "starter" | "growth" | "pro";
+// The two self-serve tiers. Multi-unit is talk-to-us (no Checkout price).
+export type PaidPlan = "starter" | "growth";
 
 /**
- * Stripe Price IDs per tier. All three are flat monthly per-location prices
- * (Starter $49 / Growth $99 / Pro $249 — set the real amounts in Stripe).
- * No metered/overage prices: the model is upgrade-the-tier, not overage.
- * Enterprise is never self-serve, so it has no price here.
+ * Stripe Price IDs per self-serve tier — flat monthly per-location base prices
+ * (Starter $49 / Growth $99 — set the real amounts in Stripe). Each base plan
+ * also has a metered overage price ($3/Starter, $2/Growth per completed
+ * assessment past the included quota); those metered prices are added to the
+ * Checkout subscription in the Stripe pass. Multi-unit is never self-serve.
  */
 export const PRICE_IDS: Record<PaidPlan, string | undefined> = {
   starter: process.env.STRIPE_PRICE_STARTER,
   growth: process.env.STRIPE_PRICE_GROWTH,
-  pro: process.env.STRIPE_PRICE_PRO,
 };
 
 export function priceForPlan(plan: PaidPlan): string {

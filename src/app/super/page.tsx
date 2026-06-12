@@ -48,8 +48,7 @@ export default async function SuperAdminPage() {
     if (o.status !== "active") return sum;
     if (o.plan === "starter") return sum + 49;
     if (o.plan === "growth") return sum + 99;
-    if (o.plan === "pro") return sum + 249;
-    return sum; // enterprise: custom pricing, not counted
+    return sum; // multi_unit: custom pricing, not counted (excludes overage)
   }, 0);
 
   return (

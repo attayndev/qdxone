@@ -2,7 +2,9 @@
 // the service-role client. The generated `database.types.ts` (npm run db:types)
 // covers row/insert/update shapes; these are the convenience views.
 
-export type PlanTier = "starter" | "growth" | "pro" | "enterprise";
+// Self-serve tiers are starter | growth. "multi_unit" is the talk-to-us tier:
+// never sold via Checkout, set manually after a sales conversation.
+export type PlanTier = "starter" | "growth" | "multi_unit";
 export type OrgStatus = "trialing" | "active" | "past_due" | "canceled";
 export type BillingCycle = "annual" | "monthly";
 export type OrgRole = "owner" | "admin";

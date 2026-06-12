@@ -4,7 +4,7 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 export const metadata = {
   title: "QDX pricing — per-location restaurant hiring",
   description:
-    "Every plan has the full platform. Pay for the volume of completed assessments that fits your restaurant. 30-day free trial.",
+    "Start at $49/location. Pay for the completed assessments you use. Grow into SMS, AI, and analytics. 30-day free trial.",
 };
 
 export default function PricingPage() {
@@ -18,23 +18,39 @@ export default function PricingPage() {
             Simple, per-location pricing.
           </h1>
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
-            Every plan includes the full platform. You only pay for completed
-            assessments — pick the volume that fits your restaurant. 30-day free
-            trial on all of them.
+            Start with everything you need to hire. Grow into a team, SMS, AI,
+            and analytics as you scale. 30-day free trial on both self-serve
+            plans.
           </p>
 
-          <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-            <PlanCard name="Starter" price={49} quota="25" />
-            <PlanCard name="Growth" price={99} quota="100" highlight />
-            <PlanCard name="Pro" price={249} quota="Unlimited" />
-            <EnterpriseCard />
+          <div className="mt-10 grid md:grid-cols-3 gap-5 items-start">
+            <PlanCard
+              name="Starter"
+              price={49}
+              quota="25"
+              overage="3"
+              seats="1 user"
+              tagline="Everything you need to hire for one store."
+              features={STARTER_FEATURES}
+            />
+            <PlanCard
+              name="Growth"
+              price={99}
+              quota="75"
+              overage="2"
+              seats="3 users"
+              tagline="Everything in Starter, plus:"
+              features={GROWTH_FEATURES}
+              highlight
+            />
+            <MultiUnitCard />
           </div>
 
           <p className="mt-6 text-center text-sm text-[color:var(--brand-ink-muted)] max-w-2xl mx-auto">
             A completed assessment is the billable unit — a candidate who
-            applies but doesn&apos;t finish costs nothing. Hit your monthly
-            number and candidates can still apply; you just upgrade for more
-            headroom. No overage surprises.
+            applies but doesn&apos;t finish costs nothing. Go past your monthly
+            included number and candidates still apply; extra completed
+            assessments simply bill at your plan&apos;s per-assessment rate.
           </p>
 
           <div className="mt-12 text-center">
@@ -53,24 +69,49 @@ export default function PricingPage() {
   );
 }
 
-const FEATURES = [
+const STARTER_FEATURES = [
   "Branded hiring page + QR codes",
   "Configurable application form & roles",
   "5-minute validated assessment",
   "Verbal bands + fit recommendation",
   "Quality + screener flags",
   "Candidate pipeline & review",
+  "Email notifications",
+];
+
+const GROWTH_FEATURES = [
+  "3 team members",
+  "SMS candidate notifications",
+  "AI-written job descriptions",
+  "Hiring analytics & reports",
+  "Multi-location careers page",
+];
+
+const MULTI_UNIT_FEATURES = [
+  "Unlimited assessments & team",
+  "EEO / adverse-impact dashboard",
+  "Hiring benchmarks & local norms",
+  "Brand hierarchy & rollup reporting",
+  "SSO & dedicated support",
 ];
 
 function PlanCard({
   name,
   price,
   quota,
+  overage,
+  seats,
+  tagline,
+  features,
   highlight,
 }: {
   name: string;
   price: number;
   quota: string;
+  overage: string;
+  seats: string;
+  tagline: string;
+  features: string[];
   highlight?: boolean;
 }) {
   return (
@@ -93,34 +134,36 @@ function PlanCard({
         </span>
       </div>
       <div className="mt-1 text-sm font-semibold text-[color:var(--brand-pink-600)]">
-        {quota} completed assessments / mo
+        {quota} assessments / mo, then ${overage} each
       </div>
-      <ul className="mt-5 space-y-2 text-[15px]">
-        {FEATURES.map((f) => (
+      <div className="mt-0.5 text-xs text-[color:var(--brand-ink-muted)]">
+        {seats} · 30-day free trial
+      </div>
+      <p className="mt-4 text-sm font-semibold">{tagline}</p>
+      <ul className="mt-2 space-y-2 text-[15px]">
+        {features.map((f) => (
           <li key={f}>✓ {f}</li>
         ))}
-        <li>✓ 30-day free trial</li>
       </ul>
     </div>
   );
 }
 
-function EnterpriseCard() {
+function MultiUnitCard() {
   return (
     <div className="card">
-      <h3 className="text-2xl font-black tracking-tight">Enterprise</h3>
+      <h3 className="text-2xl font-black tracking-tight">Multi-unit</h3>
       <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-3xl font-black">Contact us</span>
+        <span className="text-3xl font-black">Let&apos;s talk</span>
       </div>
       <div className="mt-1 text-sm text-[color:var(--brand-ink-muted)]">
-        For brands & large multi-unit groups
+        For franchisees, groups & brands
       </div>
-      <ul className="mt-5 space-y-2 text-[15px]">
-        <li>✓ Everything in Pro, unlimited</li>
-        <li>✓ Brand-level rollup reporting</li>
-        <li>✓ Multi-location & franchise hierarchy</li>
-        <li>✓ Bring your own domain</li>
-        <li>✓ SSO & dedicated support</li>
+      <p className="mt-4 text-sm font-semibold">Everything in Growth, plus:</p>
+      <ul className="mt-2 space-y-2 text-[15px]">
+        {MULTI_UNIT_FEATURES.map((f) => (
+          <li key={f}>✓ {f}</li>
+        ))}
       </ul>
       <Link
         href="/demo"

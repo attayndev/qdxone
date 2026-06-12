@@ -19,7 +19,7 @@ export async function openBillingPortal() {
 }
 
 export async function startCheckoutForCurrentOrg(
-  plan: "starter" | "growth" | "pro"
+  plan: "starter" | "growth"
 ) {
   const org = await currentOrgOrThrow();
   await requireMembership(org.id);

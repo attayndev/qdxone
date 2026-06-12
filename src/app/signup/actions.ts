@@ -17,7 +17,7 @@ const SignupSchema = z.object({
     .min(2)
     .max(30)
     .regex(SLUG_RE, "Letters, numbers, and dashes only"),
-  plan: z.enum(["starter", "growth", "pro"]),
+  plan: z.enum(["starter", "growth"]),
 });
 
 export type SignupResult =
