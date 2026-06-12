@@ -2,8 +2,10 @@ import { orgUrl } from "./tenancy";
 import { sendSms } from "./sms";
 
 /**
- * Deliver the assessment link to a candidate via email (Resend) and SMS
- * (Twilio). Both are best-effort — whichever is configured fires.
+ * Deliver the assessment link to a candidate. Email (Resend) goes to everyone;
+ * SMS (Twilio) fires ONLY when the candidate gave TCPA consent (`smsConsent`) —
+ * the caller is responsible for passing the stored consent flag, so the gate is
+ * enforced at this single layer. Both are best-effort.
  */
 export async function sendAssessmentLink(args: {
   token: string;
@@ -12,6 +14,7 @@ export async function sendAssessmentLink(args: {
   firstName: string;
   email: string;
   phone?: string | null;
+  smsConsent: boolean;
 }): Promise<void> {
   const link = orgUrl(args.orgSlug, `/a/${args.token}`);
 
@@ -30,8 +33,11 @@ export async function sendAssessmentLink(args: {
     }
   }
 
-  await sendSms(
-    args.phone,
-    `${args.firstName ? args.firstName + ", " : ""}finish your ${args.orgName} application with a quick 5-minute assessment: ${link} (link valid 72h)`
-  );
+  // TCPA: only text candidates who consented. Sender named + STOP/HELP inline.
+  if (args.smsConsent && args.phone) {
+    await sendSms(
+      args.phone,
+      `${args.firstName ? args.firstName + ", " : ""}finish your ${args.orgName} application (via QDX) with a quick 5-minute assessment: ${link} (valid 72h). Reply STOP to opt out, HELP for help.`
+    );
+  }
 }

@@ -26,7 +26,7 @@ export async function sendAssessmentToCandidate(
 
   const { data: app } = await supa
     .from("applications")
-    .select("id, location_id, email, first_name, phone")
+    .select("id, location_id, email, first_name, phone, sms_consent")
     .eq("id", applicationId)
     .eq("org_id", org.id)
     .maybeSingle();
@@ -58,6 +58,7 @@ export async function sendAssessmentToCandidate(
     firstName: app.first_name,
     email: app.email,
     phone: app.phone,
+    smsConsent: app.sms_consent ?? false,
   });
 
   revalidatePath(`/admin/candidates/${applicationId}`);

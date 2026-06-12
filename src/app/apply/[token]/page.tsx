@@ -35,6 +35,7 @@ export default async function ApplyPage({ params }: PageProps) {
         <ApplicationForm
           token={token}
           postingTitle={posting.title}
+          orgName={org.name}
           config={applicationConfig(org.branding)}
           submitAction={submitApplication}
         />
