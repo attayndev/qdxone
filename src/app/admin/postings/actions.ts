@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
-import { generateToken } from "@/lib/invitations";
+import { generateToken } from "@/lib/tokens";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
 
