@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BrandHeader, BrandFooter } from "@/components/Brand";
 import { currentOrg } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
+import { roleDescription } from "@/lib/roles";
 
 interface PageProps {
   params: Promise<{ token: string }>;
@@ -41,6 +42,12 @@ export default async function JobPostingPage({ params }: PageProps) {
           <p className="mt-3 text-lg text-[color:var(--brand-ink-muted)]">
             at <strong>{org.name}</strong>
           </p>
+
+          {roleDescription(org.branding, posting.title) && (
+            <p className="mt-5 text-[15px] leading-relaxed whitespace-pre-line">
+              {roleDescription(org.branding, posting.title)}
+            </p>
+          )}
 
           <div className="card mt-8">
             <h2 className="font-extrabold text-lg">How it works</h2>

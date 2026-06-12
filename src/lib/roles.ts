@@ -22,3 +22,24 @@ export function orgRoles(branding: OrgBranding | null | undefined): string[] {
 export function hasCustomRoles(branding: OrgBranding | null | undefined): boolean {
   return Array.isArray(branding?.roles) && branding!.roles!.length > 0;
 }
+
+export type RoleDetail = { name: string; description: string };
+
+/** Roles paired with their job descriptions (empty string if none). */
+export function orgRolesDetailed(
+  branding: OrgBranding | null | undefined
+): RoleDetail[] {
+  const descs = branding?.role_descriptions ?? {};
+  return orgRoles(branding).map((name) => ({
+    name,
+    description: descs[name] ?? "",
+  }));
+}
+
+/** Job description for a specific role name, if set. */
+export function roleDescription(
+  branding: OrgBranding | null | undefined,
+  roleName: string
+): string | null {
+  return branding?.role_descriptions?.[roleName] ?? null;
+}

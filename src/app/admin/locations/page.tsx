@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { currentOrg } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
-import { orgRoles } from "@/lib/roles";
+import { orgRolesDetailed } from "@/lib/roles";
 import { applicationConfig } from "@/lib/application-config";
 import LocationForm from "@/components/admin/LocationForm";
 import RolesEditor from "@/components/admin/RolesEditor";
@@ -22,7 +22,7 @@ export default async function LocationsPage() {
         applications are tied to this location. (Multi-location comes later.)
       </p>
       <LocationForm location={location} />
-      <RolesEditor initialRoles={orgRoles(org.branding)} />
+      <RolesEditor initial={orgRolesDetailed(org.branding)} />
       <ApplicationFormSettings config={applicationConfig(org.branding)} />
       <CustomQuestionsEditor
         initial={applicationConfig(org.branding).custom_questions}
