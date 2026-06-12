@@ -1,65 +1,97 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { saveRoles } from "@/app/admin/locations/actions";
+import {
+  saveRoles,
+  generateRoleDescription,
+} from "@/app/admin/locations/actions";
+import type { RoleDetail } from "@/lib/roles";
 
 /**
- * Operator-defined role list. Roles are org-specific (a froyo shop's roles
- * differ from a burger joint's), so there's no universal set — the operator
- * curates their own here, and postings pick from it.
+ * Operator-defined roles, each with an optional job description (AI-draftable).
  */
-export default function RolesEditor({ initialRoles }: { initialRoles: string[] }) {
-  const [roles, setRoles] = useState<string[]>(
-    initialRoles.length ? initialRoles : [""]
+export default function RolesEditor({ initial }: { initial: RoleDetail[] }) {
+  const [roles, setRoles] = useState<RoleDetail[]>(
+    initial.length ? initial : [{ name: "", description: "" }]
   );
   const [pending, startTransition] = useTransition();
-  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [aiIdx, setAiIdx] = useState<number | null>(null);
+  const [aiErr, setAiErr] = useState<string | null>(null);
 
-  const update = (i: number, v: string) =>
-    setRoles((r) => r.map((x, j) => (j === i ? v : x)));
-  const add = () => setRoles((r) => [...r, ""]);
+  const update = (i: number, patch: Partial<RoleDetail>) =>
+    setRoles((p) => p.map((r, j) => (j === i ? { ...r, ...patch } : r)));
+  const add = () =>
+    setRoles((p) => [...p, { name: "", description: "" }]);
   const remove = (i: number) =>
-    setRoles((r) => (r.length > 1 ? r.filter((_, j) => j !== i) : r));
+    setRoles((p) => (p.length > 1 ? p.filter((_, j) => j !== i) : p));
 
   function save() {
-    setMsg(null);
+    setSaved(false);
     startTransition(async () => {
-      const res = await saveRoles(roles);
-      setMsg(
-        res.ok
-          ? { ok: true, text: "Roles saved." }
-          : { ok: false, text: res.error }
-      );
+      await saveRoles(roles);
+      setSaved(true);
     });
+  }
+
+  async function writeAi(i: number) {
+    setAiErr(null);
+    setAiIdx(i);
+    const res = await generateRoleDescription(roles[i].name, roles[i].description);
+    setAiIdx(null);
+    if (res.ok) update(i, { description: res.text });
+    else setAiErr(res.error);
   }
 
   return (
     <div className="card mt-6 max-w-xl">
       <h2 className="font-extrabold text-lg">Roles</h2>
       <p className="text-sm text-[color:var(--brand-ink-muted)] mt-1">
-        The positions you hire for. Postings pick from this list, and each
-        candidate&apos;s role is recorded for role-based benchmarking later.
+        The positions you hire for. Add a job description candidates see on the
+        posting — or jot a few notes and let AI draft it.
       </p>
-      <ul className="mt-4 space-y-2">
+
+      <ul className="mt-4 space-y-4">
         {roles.map((role, i) => (
-          <li key={i} className="flex gap-2">
-            <input
-              className="input flex-1"
-              value={role}
-              onChange={(e) => update(i, e.target.value)}
-              placeholder="e.g. Team Member"
+          <li
+            key={i}
+            className="rounded-xl border border-[color:var(--brand-line)] p-3 space-y-2"
+          >
+            <div className="flex gap-2">
+              <input
+                className="input flex-1"
+                value={role.name}
+                onChange={(e) => update(i, { name: e.target.value })}
+                placeholder="e.g. Team Member"
+              />
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                className="px-3 text-sm font-semibold text-red-600 hover:underline"
+              >
+                Remove
+              </button>
+            </div>
+            <textarea
+              className="input min-h-[80px]"
+              value={role.description}
+              onChange={(e) => update(i, { description: e.target.value })}
+              placeholder="Job description (or a few notes, then click ✨ Write with AI)"
             />
             <button
               type="button"
-              onClick={() => remove(i)}
-              className="px-3 text-sm font-semibold text-red-600 hover:underline"
-              aria-label="Remove role"
+              disabled={aiIdx === i || !role.name.trim()}
+              onClick={() => writeAi(i)}
+              className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline disabled:opacity-40"
             >
-              Remove
+              {aiIdx === i ? "Writing…" : "✨ Write with AI"}
             </button>
           </li>
         ))}
       </ul>
+
+      {aiErr && <p className="mt-2 text-sm text-red-600">{aiErr}</p>}
+
       <div className="mt-3 flex items-center gap-3">
         <button type="button" onClick={add} className="btn-ghost">
           + Add role
@@ -72,13 +104,7 @@ export default function RolesEditor({ initialRoles }: { initialRoles: string[] }
         >
           {pending ? "Saving…" : "Save roles"}
         </button>
-        {msg && (
-          <span
-            className={`text-sm ${msg.ok ? "text-emerald-700" : "text-red-600"}`}
-          >
-            {msg.text}
-          </span>
-        )}
+        {saved && <span className="text-sm text-emerald-700">Saved.</span>}
       </div>
     </div>
   );

@@ -71,26 +71,75 @@ export async function saveLocation(
  * application so scoring/benchmarks can be computed per role later.
  */
 export async function saveRoles(
-  roles: string[]
+  roles: { name: string; description?: string }[]
 ): Promise<SaveLocationResult> {
   const org = await currentOrgOrThrow();
   await requireMembership(org.id);
 
-  const clean = Array.from(
-    new Set(roles.map((r) => r.trim()).filter(Boolean))
-  ).slice(0, 25);
-  if (clean.length === 0) {
+  const seen = new Set<string>();
+  const names: string[] = [];
+  const descriptions: Record<string, string> = {};
+  for (const r of roles) {
+    const name = r.name.trim();
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    names.push(name);
+    const d = r.description?.trim();
+    if (d) descriptions[name] = d;
+    if (names.length >= 25) break;
+  }
+  if (names.length === 0) {
     return { ok: false, error: "Add at least one role." };
   }
 
   const supa = adminClient();
-  const branding = { ...(org.branding ?? {}), roles: clean };
+  const branding = {
+    ...(org.branding ?? {}),
+    roles: names,
+    role_descriptions: descriptions,
+  };
   await supa.from("organizations").update({ branding }).eq("id", org.id);
 
   revalidatePath("/admin/locations");
   revalidatePath("/admin/postings");
   revalidatePath("/");
   return { ok: true };
+}
+
+/**
+ * Draft a job description with AI from the role name + the operator's notes.
+ * Uses the AI SDK through the Vercel AI Gateway. Gracefully errors if no AI
+ * key is configured.
+ */
+export async function generateRoleDescription(
+  roleName: string,
+  brief: string
+): Promise<{ ok: true; text: string } | { ok: false; error: string }> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const name = roleName.trim();
+  if (!name) return { ok: false, error: "Name the role first." };
+
+  try {
+    const { generateText } = await import("ai");
+    const model = process.env.AI_MODEL ?? "anthropic/claude-haiku-4.5";
+    const { text } = await generateText({
+      model,
+      prompt:
+        `Write a short, welcoming job description for a "${name}" role at the restaurant "${org.name}", aimed at entry-level applicants. ` +
+        (brief.trim()
+          ? `Use these details from the operator: ${brief.trim()}. `
+          : "") +
+        `Keep it to 3-5 sentences, plain language at about a 7th-grade reading level, friendly and honest. Just a short paragraph — no title, no salary, no bullet points.`,
+    });
+    return { ok: true, text: text.trim() };
+  } catch (e) {
+    console.error("AI job description failed", e);
+    return {
+      ok: false,
+      error: "AI isn't set up yet (needs AI_GATEWAY_API_KEY).",
+    };
+  }
 }
 
 /**
