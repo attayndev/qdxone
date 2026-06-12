@@ -14,141 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      admin_notes: {
-        Row: {
-          applicant_id: string
-          author_email: string | null
-          author_id: string | null
-          body: string
-          created_at: string
-          id: string
-          org_id: string
-        }
-        Insert: {
-          applicant_id: string
-          author_email?: string | null
-          author_id?: string | null
-          body: string
-          created_at?: string
-          id?: string
-          org_id: string
-        }
-        Update: {
-          applicant_id?: string
-          author_email?: string | null
-          author_id?: string | null
-          body?: string
-          created_at?: string
-          id?: string
-          org_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "admin_notes_applicant_id_fkey"
-            columns: ["applicant_id"]
-            isOneToOne: false
-            referencedRelation: "applicants"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "admin_notes_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      admins: {
-        Row: {
-          created_at: string
-          display_name: string | null
-          email: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          display_name?: string | null
-          email: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          display_name?: string | null
-          email?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      applicants: {
-        Row: {
-          age_band: string | null
-          category_scores: Json
-          created_at: string
-          email: string
-          first_name: string
-          hiring_status: Database["public"]["Enums"]["hiring_status"]
-          id: string
-          invitation_id: string
-          last_name: string
-          org_id: string
-          phone: string | null
-          recommendation: Database["public"]["Enums"]["recommendation"] | null
-          risk_flags: Json
-          submitted_at: string
-          total_score: number | null
-        }
-        Insert: {
-          age_band?: string | null
-          category_scores?: Json
-          created_at?: string
-          email: string
-          first_name: string
-          hiring_status?: Database["public"]["Enums"]["hiring_status"]
-          id?: string
-          invitation_id: string
-          last_name: string
-          org_id: string
-          phone?: string | null
-          recommendation?: Database["public"]["Enums"]["recommendation"] | null
-          risk_flags?: Json
-          submitted_at?: string
-          total_score?: number | null
-        }
-        Update: {
-          age_band?: string | null
-          category_scores?: Json
-          created_at?: string
-          email?: string
-          first_name?: string
-          hiring_status?: Database["public"]["Enums"]["hiring_status"]
-          id?: string
-          invitation_id?: string
-          last_name?: string
-          org_id?: string
-          phone?: string | null
-          recommendation?: Database["public"]["Enums"]["recommendation"] | null
-          risk_flags?: Json
-          submitted_at?: string
-          total_score?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "applicants_invitation_id_fkey"
-            columns: ["invitation_id"]
-            isOneToOne: true
-            referencedRelation: "invitations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "applicants_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       applications: {
         Row: {
           availability: Json
@@ -450,20 +315,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "audit_events_applicant_id_fkey"
-            columns: ["applicant_id"]
-            isOneToOne: false
-            referencedRelation: "applicants"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "audit_events_invitation_id_fkey"
-            columns: ["invitation_id"]
-            isOneToOne: false
-            referencedRelation: "invitations"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "audit_events_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
@@ -512,74 +363,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "audit_log_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      invitations: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          email: string | null
-          expires_at: string | null
-          first_name: string | null
-          id: string
-          last_name: string | null
-          notes: string | null
-          opened_at: string | null
-          org_id: string
-          phone: string | null
-          sent_at: string | null
-          started_at: string | null
-          status: Database["public"]["Enums"]["invitation_status"]
-          submitted_at: string | null
-          token: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          email?: string | null
-          expires_at?: string | null
-          first_name?: string | null
-          id?: string
-          last_name?: string | null
-          notes?: string | null
-          opened_at?: string | null
-          org_id: string
-          phone?: string | null
-          sent_at?: string | null
-          started_at?: string | null
-          status?: Database["public"]["Enums"]["invitation_status"]
-          submitted_at?: string | null
-          token: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          email?: string | null
-          expires_at?: string | null
-          first_name?: string | null
-          id?: string
-          last_name?: string | null
-          notes?: string | null
-          opened_at?: string | null
-          org_id?: string
-          phone?: string | null
-          sent_at?: string | null
-          started_at?: string | null
-          status?: Database["public"]["Enums"]["invitation_status"]
-          submitted_at?: string | null
-          token?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "invitations_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -794,44 +577,6 @@ export type Database = {
           },
         ]
       }
-      org_test_types: {
-        Row: {
-          created_at: string
-          enabled: boolean
-          monthly_quota: number
-          org_id: string
-          overage_unit_cents: number
-          stripe_subscription_item_id: string | null
-          type_key: Database["public"]["Enums"]["test_type_key"]
-        }
-        Insert: {
-          created_at?: string
-          enabled?: boolean
-          monthly_quota?: number
-          org_id: string
-          overage_unit_cents?: number
-          stripe_subscription_item_id?: string | null
-          type_key: Database["public"]["Enums"]["test_type_key"]
-        }
-        Update: {
-          created_at?: string
-          enabled?: boolean
-          monthly_quota?: number
-          org_id?: string
-          overage_unit_cents?: number
-          stripe_subscription_item_id?: string | null
-          type_key?: Database["public"]["Enums"]["test_type_key"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "org_test_types_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       organizations: {
         Row: {
           billing_cycle: Database["public"]["Enums"]["billing_cycle"] | null
@@ -879,48 +624,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      responses: {
-        Row: {
-          answer: Json
-          applicant_id: string
-          created_at: string
-          id: string
-          org_id: string
-          question_key: string
-        }
-        Insert: {
-          answer: Json
-          applicant_id: string
-          created_at?: string
-          id?: string
-          org_id: string
-          question_key: string
-        }
-        Update: {
-          answer?: Json
-          applicant_id?: string
-          created_at?: string
-          id?: string
-          org_id?: string
-          question_key?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "responses_applicant_id_fkey"
-            columns: ["applicant_id"]
-            isOneToOne: false
-            referencedRelation: "applicants"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "responses_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       scoring_config: {
         Row: {
@@ -986,60 +689,11 @@ export type Database = {
           },
         ]
       }
-      usage_events: {
-        Row: {
-          applicant_id: string | null
-          billing_period_start: string
-          created_at: string
-          id: string
-          is_overage: boolean
-          org_id: string
-          reported_to_stripe: boolean
-          type_key: Database["public"]["Enums"]["test_type_key"]
-        }
-        Insert: {
-          applicant_id?: string | null
-          billing_period_start?: string
-          created_at?: string
-          id?: string
-          is_overage?: boolean
-          org_id: string
-          reported_to_stripe?: boolean
-          type_key?: Database["public"]["Enums"]["test_type_key"]
-        }
-        Update: {
-          applicant_id?: string | null
-          billing_period_start?: string
-          created_at?: string
-          id?: string
-          is_overage?: boolean
-          org_id?: string
-          reported_to_stripe?: boolean
-          type_key?: Database["public"]["Enums"]["test_type_key"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "usage_events_applicant_id_fkey"
-            columns: ["applicant_id"]
-            isOneToOne: false
-            referencedRelation: "applicants"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "usage_events_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      is_admin: { Args: never; Returns: boolean }
       is_org_member: { Args: { p_org: string }; Returns: boolean }
       is_org_owner: { Args: { p_org: string }; Returns: boolean }
     }
@@ -1054,30 +708,10 @@ export type Database = {
       assessment_status: "sent" | "in_progress" | "complete" | "expired"
       assessment_subject_type: "candidate" | "incumbent"
       billing_cycle: "annual" | "monthly"
-      hiring_status:
-        | "new"
-        | "interview_requested"
-        | "interviewed"
-        | "rejected"
-        | "hired"
-      invitation_status:
-        | "draft"
-        | "sent"
-        | "opened"
-        | "started"
-        | "submitted"
-        | "expired"
       job_posting_status: "draft" | "open" | "closed"
       location_role_type: "crew" | "shift_lead" | "gm"
       methodology_status: "draft" | "active" | "retired"
       org_role: "owner" | "admin"
-      plan_tier: "trial" | "starter" | "growth" | "canceled"
-      recommendation:
-        | "strong_interview"
-        | "interview"
-        | "borderline"
-        | "do_not_interview"
-      test_type_key: "questionnaire" | "cashier_math" | "iq"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1216,33 +850,10 @@ export const Constants = {
       assessment_status: ["sent", "in_progress", "complete", "expired"],
       assessment_subject_type: ["candidate", "incumbent"],
       billing_cycle: ["annual", "monthly"],
-      hiring_status: [
-        "new",
-        "interview_requested",
-        "interviewed",
-        "rejected",
-        "hired",
-      ],
-      invitation_status: [
-        "draft",
-        "sent",
-        "opened",
-        "started",
-        "submitted",
-        "expired",
-      ],
       job_posting_status: ["draft", "open", "closed"],
       location_role_type: ["crew", "shift_lead", "gm"],
       methodology_status: ["draft", "active", "retired"],
       org_role: ["owner", "admin"],
-      plan_tier: ["trial", "starter", "growth", "canceled"],
-      recommendation: [
-        "strong_interview",
-        "interview",
-        "borderline",
-        "do_not_interview",
-      ],
-      test_type_key: ["questionnaire", "cashier_math", "iq"],
     },
   },
 } as const
