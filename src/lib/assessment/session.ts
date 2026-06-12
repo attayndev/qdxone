@@ -6,6 +6,11 @@ import {
   type BankItem,
   type Keying,
 } from "./form";
+import {
+  scoreAssessment,
+  type ScoredItem,
+  type ScoreResult,
+} from "./scoring";
 
 /** Pick the methodology version to administer (active, else most recent). */
 export async function getActiveMethodologyVersion(): Promise<string> {
@@ -156,4 +161,41 @@ export async function loadAssessment(accessToken: string): Promise<LoadResult> {
   }
 
   return { status: "ok", items: [...woven, ...screener], answered };
+}
+
+/** Score a completed candidate session (used for the strong-candidate alert). */
+export async function scoreCandidateSession(
+  sessionId: string
+): Promise<ScoreResult | null> {
+  const supa = adminClient();
+  const { data: session } = await supa
+    .from("assessment_sessions")
+    .select("methodology_version")
+    .eq("id", sessionId)
+    .maybeSingle();
+  if (!session) return null;
+
+  const { data: resp } = await supa
+    .from("assessment_responses")
+    .select("item_id, item_kind, value_int")
+    .eq("session_id", sessionId);
+  const { data: items } = await supa
+    .from("item_bank_items")
+    .select("item_id, facet, category_academic, keying")
+    .eq("version", session.methodology_version);
+  const meta = new Map((items ?? []).map((i) => [i.item_id, i]));
+
+  const scored: ScoredItem[] = (resp ?? [])
+    .filter((r) => r.item_kind === "personality" && r.value_int != null && meta.has(r.item_id))
+    .map((r) => {
+      const m = meta.get(r.item_id)!;
+      return {
+        value: r.value_int as number,
+        facet: m.facet,
+        category: m.category_academic,
+        keying: m.keying === "reverse" ? "reverse" : "positive",
+      };
+    });
+  if (scored.length === 0) return null;
+  return scoreAssessment(scored);
 }

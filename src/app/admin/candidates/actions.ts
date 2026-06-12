@@ -26,7 +26,7 @@ export async function sendAssessmentToCandidate(
 
   const { data: app } = await supa
     .from("applications")
-    .select("id, location_id, email, first_name")
+    .select("id, location_id, email, first_name, phone")
     .eq("id", applicationId)
     .eq("org_id", org.id)
     .maybeSingle();
@@ -50,20 +50,15 @@ export async function sendAssessmentToCandidate(
     subject_id: app.id,
   });
 
-  if (process.env.RESEND_API_KEY && app.email) {
-    try {
-      const { sendAssessmentEmail } = await import("@/lib/email");
-      await sendAssessmentEmail({
-        to: app.email,
-        firstName: app.first_name,
-        orgSlug: org.slug,
-        orgName: org.name,
-        token,
-      });
-    } catch (e) {
-      console.error("assessment email failed", e);
-    }
-  }
+  const { sendAssessmentLink } = await import("@/lib/notify");
+  await sendAssessmentLink({
+    token,
+    orgSlug: org.slug,
+    orgName: org.name,
+    firstName: app.first_name,
+    email: app.email,
+    phone: app.phone,
+  });
 
   revalidatePath(`/admin/candidates/${applicationId}`);
   revalidatePath("/admin/candidates");
