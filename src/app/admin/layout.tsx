@@ -42,6 +42,12 @@ export default async function AdminLayout({
               Candidates
             </Link>
             <Link
+              href="/admin/reports"
+              className="font-semibold hover:text-[color:var(--brand-pink)]"
+            >
+              Reports
+            </Link>
+            <Link
               href="/admin/eeo"
               className="font-semibold hover:text-[color:var(--brand-pink)]"
             >
