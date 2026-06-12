@@ -81,32 +81,3 @@ export async function createBillingPortalUrlForOrg(args: {
   return portal.url;
 }
 
-/**
- * Report a single overage usage event to Stripe. Called from
- * `recordUsage` when an applicant submission pushes the org past its
- * monthly quota.
- */
-export async function reportOverageToStripe(args: {
-  orgId: string;
-  typeKey: "questionnaire" | "cashier_math" | "iq";
-}): Promise<void> {
-  const supa = adminClient();
-  const { data: tt } = await supa
-    .from("org_test_types")
-    .select("stripe_subscription_item_id")
-    .eq("org_id", args.orgId)
-    .eq("type_key", args.typeKey)
-    .maybeSingle();
-  const itemId = tt?.stripe_subscription_item_id;
-  if (!itemId) return; // not yet linked (e.g. trial or no Stripe configured)
-
-  // Stripe v18+ uses meter events; for compatibility we use the older
-  // usage_records API (works on all current Stripe API versions for
-  // metered prices). Either way, this increments by 1.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (stripe() as any).subscriptionItems.createUsageRecord(itemId, {
-    quantity: 1,
-    timestamp: Math.floor(Date.now() / 1000),
-    action: "increment",
-  });
-}

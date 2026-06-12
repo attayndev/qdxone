@@ -17,10 +17,6 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
     b.hero_copy_eyebrow ?? `Now hiring · ${b.location_subtitle ?? org.name}`;
   const h1Pre = b.hero_copy_h1_pre ?? "Join the team.";
   const h1Post = b.hero_copy_h1_post ?? "Earn it.";
-  const phoneEnabled = b.phone_policy_enabled !== false;
-  const phoneText =
-    b.phone_policy_text ??
-    "Phones live in the office during shifts. Phone use on the floor is a firing offense — no exceptions.";
 
   const supa = adminClient();
   const { data } = await supa
@@ -107,12 +103,6 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
                 <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-pink)] flex-shrink-0" />
                 Teamwork, professionalism, and following the playbook.
               </li>
-              {phoneEnabled && (
-                <li className="flex gap-3">
-                  <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-pink)] flex-shrink-0" />
-                  {phoneText}
-                </li>
-              )}
             </ul>
           </div>
         </section>

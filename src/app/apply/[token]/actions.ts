@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
-import { generateToken } from "@/lib/invitations";
+import { generateToken } from "@/lib/tokens";
 import { currentOrgOrThrow } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
 import { applicationConfig } from "@/lib/application-config";

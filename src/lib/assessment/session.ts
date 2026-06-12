@@ -1,5 +1,5 @@
 import { adminClient } from "@/lib/supabase/admin";
-import { generateToken } from "@/lib/invitations";
+import { generateToken } from "@/lib/tokens";
 import {
   buildAssessmentForm,
   DEFAULT_FORM_SPEC_V03,
