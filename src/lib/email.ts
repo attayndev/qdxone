@@ -145,6 +145,53 @@ export async function sendAssessmentEmail(args: {
   });
 }
 
+/**
+ * Alert the org's owners when a candidate scores Strong fit. Email only —
+ * resolves owner emails via the auth admin API.
+ */
+export async function sendStrongCandidateAlert(args: {
+  orgId: string;
+  name: string;
+  applicationId: string;
+}) {
+  if (!process.env.RESEND_API_KEY) return;
+  const { adminClient } = await import("./supabase/admin");
+  const supa = adminClient();
+
+  const { data: org } = await supa
+    .from("organizations")
+    .select("slug, name")
+    .eq("id", args.orgId)
+    .maybeSingle();
+  if (!org) return;
+
+  const { data: owners } = await supa
+    .from("org_members")
+    .select("user_id")
+    .eq("org_id", args.orgId)
+    .eq("role", "owner");
+  if (!owners || owners.length === 0) return;
+
+  const emails: string[] = [];
+  for (const o of owners) {
+    const { data } = await supa.auth.admin.getUserById(o.user_id);
+    if (data.user?.email) emails.push(data.user.email);
+  }
+  if (emails.length === 0) return;
+
+  const link = orgUrl(org.slug, `/admin/candidates/${args.applicationId}`);
+  await client().emails.send({
+    from: FROM,
+    to: emails,
+    subject: `⭐ Strong candidate: ${args.name}`,
+    html: `
+      <p><strong>${escape(args.name)}</strong> just finished the assessment at <strong>${escape(org.name)}</strong> and scored <strong>Strong fit</strong>.</p>
+      <p><a href="${link}">Open their report →</a></p>
+    `,
+    text: `${args.name} just finished the assessment at ${org.name} and scored Strong fit.\n\nOpen their report: ${link}`,
+  });
+}
+
 function escape(s: string): string {
   return s
     .replace(/&/g, "&amp;")

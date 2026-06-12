@@ -158,19 +158,16 @@ export async function submitApplication(
       .update({ status: "assessment_sent" })
       .eq("id", app.id);
 
-    if (process.env.RESEND_API_KEY && assessmentToken) {
-      try {
-        const { sendAssessmentEmail } = await import("@/lib/email");
-        await sendAssessmentEmail({
-          to: v.email,
-          firstName: v.first_name,
-          orgSlug: org.slug,
-          orgName: org.name,
-          token: assessmentToken,
-        });
-      } catch (e) {
-        console.error("assessment email failed", e);
-      }
+    if (assessmentToken) {
+      const { sendAssessmentLink } = await import("@/lib/notify");
+      await sendAssessmentLink({
+        token: assessmentToken,
+        orgSlug: org.slug,
+        orgName: org.name,
+        firstName: v.first_name,
+        email: v.email,
+        phone: v.phone ?? null,
+      });
     }
   } catch (e) {
     console.error("assessment session creation failed", e);

@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { adminClient } from "@/lib/supabase/admin";
 
 type ItemKind = "personality" | "screener" | "attention_check";
@@ -81,5 +82,31 @@ export async function completeAssessment(
     subject_type: "assessment_session",
     subject_id: session.id,
   });
+
+  // After responding, score it and alert the org's owners if Strong fit.
+  after(async () => {
+    try {
+      const { scoreCandidateSession } = await import("@/lib/assessment/session");
+      const result = await scoreCandidateSession(session.id);
+      if (result?.overall === "Strong fit" && session.application_id) {
+        const { data: appRow } = await supa
+          .from("applications")
+          .select("first_name, last_name")
+          .eq("id", session.application_id)
+          .maybeSingle();
+        if (appRow) {
+          const { sendStrongCandidateAlert } = await import("@/lib/email");
+          await sendStrongCandidateAlert({
+            orgId: session.org_id,
+            name: `${appRow.first_name} ${appRow.last_name}`,
+            applicationId: session.application_id,
+          });
+        }
+      }
+    } catch (e) {
+      console.error("strong-candidate alert failed", e);
+    }
+  });
+
   return { ok: true };
 }
