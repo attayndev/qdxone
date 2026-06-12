@@ -94,8 +94,9 @@ export default async function BillingPage({ searchParams }: PageProps) {
         </div>
         {quota !== null && used >= quota && (
           <p className="mt-3 text-sm text-[color:var(--brand-pink-600)] font-semibold">
-            You&apos;ve reached your monthly assessments. Candidates can still
-            apply — upgrade for more headroom.
+            You&apos;ve used your {quota} included assessments. Candidates keep
+            applying — additional completed assessments this month bill at $
+            {overageRate(org.plan)} each.
           </p>
         )}
       </div>
@@ -116,8 +117,7 @@ export default async function BillingPage({ searchParams }: PageProps) {
         ) : (
           <div className="flex flex-wrap gap-2">
             <SubscribeButton plan="starter" label="Starter — 25/mo" primary />
-            <SubscribeButton plan="growth" label="Growth — 100/mo" />
-            <SubscribeButton plan="pro" label="Pro — unlimited" />
+            <SubscribeButton plan="growth" label="Growth — 75/mo" />
           </div>
         )}
       </div>
@@ -130,7 +130,7 @@ function SubscribeButton({
   label,
   primary,
 }: {
-  plan: "starter" | "growth" | "pro";
+  plan: "starter" | "growth";
   label: string;
   primary?: boolean;
 }) {
@@ -174,14 +174,17 @@ function planLabel(org: OrganizationRow): string {
     case "starter":
       return "Starter (25/mo)";
     case "growth":
-      return "Growth (100/mo)";
-    case "pro":
-      return "Pro (unlimited)";
-    case "enterprise":
-      return "Enterprise";
+      return "Growth (75/mo)";
+    case "multi_unit":
+      return "Multi-unit";
     default:
       return "—";
   }
+}
+
+// Per-completed-assessment overage once the monthly quota is used up.
+function overageRate(plan: OrganizationRow["plan"]): number {
+  return plan === "growth" ? 2 : 3;
 }
 
 function statusLabel(status: string): string {

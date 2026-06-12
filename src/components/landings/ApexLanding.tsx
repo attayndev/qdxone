@@ -386,13 +386,13 @@ function PricingPeek() {
           <span className="text-[color:var(--brand-pink)]">No fluff.</span>
         </h2>
         <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg max-w-xl mx-auto">
-          Every plan has the full platform. You only pay for completed
-          assessments — pick the volume that fits your store.
+          Start with everything you need to hire. You only pay for completed
+          assessments — grow into a team, SMS, AI, and analytics as you scale.
         </p>
         <div className="mt-8 grid sm:grid-cols-3 gap-4 text-left">
-          <PricePeek name="Starter" price={49} quota="25 / mo" />
-          <PricePeek name="Growth" price={99} quota="100 / mo" highlight />
-          <PricePeek name="Pro" price={249} quota="Unlimited" />
+          <PricePeek name="Starter" price={49} quota="25 / mo, then $3 ea" />
+          <PricePeek name="Growth" price={99} quota="75 / mo, then $2 ea" highlight />
+          <PricePeek name="Multi-unit" price="Let's talk" quota="Unlimited" />
         </div>
         <div className="mt-7">
           <Link href="/pricing" className="btn-primary">
@@ -400,8 +400,8 @@ function PricingPeek() {
           </Link>
         </div>
         <p className="mt-3 text-sm text-[color:var(--brand-ink-muted)]">
-          30-day free trial on every plan. Bigger or multi-brand? Enterprise is
-          custom.
+          30-day free trial on both self-serve plans. Franchisees, groups &
+          brands? Multi-unit is custom.
         </p>
       </div>
     </section>
@@ -415,7 +415,7 @@ function PricePeek({
   highlight,
 }: {
   name: string;
-  price: number;
+  price: number | string;
   quota: string;
   highlight?: boolean;
 }) {
@@ -435,10 +435,14 @@ function PricePeek({
         )}
       </div>
       <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-3xl font-black">${price}</span>
-        <span className="text-[color:var(--brand-ink-muted)] text-sm">
-          /mo per location
+        <span className="text-3xl font-black">
+          {typeof price === "number" ? `$${price}` : price}
         </span>
+        {typeof price === "number" && (
+          <span className="text-[color:var(--brand-ink-muted)] text-sm">
+            /mo per location
+          </span>
+        )}
       </div>
       <div className="text-xs text-[color:var(--brand-ink-muted)] mt-1">
         {quota} completed assessments
