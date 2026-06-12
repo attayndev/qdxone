@@ -10,6 +10,7 @@ import {
   scoreAssessment,
   type ScoredItem,
   type ScoreResult,
+  type OverallFit,
 } from "./scoring";
 
 /** Pick the methodology version to administer (active, else most recent). */
@@ -198,4 +199,54 @@ export async function scoreCandidateSession(
     });
   if (scored.length === 0) return null;
   return scoreAssessment(scored);
+}
+
+/** Overall fit tier for every completed candidate in an org, by application id. */
+export async function orgCandidateTiers(
+  orgId: string
+): Promise<Map<string, OverallFit>> {
+  const supa = adminClient();
+  const { data: sessions } = await supa
+    .from("assessment_sessions")
+    .select("id, application_id, methodology_version")
+    .eq("org_id", orgId)
+    .eq("subject_type", "candidate")
+    .eq("status", "complete");
+  const sess = (sessions ?? []).filter((s) => s.application_id);
+  if (sess.length === 0) return new Map();
+
+  const sessionIds = sess.map((s) => s.id);
+  const { data: resp } = await supa
+    .from("assessment_responses")
+    .select("session_id, item_id, item_kind, value_int")
+    .in("session_id", sessionIds);
+  const versions = [...new Set(sess.map((s) => s.methodology_version))];
+  const { data: items } = await supa
+    .from("item_bank_items")
+    .select("item_id, facet, category_academic, keying")
+    .in("version", versions.length ? versions : ["__none__"]);
+  const meta = new Map((items ?? []).map((i) => [i.item_id, i]));
+
+  const bySession = new Map<string, ScoredItem[]>();
+  for (const r of resp ?? []) {
+    if (r.item_kind !== "personality" || r.value_int == null) continue;
+    const m = meta.get(r.item_id);
+    if (!m) continue;
+    if (!bySession.has(r.session_id)) bySession.set(r.session_id, []);
+    bySession.get(r.session_id)!.push({
+      value: r.value_int as number,
+      facet: m.facet,
+      category: m.category_academic,
+      keying: m.keying === "reverse" ? "reverse" : "positive",
+    });
+  }
+
+  const out = new Map<string, OverallFit>();
+  for (const s of sess) {
+    const sc = bySession.get(s.id);
+    if (!sc || sc.length === 0) continue;
+    const result = scoreAssessment(sc);
+    if (result.overall !== "Incomplete") out.set(s.application_id as string, result.overall);
+  }
+  return out;
 }
