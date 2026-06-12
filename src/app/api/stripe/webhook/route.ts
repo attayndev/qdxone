@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
-import { stripe } from "@/lib/stripe";
+import { stripe, PLAN_PRICES, type PaidPlan } from "@/lib/stripe";
 import { adminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +9,25 @@ const PAID_PLANS = ["starter", "growth"];
 
 function quotaForPlan(plan: string): number | null {
   return plan === "starter" ? 25 : plan === "growth" ? 75 : null; // multi_unit = unlimited
+}
+
+/**
+ * Reverse-map a subscription's base price back to {plan, cycle} so portal-side
+ * plan/cycle changes sync. The metered overage item is ignored (its price id
+ * matches no base price).
+ */
+function planCycleFromSub(
+  sub: Stripe.Subscription
+): { plan: PaidPlan; cycle: "monthly" | "annual" } | null {
+  for (const item of sub.items.data) {
+    const priceId = item.price.id;
+    for (const plan of Object.keys(PLAN_PRICES) as PaidPlan[]) {
+      const p = PLAN_PRICES[plan];
+      if (priceId === p.monthly) return { plan, cycle: "monthly" };
+      if (priceId === p.annual) return { plan, cycle: "annual" };
+    }
+  }
+  return null;
 }
 
 function mapStatus(s: Stripe.Subscription.Status): string {
@@ -62,12 +81,15 @@ export async function POST(request: NextRequest) {
         const plan = PAID_PLANS.includes(session.metadata?.plan ?? "")
           ? (session.metadata!.plan as string)
           : "starter";
+        const cycle =
+          session.metadata?.cycle === "annual" ? "annual" : "monthly";
 
         await supa
           .from("organizations")
           .update({
             stripe_subscription_id: sub.id,
             plan,
+            billing_cycle: cycle,
             monthly_assessment_quota: quotaForPlan(plan),
             status: mapStatus(sub.status),
           })
@@ -76,7 +98,7 @@ export async function POST(request: NextRequest) {
         await supa.from("audit_events").insert({
           org_id: orgId,
           kind: "billing.checkout_completed",
-          meta: { subscription_id: sub.id, plan },
+          meta: { subscription_id: sub.id, plan, cycle },
         });
         break;
       }
@@ -87,14 +109,29 @@ export async function POST(request: NextRequest) {
         const orgId = sub.metadata?.org_id;
         if (!orgId) break;
         const status = mapStatus(sub.status);
-        await supa
-          .from("organizations")
-          .update({ status, stripe_subscription_id: sub.id })
-          .eq("id", orgId);
+        // Sync plan/cycle/quota too, so portal-side plan or cycle changes land.
+        const pc = planCycleFromSub(sub);
+        if (pc && event.type === "customer.subscription.updated") {
+          await supa
+            .from("organizations")
+            .update({
+              status,
+              stripe_subscription_id: sub.id,
+              plan: pc.plan,
+              billing_cycle: pc.cycle,
+              monthly_assessment_quota: quotaForPlan(pc.plan),
+            })
+            .eq("id", orgId);
+        } else {
+          await supa
+            .from("organizations")
+            .update({ status, stripe_subscription_id: sub.id })
+            .eq("id", orgId);
+        }
         await supa.from("audit_events").insert({
           org_id: orgId,
           kind: `billing.${event.type}`,
-          meta: { stripe_status: sub.status },
+          meta: { stripe_status: sub.status, plan: pc?.plan, cycle: pc?.cycle },
         });
         break;
       }

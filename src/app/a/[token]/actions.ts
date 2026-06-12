@@ -83,8 +83,18 @@ export async function completeAssessment(
     subject_id: session.id,
   });
 
-  // After responding, score it and alert the org's owners if Strong fit.
+  // After responding: bill overage if past quota, then score it and alert the
+  // org's owners if Strong fit.
   after(async () => {
+    try {
+      const { reportAssessmentForOverage } = await import("@/lib/billing");
+      await reportAssessmentForOverage({
+        orgId: session.org_id,
+        sessionId: session.id,
+      });
+    } catch (e) {
+      console.error("overage metering failed", e);
+    }
     try {
       const { scoreCandidateSession } = await import("@/lib/assessment/session");
       const result = await scoreCandidateSession(session.id);

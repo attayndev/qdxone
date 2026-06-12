@@ -18,6 +18,7 @@ const SignupSchema = z.object({
     .max(30)
     .regex(SLUG_RE, "Letters, numbers, and dashes only"),
   plan: z.enum(["starter", "growth"]),
+  cycle: z.enum(["monthly", "annual"]).default("monthly"),
 });
 
 export type SignupResult =
@@ -44,6 +45,7 @@ export async function signup(
     email: formData.get("email"),
     slug: (formData.get("slug") ?? "").toString().toLowerCase().trim(),
     plan: formData.get("plan"),
+    cycle: formData.get("cycle") ?? "monthly",
   });
   if (!parsed.success) {
     return {
@@ -75,7 +77,7 @@ export async function signup(
   const trialEnds = new Date(
     Date.now() + 30 * 24 * 60 * 60 * 1000
   ).toISOString();
-  const billingCycle: BillingCycle = "monthly";
+  const billingCycle: BillingCycle = v.cycle;
 
   const { data: org, error: oerr } = await supa
     .from("organizations")
@@ -144,6 +146,7 @@ export async function signup(
         orgId: org.id,
         orgSlug: org.slug,
         plan: v.plan,
+        cycle: v.cycle,
         email: v.email,
       });
     } catch (e) {

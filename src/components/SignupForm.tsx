@@ -7,6 +7,7 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<SignupResult | null>(null);
   const [slug, setSlug] = useState("");
+  const [cycle, setCycle] = useState<"monthly" | "annual">("monthly");
 
   function onSubmit(formData: FormData) {
     setResult(null);
@@ -99,14 +100,44 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
       </div>
 
       <fieldset>
-        <legend className="label">Plan — 30-day free trial on both</legend>
-        <div className="grid grid-cols-2 gap-2">
-          <RadioCard name="plan" value="starter" defaultChecked label="Starter — $49" sub="25/mo, then $3 ea · 1 user" />
-          <RadioCard name="plan" value="growth" label="Growth — $99" sub="75/mo, then $2 ea · 3 users" />
+        <input type="hidden" name="cycle" value={cycle} />
+        <div className="flex items-center justify-between">
+          <legend className="label">Plan — 30-day free trial on both</legend>
+          <div className="inline-flex rounded-lg border border-[color:var(--brand-line)] bg-white p-0.5 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setCycle("monthly")}
+              className={`px-2.5 py-1 rounded-md ${cycle === "monthly" ? "bg-[color:var(--brand-pink)] text-white" : "text-[color:var(--brand-ink-muted)]"}`}
+            >
+              Monthly
+            </button>
+            <button
+              type="button"
+              onClick={() => setCycle("annual")}
+              className={`px-2.5 py-1 rounded-md ${cycle === "annual" ? "bg-[color:var(--brand-pink)] text-white" : "text-[color:var(--brand-ink-muted)]"}`}
+            >
+              Annual · 2 mo free
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          <RadioCard
+            name="plan"
+            value="starter"
+            defaultChecked
+            label={cycle === "annual" ? "Starter — $490/yr" : "Starter — $49/mo"}
+            sub="25/mo, then $3 ea · 1 user"
+          />
+          <RadioCard
+            name="plan"
+            value="growth"
+            label={cycle === "annual" ? "Growth — $990/yr" : "Growth — $99/mo"}
+            sub="75/mo, then $2 ea · 3 users"
+          />
         </div>
         <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
-          Monthly, per location. Card captured now, first charge after your
-          30-day trial. Multiple locations or a brand?{" "}
+          Per location. Card captured now, first charge after your 30-day
+          trial. Multiple locations or a brand?{" "}
           <a href="/demo" className="font-semibold underline">
             Multi-unit
           </a>{" "}

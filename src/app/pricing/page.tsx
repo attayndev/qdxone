@@ -27,6 +27,7 @@ export default function PricingPage() {
             <PlanCard
               name="Starter"
               price={49}
+              annual={490}
               quota="25"
               overage="3"
               seats="1 user"
@@ -36,6 +37,7 @@ export default function PricingPage() {
             <PlanCard
               name="Growth"
               price={99}
+              annual={990}
               quota="75"
               overage="2"
               seats="3 users"
@@ -98,6 +100,7 @@ const MULTI_UNIT_FEATURES = [
 function PlanCard({
   name,
   price,
+  annual,
   quota,
   overage,
   seats,
@@ -107,6 +110,7 @@ function PlanCard({
 }: {
   name: string;
   price: number;
+  annual: number;
   quota: string;
   overage: string;
   seats: string;
@@ -137,7 +141,7 @@ function PlanCard({
         {quota} assessments / mo, then ${overage} each
       </div>
       <div className="mt-0.5 text-xs text-[color:var(--brand-ink-muted)]">
-        {seats} · 30-day free trial
+        {seats} · 30-day free trial · or ${annual}/yr (2 months free)
       </div>
       <p className="mt-4 text-sm font-semibold">{tagline}</p>
       <ul className="mt-2 space-y-2 text-[15px]">
