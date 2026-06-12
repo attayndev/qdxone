@@ -3,10 +3,12 @@
 import { useState, useTransition } from "react";
 import type { ApplicationInput } from "@/app/apply/[token]/actions";
 import type { ApplicationConfig } from "@/lib/application-config";
+import { smsConsentDisclosure } from "@/lib/consent";
 
 type Props = {
   token: string;
   postingTitle: string;
+  orgName: string;
   config: ApplicationConfig;
   submitAction: (
     token: string,
@@ -34,6 +36,7 @@ type Job = { employer: string; role: string; from: string; to: string };
 export default function ApplicationForm({
   token,
   postingTitle,
+  orgName,
   config,
   submitAction,
 }: Props) {
@@ -41,6 +44,7 @@ export default function ApplicationForm({
   const [last, setLast] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [smsConsent, setSmsConsent] = useState(false);
   const [zip, setZip] = useState("");
   const [eligible, setEligible] = useState<boolean | null>(null);
   const [avail, setAvail] = useState<Record<string, string[]>>({});
@@ -119,6 +123,7 @@ export default function ApplicationForm({
           value: (customAnswers[q.id] ?? "").trim(),
         })),
         earliest_start_date: start || null,
+        sms_consent: smsConsent,
       };
       const res = await submitAction(token, input);
       if (!res.ok) {
@@ -161,6 +166,23 @@ export default function ApplicationForm({
             <input className="input" inputMode="numeric" value={zip} onChange={(e) => setZip(e.target.value)} autoComplete="postal-code" />
           </Field>
         </div>
+
+        {/* TCPA: optional, unchecked-default opt-in for transactional texts. */}
+        <label className="mt-4 flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={smsConsent}
+            onChange={(e) => setSmsConsent(e.target.checked)}
+            className="mt-1 h-5 w-5 flex-shrink-0 accent-[color:var(--brand-pink)]"
+          />
+          <span className="text-sm">
+            <span className="font-semibold">Text me about this application</span>{" "}
+            <span className="text-[color:var(--brand-ink-muted)]">(optional)</span>
+            <span className="block text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
+              {smsConsentDisclosure(orgName)}
+            </span>
+          </span>
+        </label>
       </section>
 
       {/* Eligibility */}

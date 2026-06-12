@@ -35,6 +35,9 @@ export type Database = {
           postal_code: string | null
           resume_token: string
           resume_url: string | null
+          sms_consent: boolean
+          sms_consent_at: string | null
+          sms_consent_disclosure: string | null
           status: Database["public"]["Enums"]["application_status"]
           submitted_at: string
           updated_at: string
@@ -60,6 +63,9 @@ export type Database = {
           postal_code?: string | null
           resume_token: string
           resume_url?: string | null
+          sms_consent?: boolean
+          sms_consent_at?: string | null
+          sms_consent_disclosure?: string | null
           status?: Database["public"]["Enums"]["application_status"]
           submitted_at?: string
           updated_at?: string
@@ -85,6 +91,9 @@ export type Database = {
           postal_code?: string | null
           resume_token?: string
           resume_url?: string | null
+          sms_consent?: boolean
+          sms_consent_at?: string | null
+          sms_consent_disclosure?: string | null
           status?: Database["public"]["Enums"]["application_status"]
           submitted_at?: string
           updated_at?: string

@@ -6,6 +6,7 @@ import { generateToken } from "@/lib/tokens";
 import { currentOrgOrThrow } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
 import { applicationConfig } from "@/lib/application-config";
+import { smsConsentDisclosure } from "@/lib/consent";
 
 const WorkHistory = z.object({
   employer: z.string().max(120),
@@ -39,6 +40,8 @@ const ApplicationSchema = z.object({
       })
     )
     .default([]),
+  // TCPA: unchecked-default opt-in for transactional SMS about this application.
+  sms_consent: z.boolean().default(false),
 });
 
 export type ApplicationInput = z.infer<typeof ApplicationSchema>;
@@ -65,6 +68,10 @@ export async function submitApplication(
     return { ok: false, error: "Some answers were missing or invalid." };
   }
   const v = parsed.data;
+
+  // Consent is only meaningful with a number to text. Captured as proof below.
+  const phone = v.phone?.trim() || null;
+  const smsConsent = v.sms_consent === true && !!phone;
 
   const cfg = applicationConfig(org.branding);
   if (
@@ -108,7 +115,7 @@ export async function submitApplication(
       first_name: v.first_name.trim(),
       last_name: v.last_name.trim(),
       email: v.email.trim().toLowerCase(),
-      phone: v.phone?.trim() || null,
+      phone,
       postal_code: v.postal_code?.trim() || null,
       eligible_to_work: v.eligible_to_work,
       availability: v.availability,
@@ -117,6 +124,9 @@ export async function submitApplication(
       positions: [posting.title],
       earliest_start_date: v.earliest_start_date || null,
       custom_answers: v.custom_answers,
+      sms_consent: smsConsent,
+      sms_consent_at: smsConsent ? new Date().toISOString() : null,
+      sms_consent_disclosure: smsConsent ? smsConsentDisclosure(org.name) : null,
       status: "new",
       resume_token: generateToken(),
     })
@@ -166,7 +176,8 @@ export async function submitApplication(
         orgName: org.name,
         firstName: v.first_name,
         email: v.email,
-        phone: v.phone ?? null,
+        phone,
+        smsConsent,
       });
     }
   } catch (e) {
