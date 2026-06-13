@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "QDX One — Operator FAQs",
+  title: "QDX One — Restaurant hiring FAQs",
   description:
-    "Answers to the questions restaurant operators ask about QDX One: how it works, how it compares, the candidate experience, fairness, accounts, pricing, and setup.",
+    "Plain answers to the questions restaurant owners ask about QDX One: how it works, how it compares, what applying is like, fairness, accounts, pricing, and setup.",
 };
 
 type Item = { q: string; a: React.ReactNode };
@@ -12,7 +12,7 @@ type Section = { title: string; items: Item[] };
 
 const SAMPLE = (
   <Link href="/assessments" className="underline text-[color:var(--brand-pink-600)]">
-    See sample items →
+    See sample questions →
   </Link>
 );
 
@@ -22,19 +22,19 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "What is QDX One?",
-        a: "QDX One is a hiring and screening platform built for quick-service restaurants. You post your roles, candidates apply through your branded hiring page, and each applicant takes a short validated assessment automatically. You get back a ranked pipeline with clear strengths and fit signals on every candidate, so you spend your time on the right people. You always make the hiring decision — QDX scores candidates, it doesn't filter them.",
+        a: "QDX One helps restaurants hire. You post your open jobs, people apply on your own hiring page, and each person who applies takes a short 5-minute assessment on their phone. You get back a ranked list that shows who is likely to be a strong hire, so you spend your time on the best people. You always make the final call — QDX rates people, it never turns anyone down for you.",
       },
       {
-        q: "Why use QDX instead of just interviewing myself?",
-        a: "You already know how to read people — QDX just makes sure you're reading the right ones. A 15-minute interview is a thin, inconsistent signal on the things that actually predict whether someone shows up and takes ownership, and you can't interview every applicant when you're busy. QDX gives you a consistent read on everyone who applies before you spend a minute of interview time, so you walk in already knowing who's worth the conversation. It doesn't make the call for you — it focuses your judgment.",
+        q: "Why use QDX instead of just interviewing people myself?",
+        a: "You already know how to read people — QDX helps you read the right ones. A quick interview is a hit-or-miss way to tell who will show up on time and take ownership, and you can't interview everyone when you're slammed. QDX gives you a steady read on everyone who applies before you spend a minute interviewing, so you walk in already knowing who is worth your time. It doesn't decide for you — it points you at the right people.",
       },
       {
         q: "I'm short-staffed — won't this slow me down?",
-        a: "It's built for exactly that situation. The assessment fires automatically the moment someone applies, the candidate finishes it on their phone, and you get a ranked dashboard instead of a pile of resumes to dig through. You spend your limited time interviewing only the people who already clear your bar — which speeds up time-to-hire rather than adding a step.",
+        a: "It's built for being slammed. The assessment goes out the moment someone applies, they finish it on their phone, and you get a ranked list instead of a stack of resumes to dig through. You only interview the people who already clear your bar — so you hire faster, not slower.",
       },
       {
         q: "Does it replace the interview?",
-        a: "No — it's a pre-interview screen. It surfaces signals (bands across reliability, people skills, ownership, and composure, plus motivation) so you go into the interview knowing what to probe and where to push. You still meet the person, and you still make the decision. The platform scores; it doesn't filter.",
+        a: "No — it's a quick check before the interview. It gives you simple Low / Medium / High ratings on things like being reliable, good with people, taking ownership, and staying calm under pressure. You still meet the person and still make the call. QDX rates people; it never turns them down.",
       },
     ],
   },
@@ -43,59 +43,59 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "How is this different from a job board like Indeed?",
-        a: "They do different jobs. Indeed and other boards get applicants in the door — that's sourcing. QDX is what happens next: it takes those applicants, screens them, and ranks them so you know who to focus on. It sits on top of your job board rather than competing with it — post the role wherever you like, and QDX handles intake and screening once people apply.",
+        a: "They do different jobs. Indeed and other job boards get people to apply. QDX is what happens next: it takes those applicants, sizes them up, and ranks them so you know who to focus on. Keep posting wherever you like — QDX takes over once people apply.",
       },
       {
         q: "How is this different from a personality test?",
         a: (
           <>
-            A personality test hands you a profile and stops there. QDX is built
-            around hiring decisions in quick-service specifically: the traits we
-            measure were chosen because they predict outcomes that matter in a
-            restaurant — reliability, people skills, ownership, composure — and we
-            add a short motivation screen on top. It&apos;s wired into your hiring
-            flow, reports in plain Low/Mid/High bands instead of false-precision
-            numbers, and monitors for adverse impact in the background. {SAMPLE}
+            A personality test just hands you a profile and stops there. QDX is
+            built for restaurant hiring: we measure the things that actually
+            matter on a shift — being reliable, good with people, taking
+            ownership, and staying calm — plus a quick read on what drives
+            someone. It&apos;s built into your hiring, gives plain Low / Medium /
+            High ratings instead of exact-looking scores, and quietly checks that
+            your hiring stays fair. {SAMPLE}
           </>
         ),
       },
     ],
   },
   {
-    title: "The candidate experience",
+    title: "What applying is like",
     items: [
       {
-        q: "How long does it take a candidate?",
-        a: "About five minutes, on a phone, right after they apply.",
+        q: "How long does it take?",
+        a: "About five minutes, on a phone, right after someone applies.",
       },
       {
         q: "What does the assessment actually look like?",
         a: (
           <>
-            It&apos;s a short set of questions a candidate answers on their phone
-            in about five minutes — mostly quick situational items where they pick
-            how they&apos;d respond, on a simple scale. There are no trick
-            questions and no obvious right answers, and it&apos;s written in plain
-            language that works for the whole applicant pool. You can preview the
-            exact items yourself: {SAMPLE}
+            It&apos;s a short set of questions someone answers on their phone in
+            about five minutes. Most are quick &ldquo;what would you do&rdquo;
+            situations where they pick an answer on a simple scale. There are no
+            trick questions and no obvious right answers, and it&apos;s written in
+            plain, everyday words. You can see the exact questions yourself:{" "}
+            {SAMPLE}
           </>
         ),
       },
       {
-        q: "Is it available in Spanish? What if a candidate struggles with English?",
-        a: "Today the assessment is in English, written in plain, everyday language at an accessible reading level so it works across your applicant pool. Spanish-language support is on our roadmap — if it matters for your stores, tell us and we'll prioritize it.",
+        q: "Is it available in Spanish? What if someone struggles with English?",
+        a: "Right now it's in English, written in plain, everyday words so it's easy to read. Spanish is coming — if you need it for your stores, tell us and we'll move it up the list.",
       },
       {
-        q: "Will requiring an assessment scare off applicants?",
-        a: "It's designed not to. The assessment is about five minutes, runs on a phone, and happens right after someone applies — so it never sits between an applicant and hitting “apply.” Because it's short and low-friction, most candidates complete it, and the ones who do are showing a little follow-through before you've spent any time. The goal is to raise the quality of who you talk to without shrinking the top of your funnel.",
+        q: "Will asking people to take an assessment scare them off?",
+        a: "It's built not to. It's about five minutes, it's on their phone, and it comes right after they apply — so it never gets in the way of someone applying in the first place. Because it's short and easy, most people finish it, and the ones who do are already showing a little follow-through. The goal is better people to talk to, without fewer people applying.",
       },
       {
-        q: "Can candidates fake or game the assessment?",
-        a: "No assessment is perfectly fake-proof, but this one is built to make gaming hard. Questions are designed so there's no obvious “right” answer, and the platform reads patterns across many items rather than trusting any single response. You see results as bands plus a fit signal, not a pass/fail — so a candidate who tries to game one area still gets a rounded picture, and you're always making the final call in person.",
+        q: "Can people fake or game it?",
+        a: "No assessment is perfectly fake-proof, but this one is hard to game. The questions don't have an obvious right answer, and the system looks at patterns across all the answers instead of trusting any single one. You see results as ratings plus an overall fit, not a pass/fail — so even someone trying to game one part still gives you a full picture, and you always make the final call in person.",
       },
       {
-        q: "Do candidates see their own results?",
-        a: "No — results go to you, not the candidate. Candidates complete the assessment as part of applying and don't receive a score or band.",
+        q: "Do applicants see their own results?",
+        a: "No — results go to you, not them. People take the assessment as part of applying and don't get a score or rating back.",
       },
     ],
   },
@@ -104,45 +104,45 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "Do I get one overall score, or a recommendation?",
-        a: "You get verbal bands (Low / Mid / High) across the traits we measure, plus an overall fit recommendation — not a single raw number. We use bands instead of precise scores on purpose: personality measures carry real margin of error, and bands keep you from over-reading small differences. Treat the fit recommendation as a starting point, not a verdict.",
+        a: "You get simple Low / Medium / High ratings on each thing we measure, plus an overall fit rating — not one exact number. We use ratings on purpose: these measures aren't exact to the decimal, and ratings keep you from reading too much into tiny differences. Treat the fit rating as a starting point, not the final word.",
       },
       {
-        q: "Should I just hire everyone in the High band?",
-        a: "No — and the platform is built to discourage that. High bands point you toward strong candidates, but a band is a screen, not a ranking of someone's worth, and a great hire can land in the Mid range on a given trait. Use the bands to decide who to interview and what to dig into, then make the call the way you always have.",
+        q: "Should I just hire everyone rated High?",
+        a: "No — and we built it to steer you away from that. High ratings point you to strong people, but a rating is a quick read, not a score of someone's worth, and a great hire can land in the Medium range on something. Use the ratings to pick who to interview and what to ask, then make the call like you always have.",
       },
       {
-        q: "What if my gut disagrees with the assessment?",
-        a: "Trust your gut — it's your decision. The assessment is one more data point, not an override. When a candidate's bands and your read of them diverge, that's a useful thing to probe in the interview, not a reason to ignore what you saw in person. The platform exists to inform your judgment, never to replace it.",
+        q: "What if my gut disagrees with the ratings?",
+        a: "Trust your gut — it's your call. The assessment is one more piece of information, not an override. When the ratings and your read of someone don't match, that's a good thing to dig into during the interview, not a reason to ignore what you saw in person. QDX is there to help your judgment, never replace it.",
       },
     ],
   },
   {
-    title: "Fairness & compliance",
+    title: "Fairness & the law",
     items: [
       {
         q: "Is it fair? What about bias?",
-        a: "Fairness is designed in, not bolted on. Every decision stays with a human — the platform never auto-rejects anyone. Results come back in bands rather than precise scores so no one over-reads small differences, the questions are job-relevant with EEOC-safe framings, and automatic 4/5ths adverse-impact flags plus a voluntary EEO questionnaire let you see whether any group is being screened out. When you benchmark your own team, there are safeguards so you're not simply cloning your current staff as the “ideal” hire. No tool is bias-proof, but this one is built to surface and track bias rather than hide it.",
+        a: "Fairness is built in from the start. A person makes every decision — QDX never turns anyone down on its own. Results come as simple ratings so no one reads too much into small gaps, the questions are job-related and worded to follow fair-hiring rules, and the system automatically flags it if any group is being screened out at a lower rate than others. There's also an optional background question (things like race and gender) that you never see tied to any one person — only as overall totals. And if you ever compare applicants to your current team, there are guardrails so you're not just cloning the staff you already have. No tool is bias-proof, but this one is built to catch and track bias, not hide it.",
       },
       {
-        q: "Will this get me sued? Is it legal to use where I operate?",
-        a: "Used the way it's meant to be — as a screen that informs your decision, with a human making every call — QDX is built to support compliant hiring: job-relevant questions, EEOC-safe framings, automatic 4/5ths adverse-impact flags, and EEO reporting. That said, hiring laws vary by state and city (some places have specific rules for automated employment decision tools), and we're not your lawyer — check the rules where you operate.",
+        q: "Is it legal? Could it get me sued?",
+        a: "Used the way it's meant to be — as a helper, with a person making every call — QDX is built to support fair, legal hiring: job-related questions, fair-hiring wording, automatic fairness checks, and reports you can show. That said, hiring laws are different from state to state and city to city (some places have special rules for hiring tools that score people by computer), and we're not your lawyer — check the rules where you operate.",
       },
       {
-        q: "Is candidate data secure, and who owns it?",
-        a: "Your candidate data is yours. It's stored in a secure, access-controlled database, used only to power your hiring and your benchmarks, and never sold. You can delete candidate records at any time.",
+        q: "Is applicant information safe, and who owns it?",
+        a: "Your applicants' information is yours. We keep it in a secure, locked-down database, use it only to run your hiring, and never sell it. You can delete records any time.",
       },
     ],
   },
   {
-    title: "Accounts & users",
+    title: "Accounts & logins",
     items: [
       {
-        q: "Why one Operator account instead of separate Solo accounts per location?",
-        a: "Fair question — Operator runs $79/location vs. $59 for a Solo account, so you're paying a small premium per store. Here's what that premium buys: one login across every location, a single careers page and unified candidate pipeline, cross-store hiring analytics and benchmarking, SMS notifications, unlimited AI job descriptions, and advanced EEO reporting (EEO-1, OFCCP) — none of which separate Solo accounts can do, because each one is an island with its own login and no consolidated view. You also get double the included assessments (50/location vs. 25) at a lower overage rate, so for busy stores the effective cost gap is smaller than the sticker difference. And past 10 locations the rate drops to $69. Short version: separate Solo accounts are cheaper per store but leave you stitching everything together by hand; Operator is built to run a multi-unit hire from one place.",
+        q: "Why one Operator account instead of a separate account for each store?",
+        a: "Fair question — Operator is $79 a store vs. $59 for a single Solo account, so you pay a little more per store. Here's what the extra buys: one login for every store, one hiring page and one ranked list across all of them, reports that compare your stores, text-message alerts, unlimited AI-written job posts, and fairness reports across your stores — none of which separate accounts can do, because each one stands alone with its own login and no shared view. You also get twice the included assessments (50 a store vs. 25) at a lower per-extra rate, so for busy stores the real gap is smaller than it looks. And past 10 stores the price drops to $69. Short version: separate accounts are a little cheaper per store but leave you piecing everything together by hand; Operator runs all your stores from one place.",
       },
       {
-        q: "Can my GMs each have their own login?",
-        a: "Yes — each plan includes seats so your managers can log in themselves. Solo includes 2 users; Operator includes 2 plus 1 per location, so every store's manager gets a login while you keep the cross-store view; Enterprise is unlimited.",
+        q: "Can my managers each have their own login?",
+        a: "Yes — each plan comes with logins for your managers. Solo includes 2, Operator includes 2 plus 1 for each store, and Enterprise is unlimited.",
       },
     ],
   },
@@ -154,33 +154,34 @@ const SECTIONS: Section[] = [
         a: (
           <>
             Three plans, all with a 30-day free trial and two months free if you
-            pay annually:
+            pay for the year:
             <ul className="mt-3 space-y-3 list-none">
               <li>
-                <strong>Solo — $59/mo per location</strong> (or $590/yr). One
-                store, 2 users. Includes 25 assessments/month, then $3 each
-                (capped at $25/mo). Everything you need to hire for a single
-                location: branded hiring page + QR codes, the 5-minute assessment,
-                verbal bands + fit recommendation, local crew benchmark, basic
-                EEO/fairness flags, and your candidate pipeline.
+                <strong>Solo — $59 a month per store</strong> (or $590 a year).
+                One store, 2 logins. Includes 25 assessments a month, then $3 each
+                (never more than $25 extra a month). Everything you need to hire
+                for one store: your own hiring page and QR codes, the 5-minute
+                assessment, Low/Medium/High ratings plus an overall fit, a
+                comparison against your own crew, basic fairness checks, and your
+                ranked applicant list.
               </li>
               <li>
                 <strong>
-                  Operator — $79/location/mo, dropping to $69 at 10+ locations.
+                  Operator — $79 a store per month, dropping to $69 at 10+ stores.
                 </strong>{" "}
-                Two or more stores, 2 users + 1 per location. Includes 50
-                assessments/location/month, then $2 each (capped $50/location).
-                Everything in Solo plus one login across all locations, a unified
-                careers page and pipeline, SMS, unlimited AI job descriptions,
-                cross-store analytics and benchmarking, and advanced EEO reporting
-                (EEO-1, OFCCP).
+                Two or more stores, 2 logins plus 1 per store. Includes 50
+                assessments per store a month, then $2 each (never more than $50
+                per store). Everything in Solo plus one login for all stores, one
+                shared hiring page and list, text-message alerts, unlimited
+                AI-written job posts, reports that compare your stores, and
+                fairness reports across them.
               </li>
               <li>
                 <strong>Enterprise — let&apos;s talk</strong> (starts around
-                $2,500/mo). For brands, groups, and multi-brand operators:
-                unlimited assessments and seats, brand hierarchy and cross-brand
-                rollup, Tier 2/3 norming, audit-ready compliance exports,
-                SSO/SAML/SCIM + API, and a dedicated success manager.
+                $2,500 a month). For brands and large groups: unlimited
+                assessments and logins, reporting across many brands, company-wide
+                single sign-on, a developer connection (API), and a dedicated
+                contact. Sales-led — talk to us.
               </li>
             </ul>
           </>
@@ -188,36 +189,36 @@ const SECTIONS: Section[] = [
       },
       {
         q: "What happens if I go over my monthly assessments?",
-        a: "Each plan includes a monthly assessment allowance — 25/location on Solo, 50/location on Operator. If you go over, extra assessments are billed per assessment ($3 each on Solo, $2 on Operator), and that overage is capped ($25/mo on Solo, $50/location on Operator) so a big hiring month can't run away from you. Enterprise includes unlimited assessments.",
+        a: "Each plan comes with a set number each month — 25 a store on Solo, 50 a store on Operator. If you go over, each extra one costs a little ($3 on Solo, $2 on Operator), and there's a monthly cap ($25 on Solo, $50 a store on Operator) so a big hiring month can't run away from you. Enterprise has no limit.",
       },
       {
-        q: "Monthly or annual — and am I locked into a contract?",
-        a: "Both Solo and Operator are month-to-month, with a 30-day free trial to start. Pay annually and you get two months free. There's no long-term contract on Solo or Operator — cancel anytime; Enterprise terms are set as part of your agreement.",
+        q: "Monthly or yearly — and am I locked into a contract?",
+        a: "Both Solo and Operator are month-to-month, with a 30-day free trial to start. Pay for the year and you get two months free. There's no long-term contract on Solo or Operator — cancel any time. Enterprise terms are set in your agreement.",
       },
       {
         q: "When should I move from Solo to Operator?",
-        a: "As soon as you're running a second location. Solo is built for a single store; the moment you're hiring across two or more, Operator's one login, unified pipeline, and cross-store reporting save you from managing separate accounts. It's also worth upgrading if you're hitting your assessment cap often or want SMS, AI job descriptions, or advanced EEO reporting.",
+        a: "As soon as you run a second store. Solo is built for one store; the moment you're hiring for two or more, Operator's one login, shared list, and store-by-store reports save you from juggling separate accounts. It's also worth it if you keep hitting your monthly cap or want text alerts, unlimited AI job posts, or fairness reports across stores.",
       },
     ],
   },
   {
-    title: "Setup & integrations",
+    title: "Setup & connecting other tools",
     items: [
       {
         q: "How long does it take to set up?",
-        a: "Fast — there's nothing to build. Your branded hiring page and QR codes are ready to go, you configure your application form and roles, and you can be taking applications the same day.",
+        a: "Fast — there's nothing to build. Your hiring page and QR codes are ready to go, you set up your application form and the jobs you're hiring for, and you can be taking applications the same day.",
       },
       {
-        q: "Can I control the application form and roles?",
-        a: "Yes. You set up the roles you're hiring for and tailor the application form to ask what you actually need from candidates. As your hiring needs change, you adjust both yourself without starting over.",
+        q: "Can I control the application form and the jobs I post?",
+        a: "Yes. You set up the jobs you're hiring for and change the application form to ask only what you actually need. As your hiring changes, you adjust both yourself — no starting over.",
       },
       {
         q: "What about back-of-house vs. front-of-house?",
-        a: "It's one assessment, measuring the core traits that matter across a restaurant — reliability, people skills, ownership, composure, plus motivation. You decide which signals to weigh most for a given role: people skills tend to carry more for a front-counter or drive-thru hire, while reliability and composure under pressure matter everywhere. You set up the role and read the bands with that lens.",
+        a: "It's one assessment, measuring the things that matter all over a restaurant — being reliable, good with people, taking ownership, and staying calm. You decide what to weigh most for a given job: being good with people matters more at the front counter or drive-thru, while being reliable and calm under pressure matters everywhere. You set up the job and read the ratings with that in mind.",
       },
       {
-        q: "Does it integrate with my POS, scheduling, payroll, or ATS?",
-        a: "QDX runs as your front-door hiring and screening system — post, apply, assess, decide. Connecting to other systems — POS, scheduling, payroll, ATS — over an API is on the Enterprise roadmap.",
+        q: "Does it connect to my POS, scheduling, payroll, or other systems?",
+        a: "QDX is your front door for hiring — post, apply, assess, decide. Connecting it to other systems (POS, scheduling, payroll, and the like) is coming on the Enterprise plan.",
       },
     ],
   },
@@ -230,11 +231,11 @@ export default function FaqPage() {
       <main className="flex-1 px-4 sm:px-6 py-12">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-center">
-            Questions operators ask.
+            Questions restaurant owners ask.
           </h1>
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
-            Everything about how QDX works, what it costs, and how it keeps
-            hiring fair. Don&apos;t see your question?{" "}
+            How QDX works, what it costs, and how it keeps hiring fair — in plain
+            words. Don&apos;t see your question?{" "}
             <Link href="/demo" className="underline text-[color:var(--brand-pink-600)]">
               Talk to us
             </Link>
@@ -274,7 +275,7 @@ export default function FaqPage() {
               Start free
             </Link>
             <p className="mt-3 text-xs text-[color:var(--brand-ink-muted)]">
-              30-day free trial. Cancel anytime.
+              30-day free trial. Cancel any time.
             </p>
           </div>
         </div>
