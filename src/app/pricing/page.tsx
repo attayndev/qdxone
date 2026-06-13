@@ -101,33 +101,31 @@ export default function PricingPage() {
 }
 
 const SOLO_FEATURES = [
-  "Branded hiring page + QR codes",
-  "Configurable application form & roles",
-  "5-minute validated assessment",
-  "Verbal bands + fit recommendation",
-  "Local crew benchmark",
-  "Basic EEO + fairness flags (4/5ths)",
-  "Candidate pipeline & review",
+  "Your own hiring page + QR codes",
+  "Custom application form & roles",
+  "5-minute assessment",
+  "Low/Medium/High ratings + overall fit",
+  "Benchmark against your own crew",
+  "Basic fairness checks",
+  "Ranked applicant list & review",
   "Email notifications",
 ];
 
 const OPERATOR_FEATURES = [
   "Manage every location from one login",
-  "One careers page + candidate pipeline across stores",
-  "SMS notifications",
-  "Unlimited AI job descriptions",
-  "Hiring analytics & cross-store rollup",
-  "Cross-location benchmarking",
-  "Advanced EEO reporting (EEO-1, OFCCP)",
+  "One hiring page + ranked list across stores",
+  "Text-message (SMS) alerts",
+  "Unlimited AI-written job posts",
+  "Reports that compare your stores",
+  "Fairness checks across your stores",
 ];
 
 const ENTERPRISE_FEATURES = [
-  "Unlimited assessments & seats",
-  "Brand hierarchy + cross-brand rollup",
-  "Tier 2/3 norming",
-  "Audit-ready compliance exports",
-  "SSO / SAML / SCIM + API",
-  "White-glove support & dedicated CSM",
+  "Unlimited assessments & logins",
+  "Reporting across many brands",
+  "Company-wide single sign-on",
+  "Developer connection (API)",
+  "Dedicated contact & onboarding help",
 ];
 
 function PlanCard({
