@@ -5,6 +5,7 @@ import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
+import { effectiveTier, planLimits } from "@/lib/plan";
 import type { CustomQuestion } from "@/lib/supabase/types";
 
 const LocationSchema = z.object({
@@ -116,9 +117,31 @@ export async function generateRoleDescription(
   brief: string
 ): Promise<{ ok: true; text: string } | { ok: false; error: string }> {
   const org = await currentOrgOrThrow();
-  await requireMembership(org.id);
+  const m = await requireMembership(org.id);
   const name = roleName.trim();
   if (!name) return { ok: false, error: "Name the role first." };
+
+  // Plan gate: Solo is capped at N AI generations/month; Operator+ is unlimited.
+  const supa = adminClient();
+  const limits = planLimits(effectiveTier(org), org.location_count);
+  if (limits.aiJobDescriptionsPerMonth !== null) {
+    const now = new Date();
+    const monthStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+    ).toISOString();
+    const { count } = await supa
+      .from("audit_log")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", org.id)
+      .eq("action", "ai.job_description.generated")
+      .gte("created_at", monthStart);
+    if ((count ?? 0) >= limits.aiJobDescriptionsPerMonth) {
+      return {
+        ok: false,
+        error: `You've used your ${limits.aiJobDescriptionsPerMonth} AI job descriptions this month. Upgrade to Operator for unlimited.`,
+      };
+    }
+  }
 
   try {
     const { generateText } = await import("ai");
@@ -131,6 +154,15 @@ export async function generateRoleDescription(
           ? `Use these details from the operator: ${brief.trim()}. `
           : "") +
         `Keep it to 3-5 sentences, plain language at about a 7th-grade reading level, friendly and honest. Just a short paragraph — no title, no salary, no bullet points.`,
+    });
+    // Record the generation so the monthly cap can count it.
+    await supa.from("audit_log").insert({
+      org_id: org.id,
+      actor_user_id: m.user_id,
+      action: "ai.job_description.generated",
+      subject_type: "organization",
+      subject_id: org.id,
+      meta: { role: name },
     });
     return { ok: true, text: text.trim() };
   } catch (e) {

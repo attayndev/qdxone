@@ -7,6 +7,7 @@ import { currentOrgOrThrow } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
 import { applicationConfig } from "@/lib/application-config";
 import { smsConsentDisclosure } from "@/lib/consent";
+import { effectiveTier, hasFeature } from "@/lib/plan";
 
 const WorkHistory = z.object({
   employer: z.string().max(120),
@@ -177,7 +178,9 @@ export async function submitApplication(
         firstName: v.first_name,
         email: v.email,
         phone,
-        smsConsent,
+        // Send SMS only if the candidate consented AND the plan includes SMS.
+        smsConsent:
+          smsConsent && hasFeature(effectiveTier(org), "sms", org.location_count),
       });
     }
   } catch (e) {
