@@ -71,9 +71,11 @@ export default function ForIndependentsPage() {
                 their phone — you just open the scored shortlist.
               </Bullet>
               <Bullet>
-                <strong>Built for entry-level applicants.</strong> Plain
-                language, no assumption of formal work history. School,
-                sports, family, clubs — it all counts.
+                <strong>Works for part-time and full-time hires.</strong> Plain
+                language, no assumption of a formal work history — whether
+                someone wants a few shifts a week or a full-time job, first job
+                or fifteenth. Past work, school, military, caregiving, and
+                volunteering all count.
               </Bullet>
               <Bullet>
                 <strong>Flags tell you what to ask about.</strong> Past
@@ -95,7 +97,7 @@ export default function ForIndependentsPage() {
               Try it on your next applicant.
             </h2>
             <p className="mt-4 text-white/80">
-              30-day free trial. Solo is $49/month per location after that.
+              30-day free trial. Solo is $59 a month per location after that.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/signup" className="btn-primary">

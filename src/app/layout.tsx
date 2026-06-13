@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "16 Handles New City — Careers",
+  title: "QDX One — hiring built for restaurants",
   description:
-    "Apply to join the 16 Handles New City team. Invitation-only application portal.",
+    "Post your roles, let every applicant take a short assessment, and get a ranked shortlist — for part-time crew and full-time staff alike.",
 };
 
 export default function RootLayout({
