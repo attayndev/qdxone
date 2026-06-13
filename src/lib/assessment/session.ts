@@ -250,3 +250,67 @@ export async function orgCandidateTiers(
   }
   return out;
 }
+
+/**
+ * Local crew benchmark: the org's average score per category across all its
+ * completed candidate assessments, so a candidate can be compared to the local
+ * pool. Returns the per-category averages (keyed by academic category) and the
+ * number of scored assessments behind them.
+ */
+export async function orgCategoryAverages(
+  orgId: string
+): Promise<{ averages: Map<string, number>; n: number }> {
+  const supa = adminClient();
+  const { data: sessions } = await supa
+    .from("assessment_sessions")
+    .select("id, methodology_version")
+    .eq("org_id", orgId)
+    .eq("subject_type", "candidate")
+    .eq("status", "complete");
+  const sess = sessions ?? [];
+  if (sess.length === 0) return { averages: new Map(), n: 0 };
+
+  const sessionIds = sess.map((s) => s.id);
+  const { data: resp } = await supa
+    .from("assessment_responses")
+    .select("session_id, item_id, item_kind, value_int")
+    .in("session_id", sessionIds);
+  const versions = [...new Set(sess.map((s) => s.methodology_version))];
+  const { data: items } = await supa
+    .from("item_bank_items")
+    .select("item_id, facet, category_academic, keying")
+    .in("version", versions.length ? versions : ["__none__"]);
+  const meta = new Map((items ?? []).map((i) => [i.item_id, i]));
+
+  const bySession = new Map<string, ScoredItem[]>();
+  for (const r of resp ?? []) {
+    if (r.item_kind !== "personality" || r.value_int == null) continue;
+    const m = meta.get(r.item_id);
+    if (!m) continue;
+    if (!bySession.has(r.session_id)) bySession.set(r.session_id, []);
+    bySession.get(r.session_id)!.push({
+      value: r.value_int as number,
+      facet: m.facet,
+      category: m.category_academic,
+      keying: m.keying === "reverse" ? "reverse" : "positive",
+    });
+  }
+
+  const sums = new Map<string, { total: number; count: number }>();
+  let scored = 0;
+  for (const sc of bySession.values()) {
+    if (sc.length === 0) continue;
+    const result = scoreAssessment(sc);
+    if (result.overall === "Incomplete") continue;
+    scored += 1;
+    for (const c of result.categories) {
+      const cur = sums.get(c.category) ?? { total: 0, count: 0 };
+      cur.total += c.mean;
+      cur.count += 1;
+      sums.set(c.category, cur);
+    }
+  }
+  const averages = new Map<string, number>();
+  for (const [cat, s] of sums) averages.set(cat, s.total / s.count);
+  return { averages, n: scored };
+}

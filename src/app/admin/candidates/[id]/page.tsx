@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { currentOrg } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
-import { ATTENTION_CHECKS } from "@/lib/assessment/session";
+import { ATTENTION_CHECKS, orgCategoryAverages } from "@/lib/assessment/session";
 import {
   scoreAssessment,
   screenerProfile,
@@ -55,6 +55,7 @@ export default async function CandidateDetail({ params }: PageProps) {
   const itemText = new Map<string, string>();
   const screenerQ = new Map<string, { question: string; options: { value: number; label: string }[] }>();
   let score: ScoreResult | null = null;
+  let benchmark: { averages: Map<string, number>; n: number } | null = null;
   let screenerFlags: ScreenerFlag[] = [];
   if (session) {
     const { data: resp } = await supa
@@ -101,6 +102,7 @@ export default async function CandidateDetail({ params }: PageProps) {
     const categoryUi: Record<string, string> = {};
     for (const m of meta.values()) categoryUi[m.category_academic] = m.category_ui;
     if (scoredItems.length) score = scoreAssessment(scoredItems, categoryUi);
+    if (score) benchmark = await orgCategoryAverages(org.id);
 
     const sIds = responses.filter((r) => r.item_kind === "screener").map((r) => r.item_id);
     const { data: scr } = await supa
@@ -177,7 +179,7 @@ export default async function CandidateDetail({ params }: PageProps) {
       </div>
 
       {score && score.overall !== "Incomplete" ? (
-        <ReportCard score={score} flags={screenerFlags} />
+        <ReportCard score={score} flags={screenerFlags} benchmark={benchmark} />
       ) : (
         <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
           {session
@@ -330,13 +332,24 @@ const OVERALL_TONE: Record<string, string> = {
   "Not recommended": "bg-rose-600 text-white",
 };
 
+function crewCompare(mean: number, avg: number): string {
+  const d = mean - avg;
+  if (d >= 0.3) return "Above your applicants";
+  if (d <= -0.3) return "Below your applicants";
+  return "About your applicants";
+}
+
 function ReportCard({
   score,
   flags,
+  benchmark,
 }: {
   score: ScoreResult;
   flags: ScreenerFlag[];
+  benchmark: { averages: Map<string, number>; n: number } | null;
 }) {
+  // Only show the local benchmark once there's a meaningful pool to compare to.
+  const showBench = !!benchmark && benchmark.n >= 3;
   return (
     <div className="card mt-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -368,6 +381,11 @@ function ReportCard({
               <span className="font-bold">{c.categoryUi}</span>
               <span className={`chip ${BAND_TONE[c.band]}`}>{c.band}</span>
             </div>
+            {showBench && benchmark!.averages.has(c.category) && (
+              <div className="mt-1 text-xs text-[color:var(--brand-ink-muted)]">
+                {crewCompare(c.mean, benchmark!.averages.get(c.category)!)}
+              </div>
+            )}
             <ul className="mt-2 space-y-1">
               {c.facets.map((f) => (
                 <li
