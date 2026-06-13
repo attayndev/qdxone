@@ -24,6 +24,7 @@ export default function LocationForm({
 
   return (
     <form action={onSubmit} className="card mt-6 space-y-3 max-w-2xl">
+      <input type="hidden" name="id" value={location?.id ?? ""} />
       <div>
         <label className="label">Store name</label>
         <input
@@ -77,7 +78,7 @@ export default function LocationForm({
       </div>
       <div className="flex items-center gap-3">
         <button type="submit" disabled={pending} className="btn-primary">
-          {pending ? "Saving…" : location ? "Save changes" : "Create store profile"}
+          {pending ? "Saving…" : location ? "Save changes" : "Add store"}
         </button>
         {result?.kind === "ok" && (
           <span className="text-sm text-emerald-700">Saved.</span>
