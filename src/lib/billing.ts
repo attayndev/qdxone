@@ -3,6 +3,8 @@ import {
   stripe,
   basePriceFor,
   overagePriceFor,
+  isBasePrice,
+  isOveragePrice,
   ASSESSMENT_METER_EVENT,
   type PaidPlan,
 } from "./stripe";
@@ -127,6 +129,51 @@ export async function reportAssessmentForOverage(args: {
     identifier: args.sessionId, // dedup: at most one billable unit per session
     payload: { stripe_customer_id: org.stripe_customer_id, value: "1" },
   });
+}
+
+/**
+ * Keep the Stripe subscription in step with the org's location count: set the
+ * base item's quantity (Operator bills per location) and swap the base + overage
+ * prices when the tier flips Solo↔Operator. Call after a location is added or
+ * removed. No-op without Stripe, without a subscription (e.g. trial before
+ * checkout), or for Enterprise (managed manually). Best-effort.
+ */
+export async function syncLocationBilling(orgId: string): Promise<void> {
+  if (!process.env.STRIPE_SECRET_KEY) return;
+  const supa = adminClient();
+  const { data: org } = await supa
+    .from("organizations")
+    .select("stripe_subscription_id, billing_cycle, location_count, plan")
+    .eq("id", orgId)
+    .single();
+  if (!org?.stripe_subscription_id || org.plan === "enterprise") return;
+
+  const tier = effectiveTier(org);
+  if (tier === "enterprise") return;
+  const cycle: BillingCycle = org.billing_cycle ?? "monthly";
+  const desiredBase = basePriceFor(tier, cycle);
+  const desiredOverage = overagePriceFor(tier, cycle);
+  const desiredQty = tier === "operator" ? Math.max(2, org.location_count) : 1;
+
+  try {
+    const s = stripe();
+    const sub = await s.subscriptions.retrieve(org.stripe_subscription_id);
+    const baseItem = sub.items.data.find((it) => isBasePrice(it.price.id));
+    if (baseItem) {
+      await s.subscriptionItems.update(baseItem.id, {
+        price: desiredBase,
+        quantity: desiredQty,
+        proration_behavior: "create_prorations",
+      });
+    }
+    const overageItem = sub.items.data.find((it) => isOveragePrice(it.price.id));
+    if (overageItem && desiredOverage && overageItem.price.id !== desiredOverage) {
+      await s.subscriptionItems.update(overageItem.id, { price: desiredOverage });
+    }
+    await supa.from("organizations").update({ plan: tier }).eq("id", orgId);
+  } catch (e) {
+    console.error("syncLocationBilling failed", e);
+  }
 }
 
 /**
