@@ -95,7 +95,7 @@ export default function ForIndependentsPage() {
               Try it on your next applicant.
             </h2>
             <p className="mt-4 text-white/80">
-              30-day free trial. Starter is $49/month per location after that.
+              30-day free trial. Solo is $49/month per location after that.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/signup" className="btn-primary">

@@ -62,7 +62,7 @@ export async function devSignIn(
         slug,
         name: slug,
         branding: {},
-        plan: "starter",
+        plan: "solo",
         billing_cycle: "monthly",
         trial_ends_at: trialEnds,
         status: "trialing",

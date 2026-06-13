@@ -386,13 +386,13 @@ function PricingPeek() {
           <span className="text-[color:var(--brand-pink)]">No fluff.</span>
         </h2>
         <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg max-w-xl mx-auto">
-          Start with everything you need to hire. You only pay for completed
-          assessments — grow into a team, SMS, AI, and analytics as you scale.
+          Start with one store. Add locations and your per-location price drops —
+          you grow into SMS, AI, analytics, and cross-store reporting as you scale.
         </p>
         <div className="mt-8 grid sm:grid-cols-3 gap-4 text-left">
-          <PricePeek name="Starter" price={49} quota="25 / mo, then $3 ea" />
-          <PricePeek name="Growth" price={99} quota="75 / mo, then $2 ea" highlight />
-          <PricePeek name="Multi-unit" price="Let's talk" quota="Unlimited" />
+          <PricePeek name="Solo" price={49} quota="1 location · 25 / mo" />
+          <PricePeek name="Operator" price="$99→$49" quota="2+ loc · 50 / loc" highlight />
+          <PricePeek name="Enterprise" price="Let's talk" quota="Brands & groups" />
         </div>
         <div className="mt-7">
           <Link href="/pricing" className="btn-primary">
@@ -400,8 +400,8 @@ function PricingPeek() {
           </Link>
         </div>
         <p className="mt-3 text-sm text-[color:var(--brand-ink-muted)]">
-          30-day free trial on both self-serve plans. Franchisees, groups &
-          brands? Multi-unit is custom.
+          30-day free trial on both self-serve plans. Brands & multi-brand
+          groups? Enterprise is custom.
         </p>
       </div>
     </section>

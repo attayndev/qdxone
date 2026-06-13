@@ -2,9 +2,9 @@
 // the service-role client. The generated `database.types.ts` (npm run db:types)
 // covers row/insert/update shapes; these are the convenience views.
 
-// Self-serve tiers are starter | growth. "multi_unit" is the talk-to-us tier:
-// never sold via Checkout, set manually after a sales conversation.
-export type PlanTier = "starter" | "growth" | "multi_unit";
+// Pricing v1 tiers. Solo | Operator are self-serve (derived from location
+// count); Enterprise is the sales-led tier, set manually. See src/lib/plan.ts.
+export type PlanTier = "solo" | "operator" | "enterprise";
 export type OrgStatus = "trialing" | "active" | "past_due" | "canceled";
 export type BillingCycle = "annual" | "monthly";
 export type OrgRole = "owner" | "admin";
@@ -52,7 +52,9 @@ export interface OrganizationRow {
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   status: string;
-  monthly_assessment_quota: number | null;
+  // Denormalized count of locations; drives tier, quota, seats, caps, and the
+  // Stripe subscription quantity. Kept in sync by a DB trigger on `locations`.
+  location_count: number;
   created_at: string;
   updated_at: string;
 }
