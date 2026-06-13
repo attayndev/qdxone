@@ -1,10 +1,12 @@
 "use server";
 
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
 import { effectiveTier, planLimits } from "@/lib/plan";
+import { syncLocationBilling } from "@/lib/billing";
 import type { CustomQuestion } from "@/lib/supabase/types";
 
 const LocationSchema = z.object({
@@ -62,6 +64,8 @@ export async function saveLocation(
       .eq("org_id", org.id);
   } else {
     await supa.from("locations").insert(payload);
+    // Adding a store changes location_count → keep Stripe in step.
+    after(() => syncLocationBilling(org.id));
   }
 
   revalidatePath("/admin/locations");
@@ -107,7 +111,9 @@ export async function deleteLocation(id: string): Promise<SaveLocationResult> {
   }
 
   await supa.from("locations").delete().eq("id", id).eq("org_id", org.id);
+  after(() => syncLocationBilling(org.id));
   revalidatePath("/admin/locations");
+  revalidatePath("/admin/postings");
   return { ok: true };
 }
 

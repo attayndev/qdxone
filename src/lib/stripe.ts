@@ -67,3 +67,17 @@ export function overagePriceFor(plan: PaidPlan, cycle: BillingCycle): string | n
   const p = PLAN_PRICES[plan];
   return (cycle === "annual" ? p.overageAnnual : p.overageMonthly) ?? null;
 }
+
+const ALL_PRICES = Object.values(PLAN_PRICES);
+
+/** Is this price id one of the flat base prices (any plan/cycle)? */
+export function isBasePrice(priceId: string): boolean {
+  return ALL_PRICES.some((p) => p.monthly === priceId || p.annual === priceId);
+}
+
+/** Is this price id one of the metered overage prices (any plan/cycle)? */
+export function isOveragePrice(priceId: string): boolean {
+  return ALL_PRICES.some(
+    (p) => p.overageMonthly === priceId || p.overageAnnual === priceId
+  );
+}
