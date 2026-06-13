@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { adminClient } from "@/lib/supabase/admin";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
+import { effectiveTier, hasFeature } from "@/lib/plan";
 
 /**
  * Manager-initiated assessment send (review-first mode). Creates the session
@@ -58,7 +59,10 @@ export async function sendAssessmentToCandidate(
     firstName: app.first_name,
     email: app.email,
     phone: app.phone,
-    smsConsent: app.sms_consent ?? false,
+    // Send SMS only if the candidate consented AND the plan includes SMS.
+    smsConsent:
+      (app.sms_consent ?? false) &&
+      hasFeature(effectiveTier(org), "sms", org.location_count),
   });
 
   revalidatePath(`/admin/candidates/${applicationId}`);
