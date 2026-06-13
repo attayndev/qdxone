@@ -34,9 +34,9 @@ export default function PricingPage() {
           <div className="mt-10 grid md:grid-cols-3 gap-5 items-start">
             <PlanCard
               name="Solo"
-              priceLine="$49"
+              priceLine="$69"
               priceSub="/mo per location"
-              annualNote="or $490/yr (2 months free)"
+              annualNote="or $690/yr (2 months free)"
               meta="1 location · 2 users"
               quotaLine="25 assessments/mo, then $3 each (capped $25/mo)"
               tagline="Everything you need to hire for one store."
@@ -44,8 +44,8 @@ export default function PricingPage() {
             />
             <PlanCard
               name="Operator"
-              priceLine="$99→$49"
-              priceSub="/loc per mo, by count"
+              priceLine="$69→$59"
+              priceSub="/loc per mo (10+ loc)"
               annualNote="2 months free on annual"
               meta="2+ locations · 2 + 1/location users"
               quotaLine="50 assessments/location/mo, then $2 each (capped $50/loc)"
@@ -111,7 +111,7 @@ const SOLO_FEATURES = [
 ];
 
 const OPERATOR_FEATURES = [
-  "Volume-discounted per location",
+  "One account, login & pipeline for every location",
   "SMS notifications",
   "Unlimited AI job descriptions",
   "Hiring analytics & cross-store rollup",
