@@ -60,6 +60,12 @@ export default async function AdminLayout({
               Store
             </Link>
             <Link
+              href="/admin/team"
+              className="font-semibold hover:text-[color:var(--brand-pink)]"
+            >
+              Team
+            </Link>
+            <Link
               href="/admin/settings"
               className="font-semibold hover:text-[color:var(--brand-pink)]"
             >
