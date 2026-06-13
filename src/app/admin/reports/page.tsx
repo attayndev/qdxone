@@ -79,6 +79,32 @@ export default async function ReportsPage() {
         )}
       </div>
 
+      {/* By location (Operator+ / multi-store) */}
+      {org.location_count >= 2 && (
+        <div className="card mt-6">
+          <h2 className="font-extrabold text-lg">By location</h2>
+          {r.byLocation.length === 0 ? (
+            <p className="text-sm text-[color:var(--brand-ink-muted)] mt-2">
+              No applications yet.
+            </p>
+          ) : (
+            <ul className="mt-3 divide-y divide-[color:var(--brand-line)]">
+              {r.byLocation.map((row) => (
+                <li
+                  key={row.location}
+                  className="py-2 flex items-center justify-between gap-3"
+                >
+                  <span className="font-semibold">{row.location}</span>
+                  <span className="text-sm text-[color:var(--brand-ink-muted)]">
+                    {row.applied} applied · {row.complete} completed
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       {/* By role */}
       <div className="card mt-6">
         <h2 className="font-extrabold text-lg">Applications by role</h2>
