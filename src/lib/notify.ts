@@ -3,7 +3,7 @@ import { sendSms } from "./sms";
 
 /**
  * Deliver the assessment link to a candidate. Email (Resend) goes to everyone;
- * SMS (Twilio) fires ONLY when the candidate gave TCPA consent (`smsConsent`) —
+ * SMS (Telnyx) fires ONLY when the candidate gave TCPA consent (`smsConsent`) —
  * the caller is responsible for passing the stored consent flag, so the gate is
  * enforced at this single layer. Both are best-effort.
  */

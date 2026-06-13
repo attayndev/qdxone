@@ -23,20 +23,21 @@ export default function PricingPage() {
       <main className="flex-1 px-4 sm:px-6 py-12">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-center">
-            Per-location pricing that drops as you grow.
+            Simple per-location pricing.
           </h1>
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
-            Start with everything you need to hire one store. Add locations and
-            your per-location price goes <em>down</em>, not up. 30-day free trial
-            on both self-serve plans.
+            Hire your first store on Solo. Running several? Operator brings them
+            under one account with the full multi-store toolkit — and your
+            per-location price drops once you pass 10 locations. 30-day free
+            trial on both self-serve plans.
           </p>
 
           <div className="mt-10 grid md:grid-cols-3 gap-5 items-start">
             <PlanCard
               name="Solo"
-              priceLine="$69"
+              priceLine="$59"
               priceSub="/mo per location"
-              annualNote="or $690/yr (2 months free)"
+              annualNote="or $590/yr (2 months free)"
               meta="1 location · 2 users"
               quotaLine="25 assessments/mo, then $3 each (capped $25/mo)"
               tagline="Everything you need to hire for one store."
@@ -44,7 +45,7 @@ export default function PricingPage() {
             />
             <PlanCard
               name="Operator"
-              priceLine="$69→$59"
+              priceLine="$79→$69"
               priceSub="/loc per mo (10+ loc)"
               annualNote="2 months free on annual"
               meta="2+ locations · 2 + 1/location users"
