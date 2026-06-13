@@ -112,11 +112,11 @@ const SOLO_FEATURES = [
 ];
 
 const OPERATOR_FEATURES = [
-  "One account, login & pipeline for every location",
+  "Manage every location from one login",
+  "One careers page + candidate pipeline across stores",
   "SMS notifications",
   "Unlimited AI job descriptions",
   "Hiring analytics & cross-store rollup",
-  "Multi-location careers page",
   "Cross-location benchmarking",
   "Advanced EEO reporting (EEO-1, OFCCP)",
 ];

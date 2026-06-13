@@ -456,16 +456,29 @@ function PricePeek({
 function Faq() {
   const items: Array<{ q: string; a: React.ReactNode }> = [
     {
-      q: "How long does it take a candidate?",
-      a: "About 8 minutes total — a short application plus a 5-minute assessment, all on their phone. No login, no app.",
+      q: "Why use QDX instead of just interviewing people myself?",
+      a: "You still interview — QDX makes sure those minutes go to the right people. Résumés and gut-feel interviews are slow and notoriously poor at predicting who'll show up, take feedback, and stay. QDX scores every applicant on the traits that predict frontline performance in about 5 minutes, turning a pile of 40 applications into a ranked shortlist before your first phone call.",
     },
     {
-      q: "What does the assessment look like?",
+      q: "I'm short-staffed — won't screening just slow me down?",
+      a: "It speeds you up. The assessment is ~5 minutes on the candidate's phone right after they apply, and you see scored results instantly — no extra step for you. Hiring whoever walks in feels fast until the no-call-no-shows and two-week quits pile up; a bad hire costs far more in re-hiring and training than five minutes of screening.",
+    },
+    {
+      q: "Does this replace the interview?",
+      a: "No — it replaces the guesswork before it. QDX tells you who's worth your time and what to dig into; you still meet them and make the call. We score, we never auto-reject.",
+    },
+    {
+      q: "How is this different from a job board like Indeed?",
+      a: "Job boards get you applicants. QDX tells you which ones to hire. Point your QDX careers link or QR code anywhere you already recruit — Indeed, a window sign, Instagram — and every applicant lands in one scored, ranked pipeline.",
+    },
+    {
+      q: "How is this different from a personality test?",
       a: (
         <>
-          Short, plain-language statements candidates rate on a 5-point scale,
-          written at a 6th-grade reading level and mobile-first. Built on
-          validated personality and motivation constructs.{" "}
+          Personality tests profile who someone is. QDX predicts what they&apos;ll
+          do on a shift — show up on time, take feedback, stay productive when
+          it&apos;s slow. We&apos;re predicting frontline behavior, not labeling
+          traits.{" "}
           <Link
             href="/assessments"
             className="underline text-[color:var(--brand-pink-600)]"
@@ -476,32 +489,20 @@ function Faq() {
       ),
     },
     {
-      q: "Do you auto-reject candidates?",
-      a: "Never. QDX gives you verbal bands and a fit recommendation — decision support, not a filter. You make every hire/no-hire call.",
+      q: "How long does it take a candidate?",
+      a: "About 8 minutes total — a short application plus a 5-minute assessment, all on their phone. No login, no app.",
     },
     {
-      q: "Can I control the application form and roles?",
-      a: "Yes. You define your own roles, choose which application fields are required or hidden, and can review applications before sending the assessment if you want to filter out joke submissions.",
-    },
-    {
-      q: "How is this different from a personality test?",
-      a: "Personality tests profile who someone is. QDX predicts what they're likely to do on a shift — show up on time, take feedback, stay productive when it's slow. We're predicting frontline behavior, not labeling traits.",
-    },
-    {
-      q: "What does it cost?",
-      a: "Solo is $59 per location per month (one location). Operator — any account with 2+ locations — is $79 per location, dropping to $69 once you pass 10 locations. Each location includes a monthly batch of completed assessments; extra ones are a small, capped per-assessment fee (applicants who don't finish are free). 30-day free trial, card captured at signup.",
+      q: "Is an assessment fair — could it screen people out unfairly?",
+      a: "Fairness is built in. QDX is decision-support, never an auto-filter. EEO questions are voluntary and never shown to you per candidate — you see only aggregate fairness reporting with the four-fifths rule flagged. The assessment is plain-language and mobile-first so it doesn't quietly advantage one group.",
     },
     {
       q: "Why one Operator account instead of a separate account per location?",
-      a: "You could run a separate Solo account per store at $59 each — and some do at first. But Operator (at $79/location) puts every store under one login, one careers page, and one candidate pipeline, plus tools separate Solo accounts don't get: SMS notifications, unlimited AI job descriptions, cross-location benchmarking, hiring analytics and rollup across stores, and advanced EEO reporting. As you add locations, managing one account beats juggling several — and once you pass 10 locations the rate drops to $69.",
+      a: "You could run a separate Solo account per store at $59 each — and some do at first. But Operator ($79/location) puts every location under one login, one careers page, and one candidate pipeline, plus tools separate accounts don't get: SMS, unlimited AI job descriptions, cross-location benchmarking, and rollup reporting. Managing one account beats juggling several — and past 10 locations the rate drops to $69.",
     },
     {
-      q: "What's the difference between Solo and Operator?",
-      a: "Solo is a single location at $59/mo — the full hiring loop: branded careers page, the assessment, scored candidates, a local crew benchmark, and basic fairness flags. Operator is any account with 2+ locations at $79/location ($69 at 10+): everything in Solo, plus the multi-store layer — one careers page across locations, SMS, unlimited AI job descriptions, cross-location benchmarking, analytics with rollup, and advanced EEO reporting (EEO-1, OFCCP).",
-    },
-    {
-      q: "Do you integrate with my POS or scheduling software?",
-      a: "Not yet. QDX runs as a standalone hiring layer — post, apply, assess, decide. Integrations land later.",
+      q: "What does it cost?",
+      a: "Solo is $59 per location/month (one location). Operator (2+ locations) is $79 per location, dropping to $69 once you pass 10. Each location includes a monthly batch of completed assessments; extras are a small, capped per-assessment fee (applicants who don't finish are free). 30-day free trial, card captured at signup.",
     },
   ];
   return (
