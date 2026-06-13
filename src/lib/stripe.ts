@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import type { BillingCycle } from "./supabase/types";
+import type { PaidPlan } from "./plan";
 
 let cached: Stripe | null = null;
 
@@ -11,8 +12,7 @@ export function stripe(): Stripe {
   return cached;
 }
 
-// The two self-serve tiers. Multi-unit is talk-to-us (no Checkout price).
-export type PaidPlan = "starter" | "growth";
+export type { PaidPlan };
 
 /**
  * The `event_name` configured on the Stripe Billing Meter that the overage
@@ -30,25 +30,28 @@ type PlanPrices = {
 };
 
 /**
- * Stripe Price IDs per self-serve tier. Each plan has a monthly + annual flat
- * base price plus a metered overage price ($3/Starter, $2/Growth per completed
- * assessment past quota) in BOTH intervals — Stripe requires every recurring
- * price on a subscription to share one billing interval, so the overage must
- * match the base's cycle. A Checkout subscription = base(cycle) + overage(cycle).
- * Multi-unit is never self-serve.
+ * Stripe Price IDs per self-serve tier. Each plan has a monthly + annual base
+ * price plus a metered overage price in BOTH intervals — Stripe requires every
+ * recurring price on a subscription to share one billing interval, so the
+ * overage must match the base's cycle. A Checkout subscription =
+ * base(cycle) + overage(cycle).
+ *
+ * Solo's base is flat ($49, quantity 1). Operator's base is a VOLUME-tiered
+ * price ($99/$79/$59/$49 bands) with quantity = location count. Enterprise is
+ * never self-serve, so it has no price here.
  */
 export const PLAN_PRICES: Record<PaidPlan, PlanPrices> = {
-  starter: {
-    monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY,
-    annual: process.env.STRIPE_PRICE_STARTER_ANNUAL,
-    overageMonthly: process.env.STRIPE_PRICE_STARTER_OVERAGE_MONTHLY,
-    overageAnnual: process.env.STRIPE_PRICE_STARTER_OVERAGE_ANNUAL,
+  solo: {
+    monthly: process.env.STRIPE_PRICE_SOLO_MONTHLY,
+    annual: process.env.STRIPE_PRICE_SOLO_ANNUAL,
+    overageMonthly: process.env.STRIPE_PRICE_SOLO_OVERAGE_MONTHLY,
+    overageAnnual: process.env.STRIPE_PRICE_SOLO_OVERAGE_ANNUAL,
   },
-  growth: {
-    monthly: process.env.STRIPE_PRICE_GROWTH_MONTHLY,
-    annual: process.env.STRIPE_PRICE_GROWTH_ANNUAL,
-    overageMonthly: process.env.STRIPE_PRICE_GROWTH_OVERAGE_MONTHLY,
-    overageAnnual: process.env.STRIPE_PRICE_GROWTH_OVERAGE_ANNUAL,
+  operator: {
+    monthly: process.env.STRIPE_PRICE_OPERATOR_MONTHLY,
+    annual: process.env.STRIPE_PRICE_OPERATOR_ANNUAL,
+    overageMonthly: process.env.STRIPE_PRICE_OPERATOR_OVERAGE_MONTHLY,
+    overageAnnual: process.env.STRIPE_PRICE_OPERATOR_OVERAGE_ANNUAL,
   },
 };
 

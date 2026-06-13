@@ -17,7 +17,9 @@ const SignupSchema = z.object({
     .min(2)
     .max(30)
     .regex(SLUG_RE, "Letters, numbers, and dashes only"),
-  plan: z.enum(["starter", "growth"]),
+  // No plan picker: every org starts as Solo (1 location). Operator pricing
+  // emerges automatically once they add a 2nd location (tier derives from
+  // location count — see src/lib/plan.ts).
   cycle: z.enum(["monthly", "annual"]).default("monthly"),
 });
 
@@ -44,7 +46,6 @@ export async function signup(
     name: formData.get("name"),
     email: formData.get("email"),
     slug: (formData.get("slug") ?? "").toString().toLowerCase().trim(),
-    plan: formData.get("plan"),
     cycle: formData.get("cycle") ?? "monthly",
   });
   if (!parsed.success) {
@@ -71,9 +72,9 @@ export async function signup(
     return { ok: false, error: "That subdomain is taken.", field: "slug" };
   }
 
-  // Everyone gets a 30-day trial with a card captured at signup. Monthly
-  // per-location billing. The org trigger derives monthly_assessment_quota
-  // from the plan, so we don't set it here.
+  // Everyone gets a 30-day trial with a card captured at signup. New orgs start
+  // as Solo (1 location); tier/quota/seats are derived from plan + location
+  // count at read time (src/lib/plan), so nothing numeric is stored here.
   const trialEnds = new Date(
     Date.now() + 30 * 24 * 60 * 60 * 1000
   ).toISOString();
@@ -85,7 +86,7 @@ export async function signup(
       slug: v.slug,
       name: v.name,
       branding: {},
-      plan: v.plan,
+      plan: "solo",
       billing_cycle: billingCycle,
       trial_ends_at: trialEnds,
       status: "trialing",
@@ -101,7 +102,7 @@ export async function signup(
     org_id: org.id,
     kind: "org.created",
     meta: {
-      plan: v.plan,
+      plan: "solo",
       requested_by: v.email,
     },
   });
@@ -145,8 +146,9 @@ export async function signup(
       checkoutUrl = await createCheckoutSessionForOrg({
         orgId: org.id,
         orgSlug: org.slug,
-        plan: v.plan,
+        plan: "solo",
         cycle: v.cycle,
+        locations: 1,
         email: v.email,
       });
     } catch (e) {

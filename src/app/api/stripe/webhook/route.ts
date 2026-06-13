@@ -5,11 +5,7 @@ import { adminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
-const PAID_PLANS = ["starter", "growth"];
-
-function quotaForPlan(plan: string): number | null {
-  return plan === "starter" ? 25 : plan === "growth" ? 75 : null; // multi_unit = unlimited
-}
+const PAID_PLANS = ["solo", "operator"];
 
 /**
  * Reverse-map a subscription's base price back to {plan, cycle} so portal-side
@@ -80,17 +76,18 @@ export async function POST(request: NextRequest) {
         const sub = await stripe().subscriptions.retrieve(subId);
         const plan = PAID_PLANS.includes(session.metadata?.plan ?? "")
           ? (session.metadata!.plan as string)
-          : "starter";
+          : "solo";
         const cycle =
           session.metadata?.cycle === "annual" ? "annual" : "monthly";
 
+        // Quota/seats/caps are derived from plan + location_count (src/lib/plan),
+        // so we only persist plan/cycle here.
         await supa
           .from("organizations")
           .update({
             stripe_subscription_id: sub.id,
             plan,
             billing_cycle: cycle,
-            monthly_assessment_quota: quotaForPlan(plan),
             status: mapStatus(sub.status),
           })
           .eq("id", orgId);
@@ -109,7 +106,7 @@ export async function POST(request: NextRequest) {
         const orgId = sub.metadata?.org_id;
         if (!orgId) break;
         const status = mapStatus(sub.status);
-        // Sync plan/cycle/quota too, so portal-side plan or cycle changes land.
+        // Sync plan/cycle too, so portal-side plan or cycle changes land.
         const pc = planCycleFromSub(sub);
         if (pc && event.type === "customer.subscription.updated") {
           await supa
@@ -119,7 +116,6 @@ export async function POST(request: NextRequest) {
               stripe_subscription_id: sub.id,
               plan: pc.plan,
               billing_cycle: pc.cycle,
-              monthly_assessment_quota: quotaForPlan(pc.plan),
             })
             .eq("id", orgId);
         } else {

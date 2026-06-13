@@ -7,6 +7,7 @@ import {
   type PaidPlan,
 } from "./stripe";
 import type { BillingCycle } from "./supabase/types";
+import { effectiveTier, planLimits, overageUnitCap } from "./plan";
 import { orgUrl } from "./tenancy";
 
 /**
@@ -14,14 +15,17 @@ import { orgUrl } from "./tenancy";
  * subscription on the chosen billing cycle (monthly or annual = 2 months free)
  * with a 30-day trial; the card is captured at checkout
  * (`payment_method_collection: 'always'`) and auto-charges when the trial ends.
- * The subscription carries two items: the flat base price + a metered overage
- * price ($3/Starter, $2/Growth per completed assessment past the quota).
+ * The subscription carries two items: the base price + a metered overage price
+ * ($3/Solo, $2/Operator per completed assessment past quota). Solo bills a flat
+ * base (quantity 1); Operator bills its volume-tiered base at quantity =
+ * `locations`, so the $99/$79/$59/$49 bands apply to the total.
  */
 export async function createCheckoutSessionForOrg(args: {
   orgId: string;
   orgSlug: string;
   plan: PaidPlan;
   cycle: BillingCycle;
+  locations: number;
   email: string;
 }): Promise<string> {
   const supa = adminClient();
@@ -50,9 +54,11 @@ export async function createCheckoutSessionForOrg(args: {
   const successUrl = orgUrl(args.orgSlug, "/admin/billing?success=1");
   const cancelUrl = orgUrl(args.orgSlug, "/admin/billing?canceled=1");
 
-  // Base (flat, qty 1) + overage (metered, no quantity).
+  // Base (Solo qty 1; Operator qty = locations for the volume bands) + overage
+  // (metered, no quantity).
+  const baseQty = args.plan === "operator" ? Math.max(2, args.locations) : 1;
   const lineItems: { price: string; quantity?: number }[] = [
-    { price: basePriceFor(args.plan, args.cycle), quantity: 1 },
+    { price: basePriceFor(args.plan, args.cycle), quantity: baseQty },
   ];
   const overage = overagePriceFor(args.plan, args.cycle);
   if (overage) lineItems.push({ price: overage });
@@ -75,9 +81,11 @@ export async function createCheckoutSessionForOrg(args: {
 
 /**
  * Bill one unit of overage when a completed candidate assessment lands past the
- * org's included monthly quota. Idempotent per session (Stripe dedups meter
- * events by `identifier`). No-op for unlimited plans, orgs without a Stripe
- * customer, or when Stripe isn't configured — safe to call on every completion.
+ * org's included monthly quota — UNTIL the monthly overage $ cap is reached
+ * (Solo $25/mo, Operator $50/loc/mo), after which further completions are free.
+ * Idempotent per session (Stripe dedups meter events by `identifier`). No-op for
+ * unlimited (Enterprise) plans, orgs without a Stripe customer, or when Stripe
+ * isn't configured — safe to call on every completion.
  */
 export async function reportAssessmentForOverage(args: {
   orgId: string;
@@ -87,12 +95,13 @@ export async function reportAssessmentForOverage(args: {
   const supa = adminClient();
   const { data: org } = await supa
     .from("organizations")
-    .select("stripe_customer_id, monthly_assessment_quota")
+    .select("stripe_customer_id, plan, location_count")
     .eq("id", args.orgId)
     .single();
   if (!org?.stripe_customer_id) return;
-  const quota = org.monthly_assessment_quota;
-  if (quota === null) return; // unlimited plan → no overage
+
+  const limits = planLimits(effectiveTier(org), org.location_count);
+  if (limits.monthlyQuota === null) return; // unlimited → no overage
 
   // Completed candidate assessments this calendar month (this one included).
   const now = new Date();
@@ -107,7 +116,11 @@ export async function reportAssessmentForOverage(args: {
     .eq("status", "complete")
     .gte("completed_at", monthStart);
   const used = count ?? 0;
-  if (used <= quota) return; // still within the included allotment
+
+  // This completion's position past the included quota (1 = first overage unit).
+  const overageIndex = used - limits.monthlyQuota;
+  if (overageIndex < 1) return; // within the included allotment
+  if (overageIndex > overageUnitCap(limits)) return; // past the monthly $ cap → free
 
   await stripe().billing.meterEvents.create({
     event_name: ASSESSMENT_METER_EVENT,

@@ -120,26 +120,21 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          <RadioCard
-            name="plan"
-            value="starter"
-            defaultChecked
-            label={cycle === "annual" ? "Starter — $490/yr" : "Starter — $49/mo"}
-            sub="25/mo, then $3 ea · 1 user"
-          />
-          <RadioCard
-            name="plan"
-            value="growth"
-            label={cycle === "annual" ? "Growth — $990/yr" : "Growth — $99/mo"}
-            sub="75/mo, then $2 ea · 3 users"
-          />
+        <div className="mt-2 rounded-xl border-2 border-[color:var(--brand-pink)] bg-[color:var(--brand-pink-50)] p-3">
+          <div className="font-bold">
+            Solo — {cycle === "annual" ? "$490/yr" : "$49/mo"} per location
+          </div>
+          <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
+            25 assessments/mo, then $3 ea (capped $25) · 2 users
+          </div>
         </div>
         <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
-          Per location. Card captured now, first charge after your 30-day
-          trial. Multiple locations or a brand?{" "}
+          Per location. Card captured now, first charge after your 30-day trial.
+          Add a 2nd location later and you move to{" "}
+          <span className="font-semibold">Operator</span> pricing automatically.
+          Big group or brand?{" "}
           <a href="/demo" className="font-semibold underline">
-            Multi-unit
+            Enterprise
           </a>{" "}
           is custom — talk to us.
         </p>
@@ -153,35 +148,5 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
         {pending ? "Creating…" : "Create my workspace"}
       </button>
     </form>
-  );
-}
-
-function RadioCard({
-  name,
-  value,
-  label,
-  sub,
-  defaultChecked,
-}: {
-  name: string;
-  value: string;
-  label: string;
-  sub: string;
-  defaultChecked?: boolean;
-}) {
-  return (
-    <label className="block cursor-pointer rounded-xl border border-[color:var(--brand-line)] bg-white p-3 has-checked:border-[color:var(--brand-pink)] has-checked:bg-[color:var(--brand-pink-50)]">
-      <input
-        type="radio"
-        name={name}
-        value={value}
-        defaultChecked={defaultChecked}
-        className="sr-only"
-      />
-      <div className="font-bold">{label}</div>
-      <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
-        {sub}
-      </div>
-    </label>
   );
 }

@@ -592,7 +592,7 @@ export type Database = {
           branding: Json
           created_at: string
           id: string
-          monthly_assessment_quota: number | null
+          location_count: number
           name: string
           plan: string
           slug: string
@@ -607,7 +607,7 @@ export type Database = {
           branding?: Json
           created_at?: string
           id?: string
-          monthly_assessment_quota?: number | null
+          location_count?: number
           name: string
           plan?: string
           slug: string
@@ -622,7 +622,7 @@ export type Database = {
           branding?: Json
           created_at?: string
           id?: string
-          monthly_assessment_quota?: number | null
+          location_count?: number
           name?: string
           plan?: string
           slug?: string

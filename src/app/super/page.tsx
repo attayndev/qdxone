@@ -5,6 +5,7 @@ import { adminClient } from "@/lib/supabase/admin";
 import { extractSlugFromHost, orgUrl } from "@/lib/tenancy";
 import { headers } from "next/headers";
 import type { OrganizationRow } from "@/lib/supabase/types";
+import { effectiveTier, monthlyBasePrice } from "@/lib/plan";
 
 /**
  * Cross-org operator view. Lives at the apex (`qdx.one/super`) and is
@@ -43,12 +44,13 @@ export default async function SuperAdminPage() {
     canceled: list.filter((o) => o.status === "canceled").length,
   };
 
-  // Rough MRR — only actively-paying orgs (trialing not yet counted).
+  // Rough MRR — only actively-paying self-serve orgs (trialing not counted;
+  // Enterprise is custom-contracted, excluded). Excludes metered overage.
   const mrr = list.reduce((sum, o) => {
     if (o.status !== "active") return sum;
-    if (o.plan === "starter") return sum + 49;
-    if (o.plan === "growth") return sum + 99;
-    return sum; // multi_unit: custom pricing, not counted (excludes overage)
+    const tier = effectiveTier(o);
+    if (tier === "enterprise") return sum;
+    return sum + monthlyBasePrice(tier, o.location_count);
   }, 0);
 
   return (
