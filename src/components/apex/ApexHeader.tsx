@@ -92,6 +92,7 @@ export function ApexFooter() {
           <FL href="/how-it-works">How it works</FL>
           <FL href="/assessments">Assessments</FL>
           <FL href="/pricing">Pricing</FL>
+          <FL href="/faq">FAQ</FL>
           <FL href="/demo">Book a demo</FL>
         </FooterCol>
         <FooterCol title="For operators">

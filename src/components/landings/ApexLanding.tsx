@@ -529,6 +529,14 @@ function Faq() {
             </details>
           ))}
         </div>
+        <div className="mt-6 text-center">
+          <Link
+            href="/faq"
+            className="font-semibold underline text-[color:var(--brand-pink-600)]"
+          >
+            See all questions →
+          </Link>
+        </div>
       </div>
     </section>
   );
