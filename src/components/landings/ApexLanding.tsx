@@ -390,8 +390,8 @@ function PricingPeek() {
           you grow into SMS, AI, analytics, and cross-store reporting as you scale.
         </p>
         <div className="mt-8 grid sm:grid-cols-3 gap-4 text-left">
-          <PricePeek name="Solo" price={49} quota="1 location · 25 / mo" />
-          <PricePeek name="Operator" price="$99→$49" quota="2+ loc · 50 / loc" highlight />
+          <PricePeek name="Solo" price={69} quota="1 location · 25 / mo" />
+          <PricePeek name="Operator" price="$69→$59" quota="2+ loc · 50 / loc" highlight />
           <PricePeek name="Enterprise" price="Let's talk" quota="Brands & groups" />
         </div>
         <div className="mt-7">
@@ -485,6 +485,18 @@ function Faq() {
     {
       q: "How is this different from a personality test?",
       a: "Personality tests profile who someone is. QDX predicts what they're likely to do on a shift — show up on time, take feedback, stay productive when it's slow. We're predicting frontline behavior, not labeling traits.",
+    },
+    {
+      q: "What does it cost?",
+      a: "A flat $69 per location per month — dropping to $59/location once you run 10 or more. Same rate whether you have one store or twenty. Each location includes a monthly batch of completed assessments; extra ones are a small, capped per-assessment fee (applicants who don't finish are free). 30-day free trial, card captured at signup.",
+    },
+    {
+      q: "Why one Operator account instead of a separate account per location?",
+      a: "It's the same $69/location either way, so it's not about price — it's about not juggling separate logins. One Operator account gives you a single dashboard, one careers page, and one candidate pipeline across every store, plus tools separate Solo accounts don't get: SMS notifications, unlimited AI job descriptions, cross-location benchmarking, hiring analytics and rollup across stores, and advanced EEO reporting. As you add stores, running everything from one place is the whole point.",
+    },
+    {
+      q: "What's the difference between Solo and Operator?",
+      a: "Solo is a single location — the full hiring loop: branded careers page, the assessment, scored candidates, a local crew benchmark, and basic fairness flags. Operator is any account with 2+ locations: everything in Solo, plus the multi-store layer — one careers page across locations, SMS, unlimited AI job descriptions, cross-location benchmarking, analytics with rollup, and advanced EEO reporting (EEO-1, OFCCP). Same $69/location either way ($59 at 10+).",
     },
     {
       q: "Do you integrate with my POS or scheduling software?",
