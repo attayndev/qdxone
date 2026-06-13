@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { BrandHeader, BrandFooter } from "@/components/Brand";
 import { adminClient } from "@/lib/supabase/admin";
+import { getOrgLocations } from "@/lib/locations";
 import type { OrganizationRow } from "@/lib/supabase/types";
 import type { Database } from "@/lib/supabase/database.types";
 
 type PostingRow = Database["public"]["Tables"]["job_postings"]["Row"];
+type Posting = Pick<PostingRow, "id" | "title" | "public_token" | "location_id">;
 
 /**
  * The branded org landing — shown at the org's subdomain root. The store's
@@ -21,14 +23,32 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
   const supa = adminClient();
   const { data } = await supa
     .from("job_postings")
-    .select("id, title, public_token")
+    .select("id, title, public_token, location_id")
     .eq("org_id", org.id)
     .eq("status", "open")
     .order("created_at", { ascending: false });
-  const postings = (data as Pick<
-    PostingRow,
-    "id" | "title" | "public_token"
-  >[] | null) ?? [];
+  const postings = (data as Posting[] | null) ?? [];
+
+  // When the org runs more than one store, group openings by location so an
+  // applicant picks the right store (rather than guessing from a dropdown).
+  const locations = await getOrgLocations(org.id);
+  const multiLocation = locations.length >= 2;
+  const groups = multiLocation
+    ? [
+        ...locations.map((l) => ({
+          key: l.id,
+          label: l.city ? `${l.name} · ${l.city}` : l.name,
+          postings: postings.filter((p) => p.location_id === l.id),
+        })),
+        {
+          key: "all",
+          label: "All locations",
+          postings: postings.filter(
+            (p) => !p.location_id || !locations.some((l) => l.id === p.location_id)
+          ),
+        },
+      ].filter((g) => g.postings.length > 0)
+    : [];
 
   return (
     <>
@@ -120,21 +140,23 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
                 No open roles posted right now — check back soon, or stop by{" "}
                 {org.name} and ask.
               </p>
+            ) : multiLocation ? (
+              <div className="mt-6 space-y-6">
+                {groups.map((g) => (
+                  <div key={g.key}>
+                    <h3 className="font-bold text-white/90 mb-2">{g.label}</h3>
+                    <ul className="space-y-3">
+                      {g.postings.map((p) => (
+                        <PostingLi key={p.id} p={p} />
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             ) : (
               <ul className="mt-6 space-y-3">
                 {postings.map((p) => (
-                  <li
-                    key={p.id}
-                    className="rounded-2xl bg-white/5 border border-white/10 p-4 flex items-center justify-between gap-3 flex-wrap"
-                  >
-                    <div className="font-bold text-lg">{p.title}</div>
-                    <Link
-                      href={`/j/${encodeURIComponent(p.public_token)}`}
-                      className="btn-primary"
-                    >
-                      Apply
-                    </Link>
-                  </li>
+                  <PostingLi key={p.id} p={p} />
                 ))}
               </ul>
             )}
@@ -143,6 +165,20 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
       </main>
       <BrandFooter org={org} />
     </>
+  );
+}
+
+function PostingLi({ p }: { p: Posting }) {
+  return (
+    <li className="rounded-2xl bg-white/5 border border-white/10 p-4 flex items-center justify-between gap-3 flex-wrap">
+      <div className="font-bold text-lg">{p.title}</div>
+      <Link
+        href={`/j/${encodeURIComponent(p.public_token)}`}
+        className="btn-primary"
+      >
+        Apply
+      </Link>
+    </li>
   );
 }
 
