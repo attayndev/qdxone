@@ -465,7 +465,7 @@ function Faq() {
     },
     {
       q: "Does this replace the interview?",
-      a: "No — it replaces the guesswork before it. QDX tells you who's worth your time and what to dig into; you still meet them and make the call. We score, we never auto-reject.",
+      a: "No — it replaces the guesswork before it. QDX tells you who's worth your time and what to dig into; you still meet them and make the call. We rate people; we never turn anyone down for you.",
     },
     {
       q: "How is this different from a job board like Indeed?",
@@ -493,8 +493,8 @@ function Faq() {
       a: "About 8 minutes total — a short application plus a 5-minute assessment, all on their phone. No login, no app.",
     },
     {
-      q: "Is an assessment fair — could it screen people out unfairly?",
-      a: "Fairness is built in. QDX is decision-support, never an auto-filter. EEO questions are voluntary and never shown to you per candidate — you see only aggregate fairness reporting with the four-fifths rule flagged. The assessment is plain-language and mobile-first so it doesn't quietly advantage one group.",
+      q: "Is it fair — could it screen people out unfairly?",
+      a: "Fairness is built in. A person makes every call — QDX never turns anyone down on its own. You see simple ratings, not exact scores, so no one reads too much into small gaps. The background question (race, gender, and so on) is optional, and you never see it tied to a person — only as totals — while the system flags it if any group is being screened out at a lower rate. It's written in plain words and works on any phone, so it doesn't quietly favor one group.",
     },
     {
       q: "Why one Operator account instead of a separate account per location?",
