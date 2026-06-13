@@ -30,9 +30,10 @@ export default function AboutPage() {
         <section className="px-4 sm:px-6 py-8">
           <div className="max-w-3xl mx-auto space-y-5 text-[17px] leading-relaxed">
             <p>
-              Most of my staff are 16 to 19 years old. Most have never had a
-              real job. I don&apos;t have an HR department or a recruiter —
-              I have me, a phone, and a stack of applications.
+              My crew has always been a mix — some on their first job ever, some
+              working part-time around classes or a second gig, some doing this
+              full-time. I don&apos;t have an HR department or a recruiter — I
+              have me, a phone, and a stack of applications.
             </p>
             <p>
               For years I&apos;d burn an hour interviewing somebody who, in
@@ -45,7 +46,7 @@ export default function AboutPage() {
             <p>
               I&apos;d try harder on the next interview. Ask sharper
               questions. Watch for the &ldquo;tells.&rdquo; Some of it
-              worked. A lot of it didn&apos;t. Hiring frontline kids is
+              worked. A lot of it didn&apos;t. Hiring frontline staff is
               hard, and I am one operator with one set of instincts on a
               Tuesday afternoon between rushes.
             </p>

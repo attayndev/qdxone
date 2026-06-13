@@ -49,7 +49,7 @@ export default function ForMultiUnitPage() {
         <section className="px-4 sm:px-6 py-16">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-black tracking-tight">
-              What changes when QDX owns your top-of-funnel.
+              What changes when QDX handles your applications.
             </h2>
             <ul className="mt-6 space-y-4 text-[16px] leading-relaxed">
               <Bullet
@@ -62,7 +62,7 @@ export default function ForMultiUnitPage() {
               />
               <Bullet
                 title="A fairer, more defensible process."
-                body="The same validated assessment for everyone, bands instead of gut calls, and built-in adverse-impact monitoring. No candidate is ever auto-rejected — recommendations support your managers, they don't overrule them."
+                body="The same assessment for everyone, clear Low/Medium/High ratings instead of gut calls, and built-in fairness checks. No applicant is ever turned down by the system — the ratings support your managers, they don't overrule them."
               />
               <Bullet
                 title="Hire the behaviors guests notice."
@@ -75,22 +75,23 @@ export default function ForMultiUnitPage() {
         <section className="px-4 sm:px-6 py-12 bg-[color:var(--brand-ink)] text-white">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-              Multi-location pricing? Talk to us.
+              Running more than one location?
             </h2>
             <p className="mt-4 text-white/80">
-              If you operate several locations and want a single account that
-              spans every restaurant — with brand-level reporting — book a
-              quick walkthrough and we&apos;ll size it for your footprint.
+              Operator is self-serve for two or more stores — one account across
+              every location, a shared hiring page, and reports that compare your
+              stores. $79 a location, dropping to $69 once you pass 10. Running a
+              brand, or several brands? Enterprise is custom — let&apos;s talk.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link href="/demo" className="btn-primary">
-                Book a 15-min demo
+              <Link href="/pricing" className="btn-primary">
+                See pricing
               </Link>
               <Link
-                href="/signup"
+                href="/demo"
                 className="btn-ghost !text-white !border-white hover:!bg-white hover:!text-[color:var(--brand-ink)]"
               >
-                Start a single-location trial
+                Talk to us
               </Link>
             </div>
           </div>

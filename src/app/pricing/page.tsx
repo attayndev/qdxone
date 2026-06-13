@@ -5,7 +5,7 @@ import { operatorPerLocation, monthlyBasePrice } from "@/lib/plan";
 export const metadata = {
   title: "QDX pricing — per-location restaurant hiring",
   description:
-    "Start at $49/location. Per-location pricing that drops as you grow. Pay for the completed assessments you use. 30-day free trial.",
+    "Simple per-location pricing for restaurants — Solo from $59/location, Operator for multi-store, Enterprise for brands. 30-day free trial.",
 };
 
 // Per-location math at common scales, computed from the live pricing model.
