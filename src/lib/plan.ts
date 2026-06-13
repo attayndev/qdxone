@@ -40,23 +40,25 @@ export function deriveTier(locationCount: number): PlanTier {
 }
 
 /**
- * Self-serve per-location price by TOTAL location count (Stripe volume tiers:
- * every location bills at the band for the total). A flat $69/location until
- * 10 locations, then $59/location. Same rate for Solo (1 location) and
- * Operator — the tier difference is features + one account, not price.
+ * Operator per-location price by TOTAL location count (Stripe volume tiers:
+ * every location bills at the band for the total). $79/location until 10
+ * locations, then $69/location. (Solo has its own flat $59 — see below.)
  */
 export function operatorPerLocation(locations: number): number {
-  return locations >= 10 ? 59 : 69;
+  return locations >= 10 ? 69 : 79;
 }
 
+/** Solo is a single location at a flat monthly price. */
+export const SOLO_PRICE = 59;
+
 /**
- * Monthly base price in dollars (display/MRR). Solo = $69 (one location);
+ * Monthly base price in dollars (display/MRR). Solo = $59 (one location);
  * Operator = per-location rate × count; Enterprise = max($2,500 floor, $50/loc).
  */
 export function monthlyBasePrice(tier: PlanTier, locations: number): number {
   switch (tier) {
     case "solo":
-      return operatorPerLocation(1);
+      return SOLO_PRICE;
     case "operator": {
       const n = Math.max(2, locations);
       return operatorPerLocation(n) * n;

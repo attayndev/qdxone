@@ -386,12 +386,13 @@ function PricingPeek() {
           <span className="text-[color:var(--brand-pink)]">No fluff.</span>
         </h2>
         <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg max-w-xl mx-auto">
-          Start with one store. Add locations and your per-location price drops —
-          you grow into SMS, AI, analytics, and cross-store reporting as you scale.
+          One store on Solo. Run several and Operator brings them under one
+          account with SMS, AI, analytics, and cross-store reporting — dropping
+          to $69/location once you pass 10.
         </p>
         <div className="mt-8 grid sm:grid-cols-3 gap-4 text-left">
-          <PricePeek name="Solo" price={69} quota="1 location · 25 / mo" />
-          <PricePeek name="Operator" price="$69→$59" quota="2+ loc · 50 / loc" highlight />
+          <PricePeek name="Solo" price={59} quota="1 location · 25 / mo" />
+          <PricePeek name="Operator" price="$79→$69" quota="2+ loc · 50 / loc" highlight />
           <PricePeek name="Enterprise" price="Let's talk" quota="Brands & groups" />
         </div>
         <div className="mt-7">
@@ -488,15 +489,15 @@ function Faq() {
     },
     {
       q: "What does it cost?",
-      a: "A flat $69 per location per month — dropping to $59/location once you run 10 or more. Same rate whether you have one store or twenty. Each location includes a monthly batch of completed assessments; extra ones are a small, capped per-assessment fee (applicants who don't finish are free). 30-day free trial, card captured at signup.",
+      a: "Solo is $59 per location per month (one location). Operator — any account with 2+ locations — is $79 per location, dropping to $69 once you pass 10 locations. Each location includes a monthly batch of completed assessments; extra ones are a small, capped per-assessment fee (applicants who don't finish are free). 30-day free trial, card captured at signup.",
     },
     {
       q: "Why one Operator account instead of a separate account per location?",
-      a: "It's the same $69/location either way, so it's not about price — it's about not juggling separate logins. One Operator account gives you a single dashboard, one careers page, and one candidate pipeline across every store, plus tools separate Solo accounts don't get: SMS notifications, unlimited AI job descriptions, cross-location benchmarking, hiring analytics and rollup across stores, and advanced EEO reporting. As you add stores, running everything from one place is the whole point.",
+      a: "You could run a separate Solo account per store at $59 each — and some do at first. But Operator (at $79/location) puts every store under one login, one careers page, and one candidate pipeline, plus tools separate Solo accounts don't get: SMS notifications, unlimited AI job descriptions, cross-location benchmarking, hiring analytics and rollup across stores, and advanced EEO reporting. As you add locations, managing one account beats juggling several — and once you pass 10 locations the rate drops to $69.",
     },
     {
       q: "What's the difference between Solo and Operator?",
-      a: "Solo is a single location — the full hiring loop: branded careers page, the assessment, scored candidates, a local crew benchmark, and basic fairness flags. Operator is any account with 2+ locations: everything in Solo, plus the multi-store layer — one careers page across locations, SMS, unlimited AI job descriptions, cross-location benchmarking, analytics with rollup, and advanced EEO reporting (EEO-1, OFCCP). Same $69/location either way ($59 at 10+).",
+      a: "Solo is a single location at $59/mo — the full hiring loop: branded careers page, the assessment, scored candidates, a local crew benchmark, and basic fairness flags. Operator is any account with 2+ locations at $79/location ($69 at 10+): everything in Solo, plus the multi-store layer — one careers page across locations, SMS, unlimited AI job descriptions, cross-location benchmarking, analytics with rollup, and advanced EEO reporting (EEO-1, OFCCP).",
     },
     {
       q: "Do you integrate with my POS or scheduling software?",

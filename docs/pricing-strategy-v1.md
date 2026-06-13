@@ -4,13 +4,12 @@
 **Status:** Structure locked. Ready for marketing page, Stripe setup, and in-app feature gating.
 
 > **Pricing update (2026-06-13) — simplified per-location price.** The
-> volume-band curve below ($99/$79/$59/$49) was replaced with a flat
-> **$69/location, dropping to $59/location at 10+ locations**, applied to Solo
-> *and* Operator alike. Per-location price is now the **same** whether you run
-> one account or several — so the choice of Operator over multiple Solo accounts
-> is about a single account + the extra Operator features, not price (this is the
-> consolidation FAQ). Solo = $69 (one location). Enterprise unchanged ($2,500
-> floor + $50/loc). The tier *structure*, feature splits, seats, quotas, and
+> volume-band curve below ($99/$79/$59/$49) was replaced with: **Solo $59/mo**
+> (one location); **Operator $79/location, dropping to $69/location at 10+
+> locations**; **Enterprise** unchanged ($2,500 floor + $50/loc). So Operator
+> carries a modest per-location premium over running separate Solo accounts
+> ($79 vs $59) — justified by one account + the Operator feature set (the
+> consolidation FAQ). The tier *structure*, feature splits, seats, quotas, and
 > overage caps below all still hold — only the base per-location price changed.
 > The dollar examples and "volume discount" framing in the sections below are
 > superseded by this note; `src/lib/plan.ts` is the source of truth.
@@ -23,7 +22,7 @@
 |---|---|---|---|
 | **Who it's for** | Independent single-location restaurants | Multi-store franchisees and small chains | Large multi-unit groups, brand HQs, multi-brand |
 | **Scale** | 1 location | 2+ locations (self-serve) | 25+ locations OR needs enterprise features |
-| **Price** | $69/mo per location | $69/loc (1–9) · $59/loc (10+) | $2,500/mo floor · $50/loc above |
+| **Price** | $59/mo per location | $79/loc (2–9) · $69/loc (10+) | $2,500/mo floor · $50/loc above |
 | **Annual** | 2 months free | 2 months free | Annual commitment standard |
 | **Seats** | 2 (owner + manager) | 2 base + 1 per location | Unlimited |
 | **Assessments / mo** | 25 included · $3 overage · capped at $25/mo | 50 per location · $2 overage · capped at $50/loc/mo | Unlimited |

@@ -6,11 +6,10 @@ mode). The app reads everything by **price ID** from env vars — no amounts are
 hardcoded. Full pricing rationale: `docs/pricing-strategy-v1.md`.
 
 Billing model recap (pricing v1):
-- **Solo** — $69/mo (or $690/yr, 2 months free) per location · 1 location ·
+- **Solo** — $59/mo (or $590/yr, 2 months free) per location · 1 location ·
   25 completed assessments/mo, then **$3** each, **capped $25/mo** · 2 users.
-- **Operator** — flat **$69/loc (1–9)**, **$59/loc (10+)** · 50 assessments/loc/mo,
-  then **$2** each, **capped $50/loc/mo** · 2 + 1/location users. (Same per-location
-  rate as Solo — the tier difference is features + one account, not price.)
+- **Operator** — **$79/loc (2–9)**, **$69/loc (10+)** · 50 assessments/loc/mo,
+  then **$2** each, **capped $50/loc/mo** · 2 + 1/location users.
 - **Enterprise** — $2,500/mo floor + $50/loc. Talk-to-us, set manually. No Checkout.
 
 A subscription carries **two items**: the base price + a metered overage price.
@@ -46,8 +45,8 @@ Create two products: **QDX Solo** and **QDX Operator**. On each, add four prices
 ### QDX Solo  (flat base, quantity 1)
 | Price | Type | Amount | Interval | → env var |
 |---|---|---|---|---|
-| Base monthly | Flat (licensed) | $69.00 | Monthly | `STRIPE_PRICE_SOLO_MONTHLY` |
-| Base annual | Flat (licensed) | $690.00 | Yearly | `STRIPE_PRICE_SOLO_ANNUAL` |
+| Base monthly | Flat (licensed) | $59.00 | Monthly | `STRIPE_PRICE_SOLO_MONTHLY` |
+| Base annual | Flat (licensed) | $590.00 | Yearly | `STRIPE_PRICE_SOLO_ANNUAL` |
 | Overage monthly | **Usage-based**, meter `assessment_completed` | $3.00 / unit | Monthly | `STRIPE_PRICE_SOLO_OVERAGE_MONTHLY` |
 | Overage annual | **Usage-based**, meter `assessment_completed` | $3.00 / unit | Yearly | `STRIPE_PRICE_SOLO_OVERAGE_ANNUAL` |
 
@@ -56,8 +55,8 @@ Set the base prices' pricing model to **Volume** with these tiers (per-unit):
 
 | Tier (units = locations) | Per-unit |
 |---|---|
-| 1–9 | $69 |
-| 10+ | $59 |
+| 1–9 | $79 |
+| 10+ | $69 |
 
 | Price | Type | Amount | Interval | → env var |
 |---|---|---|---|---|
