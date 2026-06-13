@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
-import { getPrimaryLocation } from "@/lib/locations";
 import { effectiveTier, planLimits } from "@/lib/plan";
 import type { CustomQuestion } from "@/lib/supabase/types";
 
@@ -22,12 +21,13 @@ export type SaveLocationResult =
   | { ok: true }
   | { ok: false; error: string };
 
-/** Create or update the org's (single, in MVP) store profile. */
+/** Create a new store, or update an existing one when `id` is present. */
 export async function saveLocation(
   formData: FormData
 ): Promise<SaveLocationResult> {
   const org = await currentOrgOrThrow();
   await requireMembership(org.id);
+  const id = (formData.get("id") ?? "").toString().trim();
 
   const parsed = LocationSchema.safeParse({
     name: formData.get("name") ?? "",
@@ -54,15 +54,60 @@ export async function saveLocation(
   };
 
   const supa = adminClient();
-  const existing = await getPrimaryLocation(org.id);
-  if (existing) {
-    await supa.from("locations").update(payload).eq("id", existing.id);
+  if (id) {
+    await supa
+      .from("locations")
+      .update(payload)
+      .eq("id", id)
+      .eq("org_id", org.id);
   } else {
     await supa.from("locations").insert(payload);
   }
 
   revalidatePath("/admin/locations");
   revalidatePath("/admin/postings");
+  return { ok: true };
+}
+
+/**
+ * Delete a store. Guards: keep at least one store, and refuse to delete a store
+ * that still has applicants or postings (which reference it) — the operator
+ * closes/clears those first. (The location_count trigger keeps the org's count
+ * in sync.)
+ */
+export async function deleteLocation(id: string): Promise<SaveLocationResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const supa = adminClient();
+
+  const { count: locCount } = await supa
+    .from("locations")
+    .select("*", { count: "exact", head: true })
+    .eq("org_id", org.id);
+  if ((locCount ?? 0) <= 1) {
+    return { ok: false, error: "You need at least one store." };
+  }
+
+  const { count: appCount } = await supa
+    .from("applications")
+    .select("*", { count: "exact", head: true })
+    .eq("org_id", org.id)
+    .eq("location_id", id);
+  if ((appCount ?? 0) > 0) {
+    return { ok: false, error: "This store has applicants — it can't be deleted." };
+  }
+
+  const { count: postCount } = await supa
+    .from("job_postings")
+    .select("*", { count: "exact", head: true })
+    .eq("org_id", org.id)
+    .eq("location_id", id);
+  if ((postCount ?? 0) > 0) {
+    return { ok: false, error: "This store has job postings — remove them first." };
+  }
+
+  await supa.from("locations").delete().eq("id", id).eq("org_id", org.id);
+  revalidatePath("/admin/locations");
   return { ok: true };
 }
 

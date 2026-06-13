@@ -9,20 +9,25 @@ export type PostingView = {
   status: "draft" | "open" | "closed";
   url: string;
   qrSvg: string;
+  location?: string | null;
 };
+
+type StoreOption = { id: string; name: string };
 
 export default function PostingsClient({
   postings,
   hasLocation,
   roles,
+  locations,
 }: {
   postings: PostingView[];
   hasLocation: boolean;
   roles: string[];
+  locations: StoreOption[];
 }) {
   return (
     <div className="grid lg:grid-cols-[1fr_2fr] gap-6 mt-6">
-      <CreateForm hasLocation={hasLocation} roles={roles} />
+      <CreateForm hasLocation={hasLocation} roles={roles} locations={locations} />
       <div className="card">
         <h2 className="font-extrabold text-lg">Your postings</h2>
         <ul className="mt-3 space-y-4">
@@ -43,9 +48,11 @@ export default function PostingsClient({
 function CreateForm({
   hasLocation,
   roles,
+  locations,
 }: {
   hasLocation: boolean;
   roles: string[];
+  locations: StoreOption[];
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +91,18 @@ function CreateForm({
             Edit your role list in Store setup.
           </p>
         </div>
+        {locations.length > 1 && (
+          <div>
+            <label className="label">Store</label>
+            <select className="input" name="location_id" defaultValue={locations[0]?.id ?? ""}>
+              {locations.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <button
           type="submit"
           disabled={pending || !hasLocation}
@@ -105,7 +124,15 @@ function PostingItem({ posting }: { posting: PostingView }) {
     <li className="rounded-xl border border-[color:var(--brand-line)] p-4">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <div className="font-semibold">{posting.title}</div>
+          <div className="font-semibold">
+            {posting.title}
+            {posting.location && (
+              <span className="text-[color:var(--brand-ink-muted)] font-normal">
+                {" · "}
+                {posting.location}
+              </span>
+            )}
+          </div>
           <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
             <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)]">
               {posting.status}

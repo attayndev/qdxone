@@ -5,11 +5,13 @@ import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
 import { generateToken } from "@/lib/tokens";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
-import { getPrimaryLocation } from "@/lib/locations";
+import { getPrimaryLocation, getOrgLocations } from "@/lib/locations";
 
 const PostingSchema = z.object({
   // The posting is for a role the operator defined (e.g. "Team Member").
   title: z.string().min(1, "Pick a role").max(120),
+  // Which store this posting is for (optional; defaults to the primary store).
+  location_id: z.string().uuid().optional().or(z.literal("")),
 });
 
 export type CreatePostingResult =
@@ -24,13 +26,24 @@ export async function createPosting(
 
   const parsed = PostingSchema.safeParse({
     title: formData.get("title") ?? "",
+    location_id: formData.get("location_id") ?? "",
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const location = await getPrimaryLocation(org.id);
-  if (!location) {
+  // Resolve the store: a chosen location (verified to be this org's) or the
+  // primary store as the default.
+  let locationId: string | null = null;
+  if (parsed.data.location_id) {
+    const locs = await getOrgLocations(org.id);
+    locationId = locs.find((l) => l.id === parsed.data.location_id)?.id ?? null;
+  }
+  if (!locationId) {
+    const primary = await getPrimaryLocation(org.id);
+    locationId = primary?.id ?? null;
+  }
+  if (!locationId) {
     return { ok: false, error: "Set up your store profile first." };
   }
 
@@ -40,7 +53,7 @@ export async function createPosting(
     .from("job_postings")
     .insert({
       org_id: org.id,
-      location_id: location.id,
+      location_id: locationId,
       title: parsed.data.title,
       public_token: token,
       status: "open",

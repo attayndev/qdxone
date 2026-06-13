@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { currentOrg, orgUrl } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
-import { getPrimaryLocation } from "@/lib/locations";
+import { getOrgLocations } from "@/lib/locations";
 import { orgRoles } from "@/lib/roles";
 import { qrSvg } from "@/lib/qr";
 import PostingsClient, {
@@ -17,14 +17,16 @@ export default async function PostingsPage() {
   if (!org) notFound();
 
   const supa = adminClient();
-  const [{ data: rows }, location] = await Promise.all([
+  const [{ data: rows }, locations] = await Promise.all([
     supa
       .from("job_postings")
       .select("*")
       .eq("org_id", org.id)
       .order("created_at", { ascending: false }),
-    getPrimaryLocation(org.id),
+    getOrgLocations(org.id),
   ]);
+  const locName = new Map(locations.map((l) => [l.id, l.name]));
+  const multiLocation = locations.length > 1;
 
   const postings: PostingView[] = await Promise.all(
     ((rows as PostingRow[] | null) ?? []).map(async (p) => {
@@ -35,6 +37,9 @@ export default async function PostingsPage() {
         status: p.status,
         url,
         qrSvg: await qrSvg(url),
+        location: multiLocation
+          ? (p.location_id ? locName.get(p.location_id) ?? null : null)
+          : null,
       };
     })
   );
@@ -49,7 +54,7 @@ export default async function PostingsPage() {
             straight from their phone.
           </p>
         </div>
-        {!location && (
+        {locations.length === 0 && (
           <Link href="/admin/locations" className="btn-primary">
             Set up store profile
           </Link>
@@ -58,8 +63,9 @@ export default async function PostingsPage() {
 
       <PostingsClient
         postings={postings}
-        hasLocation={!!location}
+        hasLocation={locations.length > 0}
         roles={orgRoles(org.branding)}
+        locations={locations.map((l) => ({ id: l.id, name: l.name }))}
       />
     </div>
   );
