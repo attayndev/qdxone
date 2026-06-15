@@ -98,6 +98,7 @@ export function ApexFooter() {
         <FooterCol title="For operators">
           <FL href="/for-qsr">Multi-location</FL>
           <FL href="/for-independents">Independents</FL>
+          <FL href="/enterprise">Enterprise &amp; compliance</FL>
         </FooterCol>
         <FooterCol title="Company">
           <FL href="/about">About</FL>
