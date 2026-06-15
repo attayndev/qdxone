@@ -1,15 +1,11 @@
 import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
-import { monthlyBasePrice } from "@/lib/plan";
 
 export const metadata = {
   title: "QDX pricing — per-location restaurant hiring",
   description:
     "Flat per-location pricing with unlimited assessments. Solo $59/location, Operator $79/location for the multi-store toolkit, Enterprise for brands. 30-day free trial.",
 };
-
-// Flat per-location totals at common scales ($79/location on Operator).
-const SCALES = [2, 5, 10].map((n) => ({ n, total: monthlyBasePrice("operator", n) }));
 
 export default function PricingPage() {
   return (
@@ -50,25 +46,7 @@ export default function PricingPage() {
             <EnterpriseCard />
           </div>
 
-          {/* Operator flat-rate examples */}
-          <div className="mt-8 card max-w-2xl mx-auto">
-            <h3 className="font-extrabold">Operator — what you&apos;d pay</h3>
-            <p className="text-sm text-[color:var(--brand-ink-muted)] mt-1">
-              A flat $79 per location, every store, unlimited assessments.
-            </p>
-            <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-              {SCALES.map((s) => (
-                <div key={s.n} className="rounded-xl bg-[color:var(--brand-cream)] p-3">
-                  <div className="text-xs text-[color:var(--brand-ink-muted)]">
-                    {s.n} locations
-                  </div>
-                  <div className="text-xl font-black mt-1">${s.total}/mo</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <p className="mt-6 text-center text-sm text-[color:var(--brand-ink-muted)] max-w-2xl mx-auto">
+          <p className="mt-8 text-center text-sm text-[color:var(--brand-ink-muted)] max-w-2xl mx-auto">
             No per-assessment fees and no caps — you only pay per location, so a
             busy hiring month never costs extra.
           </p>
