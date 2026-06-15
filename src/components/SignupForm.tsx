@@ -125,7 +125,7 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
             Solo — {cycle === "annual" ? "$590/yr" : "$59/mo"} per location
           </div>
           <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
-            25 assessments/mo, then $3 ea (capped $25) · 2 users
+            Unlimited assessments · 2 users
           </div>
         </div>
         <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">

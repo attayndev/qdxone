@@ -1,7 +1,36 @@
 # QDX One — Pricing Strategy v1
 
-**Last updated:** 2026-06-13
-**Status:** Structure locked. Ready for marketing page, Stripe setup, and in-app feature gating.
+**Last updated:** 2026-06-15
+**Status:** Live model below. `src/lib/plan.ts` is the source of truth.
+
+> **Pricing update (2026-06-15) — UNLIMITED assessments, feature-differentiated.**
+> This supersedes everything below. The model is now dead simple: a **flat
+> per-location subscription with UNLIMITED assessments on every tier** — no caps,
+> no metered overage, no Billing Meter. Pricing: **Solo $59/location** (1
+> location), **Operator $79/location** (flat — the $69-at-10+ discount was
+> removed), **Enterprise** talk-to-us ($2,500 floor + $50/loc). The Operator
+> premium ($20/location) buys **features, not volume**: unified login across
+> stores, **SMS notifications + two-way candidate texting**, **AI-written job
+> posts**, cross-store reporting, and (roadmap) **extra testing modules**.
+> Rationale: assessments cost ~nothing to deliver (deterministic scoring), so
+> gate the things that actually cost money (SMS, AI) and give away the cheap
+> thing — which also removes the friction of a cap biting during a hiring rush.
+> Consequence: SMS + AI are Operator-only, and Operator = 2+ locations, so a
+> single store can't get SMS/AI yet (acceptable; could add Solo add-ons later).
+>
+> **Roadmap — integrations (Operator/Enterprise feature, post-beta):** rather than
+> build scheduling/payroll, *integrate*.
+> - **Post-hire push (outbound):** after a hire, push the new employee into the
+>   operator's systems — **POS like Toast**, and **schedulers** (WhenIWork /
+>   Homebase / 7shifts). "Hire → it lands in Toast / your schedule."
+> - **Job syndication (distribution):** push open postings OUT to boards.
+>   **Google for Jobs** = free structured-data (JSON-LD on the public job page),
+>   so cheap it could be a baseline for all tiers; **Indeed** via a job feed
+>   (organic free, sponsored costs the operator); **Facebook** = a share-to-Page
+>   link only (FB Jobs API was discontinued in 2023); ZipRecruiter / others later.
+> All high-value adjacency + real lock-in, far cheaper than building the products.
+>
+> Earlier 2026-06-13 note (volume bands / caps / overage) — fully superseded:
 
 > **Pricing update (2026-06-13) — simplified per-location price.** The
 > volume-band curve below ($99/$79/$59/$49) was replaced with: **Solo $59/mo**

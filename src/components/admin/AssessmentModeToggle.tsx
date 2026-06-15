@@ -29,7 +29,7 @@ export default function AssessmentModeToggle({
           selected={on}
           onClick={() => set(true)}
           title="Automatically (recommended)"
-          body="Candidates go straight into the assessment after applying. Highest completion. You only pay for completed assessments, so joke applicants who don't finish cost nothing."
+          body="Candidates go straight into the assessment after applying. Highest completion — and joke applicants who don't finish just drop off your list."
         />
         <Option
           selected={!on}
