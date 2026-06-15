@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
-import { effectiveTier, planLimits } from "@/lib/plan";
+import { effectiveTier, hasFeature } from "@/lib/plan";
 import { syncLocationBilling } from "@/lib/billing";
 import type { CustomQuestion } from "@/lib/supabase/types";
 
@@ -168,30 +168,17 @@ export async function generateRoleDescription(
   brief: string
 ): Promise<{ ok: true; text: string } | { ok: false; error: string }> {
   const org = await currentOrgOrThrow();
-  const m = await requireMembership(org.id);
+  await requireMembership(org.id);
   const name = roleName.trim();
   if (!name) return { ok: false, error: "Name the role first." };
 
-  // Plan gate: Solo is capped at N AI generations/month; Operator+ is unlimited.
-  const supa = adminClient();
-  const limits = planLimits(effectiveTier(org), org.location_count);
-  if (limits.aiJobDescriptionsPerMonth !== null) {
-    const now = new Date();
-    const monthStart = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
-    ).toISOString();
-    const { count } = await supa
-      .from("audit_log")
-      .select("*", { count: "exact", head: true })
-      .eq("org_id", org.id)
-      .eq("action", "ai.job_description.generated")
-      .gte("created_at", monthStart);
-    if ((count ?? 0) >= limits.aiJobDescriptionsPerMonth) {
-      return {
-        ok: false,
-        error: `You've used your ${limits.aiJobDescriptionsPerMonth} AI job descriptions this month. Upgrade to Operator for unlimited.`,
-      };
-    }
+  // AI-written job posts are an Operator feature (Operator = 2+ locations).
+  if (!hasFeature(effectiveTier(org), "ai_job_descriptions")) {
+    return {
+      ok: false,
+      error:
+        "AI-written job posts are an Operator feature — add a second location to unlock them.",
+    };
   }
 
   try {
@@ -205,15 +192,6 @@ export async function generateRoleDescription(
           ? `Use these details from the operator: ${brief.trim()}. `
           : "") +
         `Keep it to 3-5 sentences, plain language at about a 7th-grade reading level, friendly and honest. Just a short paragraph — no title, no salary, no bullet points.`,
-    });
-    // Record the generation so the monthly cap can count it.
-    await supa.from("audit_log").insert({
-      org_id: org.id,
-      actor_user_id: m.user_id,
-      action: "ai.job_description.generated",
-      subject_type: "organization",
-      subject_id: org.id,
-      meta: { role: name },
     });
     return { ok: true, text: text.trim() };
   } catch (e) {

@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { currentOrg } from "@/lib/tenancy";
-import { adminClient } from "@/lib/supabase/admin";
 import {
   openBillingPortal,
   startCheckoutForCurrentOrg,
@@ -27,23 +26,7 @@ export default async function BillingPage({ searchParams }: PageProps) {
 
   const tier = effectiveTier(org);
   const limits = planLimits(tier, org.location_count);
-  const quota = limits.monthlyQuota; // null = unlimited
-
-  // Completed candidate assessments this calendar month = the billable unit.
   const now = new Date();
-  const monthStart = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
-  ).toISOString();
-  const supa = adminClient();
-  const { count } = await supa
-    .from("assessment_sessions")
-    .select("*", { count: "exact", head: true })
-    .eq("org_id", org.id)
-    .eq("subject_type", "candidate")
-    .eq("status", "complete")
-    .gte("completed_at", monthStart);
-
-  const used = count ?? 0;
   const trialEnds = org.trial_ends_at ? new Date(org.trial_ends_at) : null;
   const inTrial = org.status === "trialing" && trialEnds && trialEnds > now;
   const locLabel = `${org.location_count} location${org.location_count === 1 ? "" : "s"}`;
@@ -51,9 +34,9 @@ export default async function BillingPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-black tracking-tight">Billing & usage</h1>
+        <h1 className="text-3xl font-black tracking-tight">Billing</h1>
         <p className="text-[color:var(--brand-ink-muted)]">
-          Plan, completed assessments this month, and trial status.
+          Your plan, seats, and trial status.
         </p>
       </div>
 
@@ -87,29 +70,24 @@ export default async function BillingPage({ searchParams }: PageProps) {
       </div>
 
       <div className="card">
-        <h2 className="font-extrabold text-lg">This month</h2>
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Stat label="Completed assessments" value={used} small />
-          <Stat label="Included" value={quota === null ? "Unlimited" : quota} small />
-          <Stat
-            label="Remaining"
-            value={quota === null ? "∞" : Math.max(0, quota - used)}
-            small
-          />
+        <h2 className="font-extrabold text-lg">What&apos;s included</h2>
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <Stat label="Assessments" value="Unlimited" small />
           <Stat
             label="Seats"
             value={limits.seats === null ? "Unlimited" : limits.seats}
             small
           />
+          <Stat
+            label="Price"
+            value={
+              tier === "enterprise"
+                ? "Custom"
+                : `$${monthlyBasePrice(tier, org.location_count)}/mo`
+            }
+            small
+          />
         </div>
-        {quota !== null && used >= quota && (
-          <p className="mt-3 text-sm text-[color:var(--brand-pink-600)] font-semibold">
-            You&apos;ve used your {quota} included assessments. Candidates keep
-            applying — extra completed assessments bill at $
-            {limits.overagePerAssessment} each, capped at $
-            {limits.overageCapDollars}/mo (then they&apos;re free).
-          </p>
-        )}
       </div>
 
       <div className="card flex flex-wrap items-center justify-between gap-3">

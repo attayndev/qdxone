@@ -1,19 +1,15 @@
 import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
-import { operatorPerLocation, monthlyBasePrice } from "@/lib/plan";
+import { monthlyBasePrice } from "@/lib/plan";
 
 export const metadata = {
   title: "QDX pricing — per-location restaurant hiring",
   description:
-    "Simple per-location pricing for restaurants — Solo from $59/location, Operator for multi-store, Enterprise for brands. 30-day free trial.",
+    "Flat per-location pricing with unlimited assessments. Solo $59/location, Operator $79/location for the multi-store toolkit, Enterprise for brands. 30-day free trial.",
 };
 
-// Per-location math at common scales, computed from the live pricing model.
-const SCALES = [2, 5, 10, 25].map((n) => ({
-  n,
-  perLoc: operatorPerLocation(n),
-  total: monthlyBasePrice("operator", n),
-}));
+// Flat per-location totals at common scales ($79/location on Operator).
+const SCALES = [2, 5, 10].map((n) => ({ n, total: monthlyBasePrice("operator", n) }));
 
 export default function PricingPage() {
   return (
@@ -26,10 +22,9 @@ export default function PricingPage() {
             Simple per-location pricing.
           </h1>
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
-            Hire your first store on Solo. Running several? Operator brings them
-            under one account with the full multi-store toolkit — and your
-            per-location price drops once you pass 10 locations. 30-day free
-            trial on both self-serve plans.
+            <strong>Unlimited assessments on every plan</strong> — assess everyone
+            who applies, no caps, no surprise bills. Pay a flat rate per location;
+            Operator adds the multi-store power tools. 30-day free trial.
           </p>
 
           <div className="mt-10 grid md:grid-cols-3 gap-5 items-start">
@@ -39,17 +34,15 @@ export default function PricingPage() {
               priceSub="/mo per location"
               annualNote="or $590/yr (2 months free)"
               meta="1 location · 2 users"
-              quotaLine="25 assessments/mo, then $3 each (capped $25/mo)"
               tagline="Everything you need to hire for one store."
               features={SOLO_FEATURES}
             />
             <PlanCard
               name="Operator"
-              priceLine="$79→$69"
-              priceSub="/loc per mo (10+ loc)"
-              annualNote="2 months free on annual"
+              priceLine="$79"
+              priceSub="/mo per location"
+              annualNote="or $790/yr (2 months free)"
               meta="2+ locations · 2 + 1/location users"
-              quotaLine="50 assessments/location/mo, then $2 each (capped $50/loc)"
               tagline="Everything in Solo, plus:"
               features={OPERATOR_FEATURES}
               highlight
@@ -57,31 +50,27 @@ export default function PricingPage() {
             <EnterpriseCard />
           </div>
 
-          {/* Operator volume math */}
+          {/* Operator flat-rate examples */}
           <div className="mt-8 card max-w-2xl mx-auto">
             <h3 className="font-extrabold">Operator — what you&apos;d pay</h3>
             <p className="text-sm text-[color:var(--brand-ink-muted)] mt-1">
-              Every location bills at the rate for your total count.
+              A flat $79 per location, every store, unlimited assessments.
             </p>
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div className="mt-4 grid grid-cols-3 gap-3 text-center">
               {SCALES.map((s) => (
                 <div key={s.n} className="rounded-xl bg-[color:var(--brand-cream)] p-3">
                   <div className="text-xs text-[color:var(--brand-ink-muted)]">
                     {s.n} locations
                   </div>
                   <div className="text-xl font-black mt-1">${s.total}/mo</div>
-                  <div className="text-xs text-[color:var(--brand-ink-muted)]">
-                    ${s.perLoc}/loc
-                  </div>
                 </div>
               ))}
             </div>
           </div>
 
           <p className="mt-6 text-center text-sm text-[color:var(--brand-ink-muted)] max-w-2xl mx-auto">
-            A completed assessment is the billable unit — applicants who
-            don&apos;t finish cost nothing. Overage is capped each month, so
-            there are no surprise bills.
+            No per-assessment fees and no caps — you only pay per location, so a
+            busy hiring month never costs extra.
           </p>
 
           <div className="mt-10 text-center">
@@ -101,10 +90,10 @@ export default function PricingPage() {
 }
 
 const SOLO_FEATURES = [
+  "Unlimited assessments",
   "Your own hiring page + QR codes",
   "Custom application form & roles",
-  "5-minute assessment",
-  "Low/Medium/High ratings + overall fit",
+  "5-minute assessment + Low/Medium/High ratings",
   "Benchmark against your own crew",
   "Basic fairness checks",
   "Ranked applicant list & review",
@@ -114,8 +103,8 @@ const SOLO_FEATURES = [
 const OPERATOR_FEATURES = [
   "Manage every location from one login",
   "One hiring page + ranked list across stores",
-  "Text-message (SMS) alerts",
-  "Unlimited AI-written job posts",
+  "SMS notifications + candidate texting",
+  "AI-written job posts",
   "Reports that compare your stores",
   "Fairness checks across your stores",
 ];
@@ -134,7 +123,6 @@ function PlanCard({
   priceSub,
   annualNote,
   meta,
-  quotaLine,
   tagline,
   features,
   highlight,
@@ -144,7 +132,6 @@ function PlanCard({
   priceSub: string;
   annualNote: string;
   meta: string;
-  quotaLine: string;
   tagline: string;
   features: string[];
   highlight?: boolean;
@@ -171,10 +158,7 @@ function PlanCard({
       <div className="mt-1 text-xs text-[color:var(--brand-ink-muted)]">
         {annualNote}
       </div>
-      <div className="mt-2 text-sm font-semibold text-[color:var(--brand-pink-600)]">
-        {quotaLine}
-      </div>
-      <div className="mt-0.5 text-xs text-[color:var(--brand-ink-muted)]">
+      <div className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
         {meta} · 30-day free trial
       </div>
       <p className="mt-4 text-sm font-semibold">{tagline}</p>

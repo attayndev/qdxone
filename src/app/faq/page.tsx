@@ -138,7 +138,7 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "Why one Operator account instead of a separate account for each store?",
-        a: "Fair question — Operator is $79 a store vs. $59 for a single Solo account, so you pay a little more per store. Here's what the extra buys: one login for every store, one hiring page and one ranked list across all of them, reports that compare your stores, text-message alerts, unlimited AI-written job posts, and fairness reports across your stores — none of which separate accounts can do, because each one stands alone with its own login and no shared view. You also get twice the included assessments (50 a store vs. 25) at a lower per-extra rate, so for busy stores the real gap is smaller than it looks. And past 10 stores the price drops to $69. Short version: separate accounts are a little cheaper per store but leave you piecing everything together by hand; Operator runs all your stores from one place.",
+        a: "Fair question — Operator is $79 a store vs. $59 for a single Solo account, so you pay $20 more per store. Here's what that buys: one login for every store, one hiring page and one ranked list across all of them, reports that compare your stores, SMS notifications and candidate texting, and AI-written job posts — none of which separate accounts can do, because each one stands alone with its own login and no shared view. Assessments are unlimited either way. Short version: separate accounts are a little cheaper per store but leave you piecing everything together by hand; Operator runs all your stores from one place.",
       },
       {
         q: "Can my managers each have their own login?",
@@ -158,23 +158,19 @@ const SECTIONS: Section[] = [
             <ul className="mt-3 space-y-3 list-none">
               <li>
                 <strong>Solo — $59 a month per store</strong> (or $590 a year).
-                One store, 2 logins. Includes 25 assessments a month, then $3 each
-                (never more than $25 extra a month). Everything you need to hire
-                for one store: your own hiring page and QR codes, the 5-minute
-                assessment, Low/Medium/High ratings plus an overall fit, a
-                comparison against your own crew, basic fairness checks, and your
-                ranked applicant list.
+                One store, 2 logins, <strong>unlimited assessments</strong>.
+                Everything you need to hire for one store: your own hiring page
+                and QR codes, the 5-minute assessment, Low/Medium/High ratings
+                plus an overall fit, a comparison against your own crew, basic
+                fairness checks, and your ranked applicant list.
               </li>
               <li>
-                <strong>
-                  Operator — $79 a store per month, dropping to $69 at 10+ stores.
-                </strong>{" "}
-                Two or more stores, 2 logins plus 1 per store. Includes 50
-                assessments per store a month, then $2 each (never more than $50
-                per store). Everything in Solo plus one login for all stores, one
-                shared hiring page and list, text-message alerts, unlimited
-                AI-written job posts, reports that compare your stores, and
-                fairness reports across them.
+                <strong>Operator — $79 a month per store</strong> (or $790 a
+                year). Two or more stores, 2 logins plus 1 per store,{" "}
+                <strong>unlimited assessments</strong>. Everything in Solo plus
+                one login across all stores, a shared hiring page and list, SMS
+                notifications and candidate texting, AI-written job posts, and
+                reports that compare your stores.
               </li>
               <li>
                 <strong>Enterprise — let&apos;s talk</strong> (starts around
@@ -188,8 +184,8 @@ const SECTIONS: Section[] = [
         ),
       },
       {
-        q: "What happens if I go over my monthly assessments?",
-        a: "Each plan comes with a set number each month — 25 a store on Solo, 50 a store on Operator. If you go over, each extra one costs a little ($3 on Solo, $2 on Operator), and there's a monthly cap ($25 on Solo, $50 a store on Operator) so a big hiring month can't run away from you. Enterprise has no limit.",
+        q: "Is there a limit on how many assessments I can send?",
+        a: "No — assessments are unlimited on every plan. Assess everyone who applies; a busy hiring month never costs extra. You pay a flat rate per location, that's it.",
       },
       {
         q: "Monthly or yearly — and am I locked into a contract?",

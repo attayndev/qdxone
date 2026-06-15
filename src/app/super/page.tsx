@@ -45,7 +45,7 @@ export default async function SuperAdminPage() {
   };
 
   // Rough MRR — only actively-paying self-serve orgs (trialing not counted;
-  // Enterprise is custom-contracted, excluded). Excludes metered overage.
+  // Enterprise is custom-contracted, excluded). Flat per-location pricing.
   const mrr = list.reduce((sum, o) => {
     if (o.status !== "active") return sum;
     const tier = effectiveTier(o);

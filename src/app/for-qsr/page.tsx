@@ -79,8 +79,8 @@ export default function ForMultiUnitPage() {
             </h2>
             <p className="mt-4 text-white/80">
               Operator is self-serve for two or more stores — one account across
-              every location, a shared hiring page, and reports that compare your
-              stores. $79 a location, dropping to $69 once you pass 10. Running a
+              every location, a shared hiring page, reports that compare your
+              stores, and unlimited assessments. A flat $79 a location. Running a
               brand, or several brands? Enterprise is custom — let&apos;s talk.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">

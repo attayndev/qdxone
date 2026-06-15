@@ -386,13 +386,13 @@ function PricingPeek() {
           <span className="text-[color:var(--brand-pink)]">No fluff.</span>
         </h2>
         <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg max-w-xl mx-auto">
-          One store on Solo. Run several and Operator brings them under one
-          account with SMS, AI, analytics, and cross-store reporting — dropping
-          to $69/location once you pass 10.
+          Unlimited assessments on every plan — no caps, no surprise bills. One
+          store on Solo; Operator brings them all under one login with SMS, AI,
+          and cross-store reporting.
         </p>
         <div className="mt-8 grid sm:grid-cols-3 gap-4 text-left">
-          <PricePeek name="Solo" price={59} quota="1 location · 25 / mo" />
-          <PricePeek name="Operator" price="$79→$69" quota="2+ loc · 50 / loc" highlight />
+          <PricePeek name="Solo" price={59} quota="1 location · unlimited" />
+          <PricePeek name="Operator" price={79} quota="2+ loc · unlimited" highlight />
           <PricePeek name="Enterprise" price="Let's talk" quota="Brands & groups" />
         </div>
         <div className="mt-7">
@@ -446,7 +446,7 @@ function PricePeek({
         )}
       </div>
       <div className="text-xs text-[color:var(--brand-ink-muted)] mt-1">
-        {quota} completed assessments
+        {quota} assessments
       </div>
     </div>
   );
@@ -498,11 +498,11 @@ function Faq() {
     },
     {
       q: "Why one Operator account instead of a separate account per location?",
-      a: "You could run a separate Solo account per store at $59 each — and some do at first. But Operator ($79/location) puts every location under one login, one careers page, and one candidate pipeline, plus tools separate accounts don't get: SMS, unlimited AI job descriptions, cross-location benchmarking, and rollup reporting. Managing one account beats juggling several — and past 10 locations the rate drops to $69.",
+      a: "You could run a separate Solo account per store at $59 each — and some do at first. But Operator ($79/location) puts every location under one login, one careers page, and one candidate pipeline, plus the tools separate accounts don't get: SMS + candidate texting, AI-written job posts, and reports that compare your stores. The $20/location buys the power tools and one place to run it all — instead of juggling separate logins.",
     },
     {
       q: "What does it cost?",
-      a: "Solo is $59 per location/month (one location). Operator (2+ locations) is $79 per location, dropping to $69 once you pass 10. Each location includes a monthly batch of completed assessments; extras are a small, capped per-assessment fee (applicants who don't finish are free). 30-day free trial, card captured at signup.",
+      a: "Solo is $59 per location/month (one location). Operator (2+ locations) is $79 per location. Assessments are unlimited on both — no caps, no per-assessment fees. The $20/location step up to Operator buys unified login across stores, SMS + candidate texting, AI-written job posts, and cross-store reporting. 30-day free trial, card captured at signup.",
     },
   ];
   return (

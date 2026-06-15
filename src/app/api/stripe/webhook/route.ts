@@ -9,8 +9,7 @@ const PAID_PLANS = ["solo", "operator"];
 
 /**
  * Reverse-map a subscription's base price back to {plan, cycle} so portal-side
- * plan/cycle changes sync. The metered overage item is ignored (its price id
- * matches no base price).
+ * plan/cycle changes sync.
  */
 function planCycleFromSub(
   sub: Stripe.Subscription
@@ -67,7 +66,6 @@ export async function POST(request: NextRequest) {
         const orgId = session.metadata?.org_id;
         if (!orgId) break;
 
-        // Pull subscription items so we can record the metered overage item
         const subId =
           typeof session.subscription === "string"
             ? session.subscription
