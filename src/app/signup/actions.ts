@@ -107,6 +107,27 @@ export async function signup(
     },
   });
 
+  // `signInWithOtp` only applies the `data` (signup_org_id) to BRAND-NEW users.
+  // If this email already has an account (e.g. a returning operator, or a prior
+  // signup), set the link on the existing user directly so the callback can
+  // promote them to owner. Without this, a returning email lands on no_org.
+  try {
+    const { data: list } = await supa.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000,
+    });
+    const existing = list?.users?.find(
+      (u) => (u.email ?? "").toLowerCase() === v.email.toLowerCase()
+    );
+    if (existing) {
+      await supa.auth.admin.updateUserById(existing.id, {
+        user_metadata: { ...existing.user_metadata, signup_org_id: org.id },
+      });
+    }
+  } catch (e) {
+    console.error("signup: linking existing user to new org failed", e);
+  }
+
   // Send the magic link. The email confirmation completes signup by
   // adding the user as the org owner (handled in /auth/callback, which
   // reads the org id from the user's auth metadata — never a URL param).
