@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import LoginForm from "@/components/LoginForm";
-import DevSignIn from "@/components/DevSignIn";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 interface PageProps {
@@ -36,7 +35,6 @@ export default async function ApexLoginPage({ searchParams }: PageProps) {
               <LoginForm next="/admin" />
             </Suspense>
           </div>
-          {process.env.NODE_ENV !== "production" && <DevSignIn />}
           <p className="mt-5 text-sm text-[color:var(--brand-ink-muted)]">
             Don&apos;t have an account yet?{" "}
             <Link href="/signup" className="text-[color:var(--brand-pink-600)] underline">
