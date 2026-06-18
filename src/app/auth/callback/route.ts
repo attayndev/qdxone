@@ -16,6 +16,19 @@ import { apexUrl } from "@/lib/host";
  *  - On the apex, resolve the user's org and redirect to its subdomain admin.
  */
 export async function GET(request: NextRequest) {
+  try {
+    return await handleCallback(request);
+  } catch (e) {
+    // Surface the real error in the URL instead of an opaque 500.
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[auth/callback] unhandled exception:", e);
+    return NextResponse.redirect(
+      apexUrl(`/login?error=callback_exception&reason=${encodeURIComponent(msg)}`)
+    );
+  }
+}
+
+async function handleCallback(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;

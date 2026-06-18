@@ -38,6 +38,9 @@ env.local
 # vercel
 .vercel
 
+# cloudflare wrangler local state/cache
+.wrangler/
+
 # supabase cli temp/cache
 supabase/.temp/
 
