@@ -1,0 +1,38 @@
+{
+  // Cloudflare Worker + Container config for the QDX One Next.js app.
+  // Pilot for moving the rest of the apps off Vercel onto Cloudflare.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "qdxone",
+  "main": "worker/index.ts",
+  "compatibility_date": "2025-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+
+  // The container: Cloudflare builds this Dockerfile, pushes it to its registry,
+  // and routes the Worker's requests to running instances.
+  "containers": [
+    {
+      "class_name": "NextContainer",
+      "image": "./Dockerfile",
+      "max_instances": 5,
+      // Instance size. If wrangler rejects this value, try "standard" or remove
+      // the line to use the default — Next needs ~1 GiB, so don't go below "basic".
+      "instance_type": "basic"
+    }
+  ],
+
+  // Containers are managed via a Durable Object — this binds the class.
+  "durable_objects": {
+    "bindings": [{ "name": "NEXT_CONTAINER", "class_name": "NextContainer" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["NextContainer"] }],
+
+  // Domain routing. The apex is a Custom Domain (wrangler creates the proxied
+  // A+AAAA record, issues the cert, and routes it to this Worker). The wildcard
+  // is a Route — it needs a proxied `*` DNS record to exist so subdomains
+  // resolve to Cloudflare's edge (add `AAAA * 100::` proxied in the dashboard).
+  "routes": [
+    { "pattern": "qdx.one", "custom_domain": true },
+    { "pattern": "*.qdx.one/*", "zone_name": "qdx.one" }
+  ]
+}

@@ -1,0 +1,26 @@
+# Rebuilt inside the image
+node_modules
+.next
+out
+
+# Never ship local secrets or VCS into the image
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+
+# Local tooling / docs not needed at runtime
+.vercel
+.vscode
+.idea
+supabase/.temp
+supabase/.branches
+*.log
+.DS_Store
+README.md
+docs
+
+# The deploy files themselves
+Dockerfile
+.dockerignore
