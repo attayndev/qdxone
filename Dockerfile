@@ -43,10 +43,19 @@ RUN npm run build
 # ---- runner: minimal production image ----
 FROM base AS runner
 WORKDIR /app
+# NEXT_PUBLIC_* are inlined into the bundle at BUILD time, but some server code
+# reads them via a DYNAMIC lookup (process.env[name], e.g. requireEnv) which
+# Next does NOT inline — so they must ALSO exist in the RUNTIME env here, or
+# createClient() throws "Missing required env var" at request time. Public
+# values, safe to bake.
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
-    HOSTNAME=0.0.0.0
+    HOSTNAME=0.0.0.0 \
+    NEXT_PUBLIC_ROOT_DOMAIN="qdx.one" \
+    NEXT_PUBLIC_APP_URL="https://qdx.one" \
+    NEXT_PUBLIC_SUPABASE_URL="https://tctukuzzjxihmqqeoifz.supabase.co" \
+    NEXT_PUBLIC_SUPABASE_ANON_KEY="sb_publishable_TOQOaltFGXMXBWNsyCM5YA_sszRKczH"
 
 RUN addgroup --system --gid 1001 nodejs \
  && adduser --system --uid 1001 nextjs

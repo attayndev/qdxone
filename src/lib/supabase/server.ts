@@ -15,6 +15,11 @@ export async function createClient() {
     requireEnv("NEXT_PUBLIC_SUPABASE_URL"),
     requireEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
     {
+      // Implicit flow (not PKCE): magic links carry a PLAIN `token_hash` that
+      // verifyOtp() validates server-side with NO code-verifier cookie. PKCE
+      // needs that cookie to survive send→click, which it doesn't reliably —
+      // it produced `pkce_`-prefixed tokens that threw on verify (the 500).
+      auth: { flowType: "implicit" },
       cookies: {
         getAll() {
           return cookieStore.getAll();
