@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
-import { createClient as createServerSupa } from "@/lib/supabase/server";
+import { otpClient } from "@/lib/supabase/otp";
 import { ROOT_DOMAIN, isReservedSubdomain, orgUrl } from "@/lib/tenancy";
 import { apexUrl } from "@/lib/host";
 import type { BillingCycle } from "@/lib/supabase/types";
@@ -139,8 +139,10 @@ export async function signup(
     `/auth/callback?next=${encodeURIComponent("/admin")}`
   );
 
-  // Send via the regular auth client so Supabase emails the OTP itself.
-  const authClient = await createServerSupa();
+  // Send via the implicit-flow sender so the emailed link carries a plain
+  // token_hash (see lib/supabase/otp.ts) — the SSR server client would force
+  // PKCE and break verifyOtp on the callback.
+  const authClient = otpClient();
   const { error: linkErr } = await authClient.auth.signInWithOtp({
     email: v.email,
     options: {

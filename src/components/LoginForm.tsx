@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/browser";
+import { otpClient } from "@/lib/supabase/otp";
 
 export default function LoginForm({ next }: { next: string }) {
   const [email, setEmail] = useState("");
@@ -14,7 +14,7 @@ export default function LoginForm({ next }: { next: string }) {
     setError(null);
     setBusy(true);
     try {
-      const supa = createClient();
+      const supa = otpClient();
       const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(
         next
       )}`;
