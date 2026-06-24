@@ -70,15 +70,6 @@ export class NextContainer extends Container<Env> {
       }
     }
     this.envVars.NODE_ENV = "production";
-    // TEMP DIAGNOSTIC (names only, no secret values) — shows in `wrangler tail`.
-    console.log(
-      "[NextContainer] secrets in env:",
-      CONTAINER_SECRETS.filter(
-        (k) => typeof env[k] === "string" && (env[k] as string).length > 0
-      ).join(",") || "(NONE)",
-      "| envVars injected:",
-      Object.keys(this.envVars).join(",")
-    );
   }
 }
 
