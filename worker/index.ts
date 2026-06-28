@@ -33,6 +33,10 @@ export interface Env {
   TELNYX_API_KEY?: string;
   TELNYX_FROM?: string;
   TELNYX_MESSAGING_PROFILE_ID?: string;
+  // Interview scheduling — Google Calendar OAuth + token encryption.
+  CALENDAR_TOKEN_KEY?: string;
+  GOOGLE_CALENDAR_CLIENT_ID?: string;
+  GOOGLE_CALENDAR_CLIENT_SECRET?: string;
 }
 
 // Worker env keys forwarded into the container process as environment vars.
@@ -52,6 +56,9 @@ const CONTAINER_SECRETS = [
   "TELNYX_API_KEY",
   "TELNYX_FROM",
   "TELNYX_MESSAGING_PROFILE_ID",
+  "CALENDAR_TOKEN_KEY",
+  "GOOGLE_CALENDAR_CLIENT_ID",
+  "GOOGLE_CALENDAR_CLIENT_SECRET",
 ] as const;
 
 export class NextContainer extends Container<Env> {
