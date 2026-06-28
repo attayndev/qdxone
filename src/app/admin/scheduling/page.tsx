@@ -74,10 +74,7 @@ export default async function SchedulingPage({ searchParams }: PageProps) {
               </button>
             </form>
           ) : configured ? (
-            <a
-              href="/admin/scheduling/connect/google"
-              className="rounded-lg bg-[color:var(--brand-accent)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
-            >
+            <a href="/admin/scheduling/connect/google" className="btn-primary">
               Connect
             </a>
           ) : (
