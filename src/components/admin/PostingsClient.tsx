@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createPosting, setPostingStatus } from "@/app/admin/postings/actions";
+import {
+  createPosting,
+  setPostingStatus,
+  updatePosting,
+  deletePosting,
+} from "@/app/admin/postings/actions";
 
 export type PostingView = {
   id: string;
@@ -9,6 +14,7 @@ export type PostingView = {
   status: "draft" | "open" | "closed";
   url: string;
   qrSvg: string;
+  locationId?: string | null;
   location?: string | null;
 };
 
@@ -37,7 +43,7 @@ export default function PostingsClient({
             </li>
           )}
           {postings.map((p) => (
-            <PostingItem key={p.id} posting={p} />
+            <PostingItem key={p.id} posting={p} roles={roles} locations={locations} />
           ))}
         </ul>
       </div>
@@ -116,9 +122,99 @@ function CreateForm({
   );
 }
 
-function PostingItem({ posting }: { posting: PostingView }) {
+function PostingItem({
+  posting,
+  roles,
+  locations,
+}: {
+  posting: PostingView;
+  roles: string[];
+  locations: StoreOption[];
+}) {
   const [pending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function saveEdit(formData: FormData) {
+    setError(null);
+    const title = (formData.get("title") ?? "").toString();
+    const locationId = (formData.get("location_id") ?? "").toString();
+    startTransition(async () => {
+      const res = await updatePosting(posting.id, title, locationId);
+      if (res.ok) setEditing(false);
+      else setError(res.error);
+    });
+  }
+
+  function onDelete() {
+    if (
+      !confirm(
+        "Delete this posting? The link/QR stop working. Anyone who already applied keeps their record."
+      )
+    )
+      return;
+    setError(null);
+    startTransition(async () => {
+      const res = await deletePosting(posting.id);
+      if (!res.ok) setError(res.error);
+    });
+  }
+
+  if (editing) {
+    return (
+      <li className="rounded-xl border border-[color:var(--brand-line)] p-4">
+        <form action={saveEdit} className="space-y-3">
+          <div>
+            <label className="label">Role</label>
+            <select className="input" name="title" defaultValue={posting.title}>
+              {/* keep the current value selectable even if it's not in the role list anymore */}
+              {!roles.includes(posting.title) && (
+                <option value={posting.title}>{posting.title}</option>
+              )}
+              {roles.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </div>
+          {locations.length > 1 && (
+            <div>
+              <label className="label">Store</label>
+              <select
+                className="input"
+                name="location_id"
+                defaultValue={posting.locationId ?? ""}
+              >
+                {locations.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <div className="flex gap-3">
+            <button type="submit" disabled={pending} className="btn-primary">
+              {pending ? "Saving…" : "Save"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEditing(false);
+                setError(null);
+              }}
+              className="btn-ghost"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </li>
+    );
+  }
 
   return (
     <li className="rounded-xl border border-[color:var(--brand-line)] p-4">
@@ -139,22 +235,41 @@ function PostingItem({ posting }: { posting: PostingView }) {
             </span>
           </div>
         </div>
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() =>
-            startTransition(async () => {
-              await setPostingStatus(
-                posting.id,
-                posting.status === "open" ? "closed" : "open"
-              );
-            })
-          }
-          className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
-        >
-          {posting.status === "open" ? "Close" : "Reopen"}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => setEditing(true)}
+            className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() =>
+              startTransition(async () => {
+                await setPostingStatus(
+                  posting.id,
+                  posting.status === "open" ? "closed" : "open"
+                );
+              })
+            }
+            className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+          >
+            {posting.status === "open" ? "Close" : "Reopen"}
+          </button>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={onDelete}
+            className="text-sm font-semibold text-red-600 hover:underline"
+          >
+            Delete
+          </button>
+        </div>
       </div>
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
       <div className="mt-3 flex flex-col sm:flex-row gap-4 items-start">
         <div

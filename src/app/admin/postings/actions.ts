@@ -90,3 +90,52 @@ export async function setPostingStatus(id: string, status: "open" | "closed") {
     .eq("org_id", org.id);
   revalidatePath("/admin/postings");
 }
+
+/** Fix a posting's role and/or store (e.g. picked the wrong one). */
+export async function updatePosting(
+  id: string,
+  title: string,
+  locationId: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const parsed = PostingSchema.safeParse({ title, location_id: locationId });
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  const update: { title: string; location_id?: string } = { title: parsed.data.title };
+  if (parsed.data.location_id) {
+    const locs = await getOrgLocations(org.id);
+    const loc = locs.find((l) => l.id === parsed.data.location_id);
+    if (loc) update.location_id = loc.id;
+  }
+  const supa = adminClient();
+  await supa.from("job_postings").update(update).eq("id", id).eq("org_id", org.id);
+  revalidatePath("/admin/postings");
+  return { ok: true };
+}
+
+/**
+ * Delete a posting. Safe unconditionally: applications already snapshot the
+ * job title (`positions`), store (`location_id`), and the custom questions
+ * asked (`custom_answers` carries each question's label) at submit time — the
+ * posting is just a funnel. We sever the nullable back-link, then delete, so
+ * candidate records are untouched.
+ */
+export async function deletePosting(
+  id: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const supa = adminClient();
+  // Sever the back-link first so the delete can't hit an FK restriction;
+  // candidates keep their title/store/answers regardless.
+  await supa
+    .from("applications")
+    .update({ job_posting_id: null })
+    .eq("job_posting_id", id)
+    .eq("org_id", org.id);
+  await supa.from("job_postings").delete().eq("id", id).eq("org_id", org.id);
+  revalidatePath("/admin/postings");
+  return { ok: true };
+}
