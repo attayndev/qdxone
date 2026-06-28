@@ -20,6 +20,7 @@ const SECONDARY = [
   { href: "/admin/locations", label: "Store" },
   { href: "/admin/settings", label: "Page & branding" },
   { href: "/admin/team", label: "Team" },
+  { href: "/admin/scheduling", label: "Calendar" },
   { href: "/admin/notifications", label: "Notifications" },
   { href: "/admin/reports", label: "Reports" },
   { href: "/admin/eeo", label: "Fairness" },
