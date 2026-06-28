@@ -16,6 +16,8 @@ export type CustomQuestion = {
   label: string;
   type: CustomQuestionType;
   required: boolean;
+  // Role names this question applies to. Empty/undefined = all roles.
+  roles?: string[];
 };
 
 export interface OrgBranding {

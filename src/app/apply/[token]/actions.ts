@@ -75,7 +75,7 @@ export async function submitApplication(
   const phone = v.phone?.trim() || null;
   const smsConsent = v.sms_consent === true && !!phone;
 
-  const cfg = applicationConfig(org.branding);
+  const cfg = applicationConfig(org.branding, posting.title);
   if (
     cfg.work_experience === "required" &&
     !v.work_history.some((j) => j.employer.trim() && j.role.trim())

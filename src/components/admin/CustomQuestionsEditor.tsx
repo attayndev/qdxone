@@ -12,8 +12,10 @@ const TYPE_LABELS: Record<CustomQuestionType, string> = {
 
 export default function CustomQuestionsEditor({
   initial,
+  roles,
 }: {
   initial: CustomQuestion[];
+  roles: string[];
 }) {
   const [qs, setQs] = useState<CustomQuestion[]>(initial);
   const [pending, startTransition] = useTransition();
@@ -22,11 +24,18 @@ export default function CustomQuestionsEditor({
   const add = () =>
     setQs((p) => [
       ...p,
-      { id: crypto.randomUUID(), label: "", type: "short_text", required: false },
+      { id: crypto.randomUUID(), label: "", type: "short_text", required: false, roles: [] },
     ]);
   const update = (id: string, patch: Partial<CustomQuestion>) =>
     setQs((p) => p.map((q) => (q.id === id ? { ...q, ...patch } : q)));
   const remove = (id: string) => setQs((p) => p.filter((q) => q.id !== id));
+
+  const toggleRole = (q: CustomQuestion, role: string) => {
+    const cur = q.roles ?? [];
+    update(q.id, {
+      roles: cur.includes(role) ? cur.filter((r) => r !== role) : [...cur, role],
+    });
+  };
 
   function save() {
     setSaved(false);
@@ -91,6 +100,32 @@ export default function CustomQuestionsEditor({
                 Remove
               </button>
             </div>
+            <div>
+              <div className="text-xs uppercase tracking-wide text-[color:var(--brand-ink-muted)] mb-1">
+                Applies to
+              </div>
+              {roles.length === 0 ? (
+                <p className="text-xs text-[color:var(--brand-ink-muted)]">
+                  All roles — define roles (in Roles) to scope a question to
+                  specific ones.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  <Chip active={!q.roles?.length} onClick={() => update(q.id, { roles: [] })}>
+                    All roles
+                  </Chip>
+                  {roles.map((r) => (
+                    <Chip
+                      key={r}
+                      active={!!q.roles?.includes(r)}
+                      onClick={() => toggleRole(q, r)}
+                    >
+                      {r}
+                    </Chip>
+                  ))}
+                </div>
+              )}
+            </div>
           </li>
         ))}
       </ul>
@@ -110,5 +145,29 @@ export default function CustomQuestionsEditor({
         {saved && <span className="text-sm text-emerald-700">Saved.</span>}
       </div>
     </div>
+  );
+}
+
+function Chip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`chip cursor-pointer border ${
+        active
+          ? "bg-[color:var(--brand-pink)] text-white border-transparent"
+          : "bg-transparent text-[color:var(--brand-ink-muted)] border-[color:var(--brand-line)]"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
