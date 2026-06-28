@@ -55,6 +55,7 @@ export async function sendAssessmentToCandidate(
   const { sendAssessmentLink } = await import("@/lib/notify");
   await sendAssessmentLink({
     token,
+    orgId: org.id,
     orgSlug: org.slug,
     orgName: org.name,
     firstName: app.first_name,

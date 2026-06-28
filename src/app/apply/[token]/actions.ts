@@ -189,6 +189,7 @@ export async function submitApplication(
       const { sendAssessmentLink } = await import("@/lib/notify");
       await sendAssessmentLink({
         token: assessmentToken,
+        orgId: org.id,
         orgSlug: org.slug,
         orgName: org.name,
         firstName: v.first_name,
