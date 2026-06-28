@@ -154,3 +154,71 @@ function escape(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
+
+/**
+ * Interview booking confirmation / reminder, sent to the candidate AS the store
+ * (orgFrom + the owner's reply-to). Includes the when, the where (location or
+ * the Meet link), and any candidate instructions.
+ */
+export async function sendBookingEmail(args: {
+  kind: "confirmation" | "reminder";
+  to: string;
+  firstName: string;
+  orgName: string;
+  replyTo?: string;
+  interviewName: string;
+  whenLabel: string;
+  meetingTypeLabel: string;
+  meetingLocation?: string | null;
+  conferenceUrl?: string | null;
+  instructions?: string | null;
+}) {
+  if (!process.env.RESEND_API_KEY) return;
+  const isReminder = args.kind === "reminder";
+  const subject = isReminder
+    ? `Reminder: your interview with ${args.orgName} is coming up`
+    : `Your interview with ${args.orgName} is booked`;
+  const lead = isReminder
+    ? `Just a friendly reminder about your upcoming interview with <strong>${escape(args.orgName)}</strong>.`
+    : `You're all set! Here are the details for your interview with <strong>${escape(args.orgName)}</strong>.`;
+
+  const where = args.conferenceUrl
+    ? `<a href="${args.conferenceUrl}">${escape(args.conferenceUrl)}</a>`
+    : args.meetingLocation
+      ? escape(args.meetingLocation)
+      : escape(args.meetingTypeLabel);
+
+  const rows: [string, string][] = [
+    ["What", escape(args.interviewName)],
+    ["When", escape(args.whenLabel)],
+    ["How", `${escape(args.meetingTypeLabel)}${args.conferenceUrl || args.meetingLocation ? ` — ${where}` : ""}`],
+  ];
+
+  await client().emails.send({
+    from: orgFrom(args.orgName),
+    replyTo: args.replyTo,
+    to: args.to,
+    subject,
+    html: `
+      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#1a1530">
+        <p style="font-size:18px">Hi ${escape(args.firstName)},</p>
+        <p>${lead}</p>
+        <table style="margin:20px 0;border-collapse:collapse">
+          ${rows
+            .map(
+              ([k, v]) =>
+                `<tr><td style="padding:6px 16px 6px 0;color:#4a4360;vertical-align:top">${k}</td><td style="padding:6px 0"><strong>${v}</strong></td></tr>`
+            )
+            .join("")}
+        </table>
+        ${args.instructions ? `<p style="background:#faf7ff;border-radius:8px;padding:12px 14px">${escape(args.instructions)}</p>` : ""}
+        <p style="font-size:13px;color:#4a4360">Need to make a change? Just reply to this email.</p>
+      </div>
+    `,
+    text:
+      `Hi ${args.firstName},\n\n${isReminder ? "Reminder about your upcoming interview" : "Your interview is booked"} with ${args.orgName}.\n\n` +
+      rows.map(([k, v]) => `${k}: ${v.replace(/<[^>]+>/g, "")}`).join("\n") +
+      (args.instructions ? `\n\n${args.instructions}` : "") +
+      `\n\nNeed to make a change? Just reply to this email.`,
+  });
+}

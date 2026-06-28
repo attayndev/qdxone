@@ -75,13 +75,16 @@ export async function createBooking(
 
   await markInvitationBooked(inv.id);
 
-  // Enqueue durable follow-up (Stage 6 cron drains these).
+  // Enqueue durable follow-up (the cron drains these). Reminder fires 24h before
+  // the interview — or right away if it's sooner than that.
+  const remindAt = new Date(Math.max(Date.now(), start.getTime() - 24 * 3_600_000)).toISOString();
   await supa
     .from("scheduling_jobs")
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .insert([
       { org_id: inv.orgId, kind: "create_event", booking_id: bookingId },
       { org_id: inv.orgId, kind: "send_confirmation", booking_id: bookingId },
+      { org_id: inv.orgId, kind: "send_reminder", booking_id: bookingId, run_after: remindAt },
     ] as any);
 
   return { ok: true, bookingId };

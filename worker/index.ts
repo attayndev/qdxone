@@ -37,6 +37,8 @@ export interface Env {
   CALENDAR_TOKEN_KEY?: string;
   GOOGLE_CALENDAR_CLIENT_ID?: string;
   GOOGLE_CALENDAR_CLIENT_SECRET?: string;
+  // Shared secret authenticating the cron → /api/cron/scheduling drain call.
+  CRON_SECRET?: string;
 }
 
 // Worker env keys forwarded into the container process as environment vars.
@@ -59,6 +61,7 @@ const CONTAINER_SECRETS = [
   "CALENDAR_TOKEN_KEY",
   "GOOGLE_CALENDAR_CLIENT_ID",
   "GOOGLE_CALENDAR_CLIENT_SECRET",
+  "CRON_SECRET",
 ] as const;
 
 export class NextContainer extends Container<Env> {
@@ -85,5 +88,22 @@ export default {
     // One shared container serves every tenant (all state lives in Supabase).
     // To scale horizontally later: `getRandom(env.NEXT_CONTAINER, N)`.
     return getContainer(env.NEXT_CONTAINER, "main").fetch(request);
+  },
+
+  // Cloudflare cron → drain the scheduling outbox by calling into the container.
+  // The container holds the Next runtime (Supabase, Resend, Google clients); the
+  // Worker just authenticates the call with the shared secret.
+  async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    const run = async () => {
+      if (!env.CRON_SECRET) return;
+      const res = await getContainer(env.NEXT_CONTAINER, "main").fetch(
+        new Request("https://qdx.one/api/cron/scheduling", {
+          method: "POST",
+          headers: { "x-cron-secret": env.CRON_SECRET },
+        })
+      );
+      if (!res.ok) console.error("[cron] scheduling drain failed:", res.status, await res.text());
+    };
+    ctx.waitUntil(run());
   },
 };
