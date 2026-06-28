@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { adminClient } from "@/lib/supabase/admin";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
 import { effectiveTier, hasFeature } from "@/lib/plan";
+import { isDecision } from "@/lib/candidate-decision";
 
 /**
  * Manager-initiated assessment send (review-first mode). Creates the session
@@ -75,6 +76,39 @@ export async function sendAssessmentToCandidate(
  * session, responses, and any EEO row. We write an immutable audit entry
  * first so the deletion itself is recorded.
  */
+/**
+ * Record (or clear) the hiring decision on a candidate. Setting a decision
+ * flips status to 'decision_made'; clearing it reverts to 'assessment_complete'.
+ */
+export async function setCandidateDecision(
+  applicationId: string,
+  decision: string | null,
+  reason: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const org = await currentOrgOrThrow();
+  const m = await requireMembership(org.id);
+  if (!m) return { ok: false, error: "Not a member of this org." };
+  if (decision !== null && !isDecision(decision)) {
+    return { ok: false, error: "Invalid decision." };
+  }
+  const supa = adminClient();
+  await supa
+    .from("applications")
+    // decision columns added in migration 0012 — not in generated types yet.
+    .update({
+      decision,
+      decision_reason: reason.trim() || null,
+      decision_at: decision ? new Date().toISOString() : null,
+      decided_by: decision ? m.user_id : null,
+      status: decision ? "decision_made" : "assessment_complete",
+    } as never)
+    .eq("id", applicationId)
+    .eq("org_id", org.id);
+  revalidatePath(`/admin/candidates/${applicationId}`);
+  revalidatePath("/admin/candidates");
+  return { ok: true };
+}
+
 export async function deleteApplication(id: string) {
   const org = await currentOrgOrThrow();
   const m = await requireMembership(org.id);
