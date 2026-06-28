@@ -14,6 +14,9 @@ import type { PlanTier, BillingCycle } from "./supabase/types";
 
 export type { PlanTier, BillingCycle };
 
+/** Free-trial length for new self-serve orgs, in days. */
+export const TRIAL_DAYS = 30;
+
 /** The two self-serve tiers (Enterprise is sales-led, never via Checkout). */
 export type PaidPlan = "solo" | "operator";
 

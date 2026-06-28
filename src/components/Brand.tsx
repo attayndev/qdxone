@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { OrganizationRow } from "@/lib/supabase/types";
+import { apexUrl } from "@/lib/host";
 
 /**
  * Brand mark — bold short name in the org's primary color, full name
@@ -14,7 +15,7 @@ export function BrandMark({
   override?: { display_name?: string; subtitle?: string };
 }) {
   const display =
-    override?.display_name ?? org?.branding.display_name ?? org?.name ?? "Attayn";
+    override?.display_name ?? org?.branding.display_name ?? org?.name ?? "QDX";
   const subtitle =
     override?.subtitle ?? org?.branding.location_subtitle ?? "";
   // Use first numeric prefix as a "mark" if present (e.g. "16 Handles" → "16")
@@ -94,14 +95,14 @@ export function BrandHeader({
 }
 
 export function BrandFooter({ org }: { org?: OrganizationRow | null }) {
-  const name = org?.name ?? "Attayn";
+  const name = org?.name ?? "QDX";
   return (
     <footer className="w-full mt-12 border-t border-[color:var(--brand-line)] bg-[color:var(--brand-surface)]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-xs text-[color:var(--brand-ink-muted)] flex flex-wrap gap-2 items-center justify-between">
         <span>© {new Date().getFullYear()} {name}</span>
         <span className="opacity-70">
           Powered by{" "}
-          <Link href="https://qdx.one" className="underline">
+          <Link href={apexUrl()} className="underline">
             qdx
           </Link>
         </span>

@@ -4,7 +4,7 @@
  * `supabase/server.ts`, so it must not import either (no import cycle).
  */
 
-const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "qdx.one";
+export const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "qdx.one";
 
 /**
  * Cookie domain that scopes the Supabase auth session so one login is

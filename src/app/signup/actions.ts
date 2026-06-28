@@ -5,6 +5,7 @@ import { adminClient } from "@/lib/supabase/admin";
 import { otpClient } from "@/lib/supabase/otp";
 import { ROOT_DOMAIN, isReservedSubdomain, orgUrl } from "@/lib/tenancy";
 import { apexUrl } from "@/lib/host";
+import { TRIAL_DAYS } from "@/lib/plan";
 import type { BillingCycle } from "@/lib/supabase/types";
 
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$/;
@@ -76,7 +77,7 @@ export async function signup(
   // as Solo (1 location); tier/quota/seats are derived from plan + location
   // count at read time (src/lib/plan), so nothing numeric is stored here.
   const trialEnds = new Date(
-    Date.now() + 30 * 24 * 60 * 60 * 1000
+    Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000
   ).toISOString();
   const billingCycle: BillingCycle = v.cycle;
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { adminClient } from "@/lib/supabase/admin";
 import { extractSlugFromHost, orgUrl } from "@/lib/tenancy";
+import { ROOT_DOMAIN } from "@/lib/host";
 import { headers } from "next/headers";
 import type { OrganizationRow } from "@/lib/supabase/types";
 import { effectiveTier, monthlyBasePrice } from "@/lib/plan";
@@ -95,7 +96,7 @@ export default async function SuperAdminPage() {
                     {o.name}
                   </a>
                   <div className="text-xs text-[color:var(--brand-ink-muted)] flex flex-wrap gap-2 mt-0.5">
-                    <span>{o.slug}.qdx.one</span>
+                    <span>{o.slug}.{ROOT_DOMAIN}</span>
                     <span>·</span>
                     <span>{o.plan}</span>
                     <span>·</span>
