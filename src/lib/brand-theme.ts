@@ -1,18 +1,18 @@
-import type { CSSProperties } from "react";
 import type { OrgBranding } from "@/lib/supabase/types";
 
 /**
  * Per-org careers-page theming.
  *
- * The public landing + apply flow are built entirely on the app's `--brand-*`
- * CSS variables (see globals.css). To re-skin a page to an operator's brand we
- * don't touch any markup — we just override those variables on a wrapper
- * element from the tokens on `org.branding`. Only tokens that are set are
- * overridden; anything unset falls back to the default QDX palette.
+ * The public landing + apply flow are built on the app's `--brand-*` CSS
+ * variables (globals.css). To re-skin to an operator's brand we override those
+ * variables at `:root` (via a <style> injected by <BrandTheme>) — which repaints
+ * the body background, cards, buttons, and text in one shot. We can't do this on
+ * a wrapper element: the body sets its background from `:root`, an ancestor of
+ * any page wrapper, so a descendant override wouldn't reach it.
  *
- * Shades (`-600` darker, `-50` light tint) and `-ink-muted` are derived from
- * the base tokens so buttons, chips, and muted text stay coherent with a single
- * primary/ink color.
+ * Only tokens that are set are overridden; the rest fall back to the default
+ * palette. Shades (`-600`, `-50`, `-surface`, `-line`, `-ink-muted`) are derived
+ * so a single primary/bg/ink stays coherent across buttons, cards, and borders.
  */
 
 function parseHex(hex: string): [number, number, number] | null {
@@ -37,7 +37,6 @@ function toHex(rgb: [number, number, number]): string {
   );
 }
 
-/** Mix `hex` toward `target` by `amount` (0..1). Returns `hex` unchanged if invalid. */
 function mix(hex: string, target: [number, number, number], amount: number): string {
   const c = parseHex(hex);
   if (!c) return hex;
@@ -51,32 +50,64 @@ function mix(hex: string, target: [number, number, number], amount: number): str
 const BLACK: [number, number, number] = [0, 0, 0];
 const WHITE: [number, number, number] = [255, 255, 255];
 
-/**
- * Inline-style custom properties to set on a wrapper element so every
- * descendant built on `var(--brand-*)` re-themes to the org's brand.
- */
-export function brandStyleVars(b: OrgBranding | null | undefined): CSSProperties {
+/** Map an org's brand tokens onto `--brand-*` variable values. */
+function brandVarMap(b: OrgBranding | null | undefined): Record<string, string> {
   const vars: Record<string, string> = {};
+  if (!b) return vars;
 
-  if (b?.primary_color && parseHex(b.primary_color)) {
+  if (b.primary_color && parseHex(b.primary_color)) {
     vars["--brand-pink"] = b.primary_color;
     vars["--brand-pink-600"] = mix(b.primary_color, BLACK, 0.18);
     vars["--brand-pink-50"] = mix(b.primary_color, WHITE, 0.88);
   }
-  if (b?.accent_color && parseHex(b.accent_color)) {
+  if (b.accent_color && parseHex(b.accent_color)) {
     vars["--brand-mint"] = b.accent_color;
   }
-  if (b?.bg_color && parseHex(b.bg_color)) {
+  if (b.bg_color && parseHex(b.bg_color)) {
     vars["--brand-cream"] = b.bg_color;
-    vars["--brand-line"] = mix(b.bg_color, BLACK, 0.1);
+    vars["--background"] = b.bg_color;
+    // Cards lift slightly toward white off the page background; borders sit
+    // just darker than it.
+    vars["--brand-surface"] = mix(b.bg_color, WHITE, 0.5);
+    vars["--brand-line"] = mix(b.bg_color, BLACK, 0.12);
   }
-  if (b?.ink_color && parseHex(b.ink_color)) {
+  if (b.ink_color && parseHex(b.ink_color)) {
     vars["--brand-ink"] = b.ink_color;
-    vars["--brand-ink-muted"] = mix(b.ink_color, WHITE, 0.3);
+    vars["--foreground"] = b.ink_color;
+    vars["--brand-ink-muted"] = mix(b.ink_color, WHITE, 0.32);
   }
-  if (b?.font_family) {
-    vars.fontFamily = b.font_family;
-  }
+  return vars;
+}
 
-  return vars as CSSProperties;
+/** A `<style>`-ready `:root{…}` (plus body font) override, or "" if no tokens. */
+export function brandThemeCss(b: OrgBranding | null | undefined): string {
+  const vars = brandVarMap(b);
+  const decls = Object.entries(vars)
+    .map(([k, v]) => `${k}:${v};`)
+    .join("");
+  let css = decls ? `:root{${decls}}` : "";
+  if (b?.font_family) {
+    // Apply to the whole document; keep system fallbacks so it degrades cleanly
+    // if the webfont didn't load.
+    const fam = b.font_family.replace(/[<>]/g, "");
+    css += `body{font-family:${fam}, ui-sans-serif, system-ui, sans-serif;}`;
+  }
+  return css;
+}
+
+/**
+ * Best-effort Google Fonts href for the org's font, so a detected webfont
+ * actually loads. Returns null for system fonts or anything that doesn't look
+ * like a single family name.
+ */
+export function brandFontHref(b: OrgBranding | null | undefined): string | null {
+  const fam = b?.font_family?.trim();
+  if (!fam) return null;
+  // Take the first family in the stack, strip quotes.
+  const first = fam.split(",")[0].replace(/['"]/g, "").trim();
+  // Skip generic/system families — they don't live on Google Fonts.
+  const system = /^(inherit|initial|sans-serif|serif|monospace|system-ui|ui-sans-serif|-apple-system|arial|helvetica|georgia|times|roboto|verdana|tahoma)$/i;
+  if (!first || first.length < 3 || system.test(first)) return null;
+  const family = first.replace(/\s+/g, "+");
+  return `https://fonts.googleapis.com/css2?family=${family}:wght@400;600;700;800&display=swap`;
 }

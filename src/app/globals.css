@@ -17,6 +17,9 @@
   --brand-line: #f1d9c8;
   --brand-mint: #2bd4a8;
   --brand-yellow: #ffd23f;
+  /* Card/input surface — lifted off the page background. Per-org theming
+     overrides this (and the vars above) at :root via BrandTheme. */
+  --brand-surface: #ffffff;
 
   --background: var(--brand-cream);
   --foreground: var(--brand-ink);
@@ -84,7 +87,7 @@ body {
 .btn-ghost:hover { background: var(--brand-ink); color: var(--brand-cream); }
 
 .card {
-  background: white;
+  background: var(--brand-surface);
   border-radius: 1.25rem;
   padding: 1.5rem;
   border: 1px solid var(--brand-line);
@@ -93,7 +96,7 @@ body {
 
 .input {
   width: 100%;
-  background: white;
+  background: var(--brand-surface);
   border: 1.5px solid var(--brand-line);
   border-radius: 0.85rem;
   padding: 0.8rem 1rem;
