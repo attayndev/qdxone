@@ -8,6 +8,9 @@ import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
 import { syncLocationBilling } from "@/lib/billing";
 import type { CustomQuestion } from "@/lib/supabase/types";
 
+/** Max distinct roles an org can define for job postings. */
+const MAX_ROLES = 25;
+
 const LocationSchema = z.object({
   name: z.string().min(1, "Store name is required").max(120),
   address_line1: z.string().max(160).optional().or(z.literal("")),
@@ -137,7 +140,7 @@ export async function saveRoles(
     names.push(name);
     const d = r.description?.trim();
     if (d) descriptions[name] = d;
-    if (names.length >= 25) break;
+    if (names.length >= MAX_ROLES) break;
   }
   if (names.length === 0) {
     return { ok: false, error: "Add at least one role." };
