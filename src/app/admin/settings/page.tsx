@@ -12,7 +12,7 @@ export default async function SettingsPage() {
       <p className="text-[color:var(--brand-ink-muted)] mb-6">
         How your hiring page looks to applicants. Changes apply immediately.
       </p>
-      <BrandFromUrl />
+      <BrandFromUrl branding={org.branding} />
       <SettingsForm org={org} />
     </div>
   );
