@@ -70,9 +70,24 @@ function matchAll(re: RegExp, s: string): string[] {
 const hex = (s: string | undefined) =>
   s && /^#[0-9a-fA-F]{6}$/.test(s.trim()) ? s.trim().toLowerCase() : undefined;
 
+/** Strip tags/scripts to a plain-text excerpt for downstream copy drafting. */
+function visibleText(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&[a-z]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 3000);
+}
+
 export async function extractBrandFromUrl(
   input: string
-): Promise<{ ok: true; tokens: BrandTokens; source: string } | { ok: false; error: string }> {
+): Promise<
+  | { ok: true; tokens: BrandTokens; source: string; siteText: string }
+  | { ok: false; error: string }
+> {
   let url = input.trim();
   if (!/^https?:\/\//i.test(url)) url = "https://" + url;
   try {
@@ -186,5 +201,5 @@ export async function extractBrandFromUrl(
     };
   }
 
-  return { ok: true, tokens, source: url };
+  return { ok: true, tokens, source: url, siteText: visibleText(html) };
 }
