@@ -15,6 +15,8 @@ import {
 import DeleteCandidateButton from "@/components/admin/DeleteCandidateButton";
 import SendAssessmentButton from "@/components/admin/SendAssessmentButton";
 import DecisionControl from "@/components/admin/DecisionControl";
+import InviteToInterview from "@/components/admin/InviteToInterview";
+import { listInterviewTypes } from "@/lib/scheduling/templates";
 import { isDecision, type Decision } from "@/lib/candidate-decision";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -59,6 +61,12 @@ export default async function CandidateDetail({ params }: PageProps) {
     .eq("application_id", id)
     .eq("subject_type", "candidate")
     .maybeSingle();
+
+  const interviewTypes = (await listInterviewTypes(org.id)).map((t) => ({
+    id: t.id,
+    name: t.name,
+    durationMinutes: t.durationMinutes,
+  }));
 
   let responses: RespRow[] = [];
   const itemText = new Map<string, string>();
@@ -210,6 +218,10 @@ export default async function CandidateDetail({ params }: PageProps) {
             : "No assessment yet."}
         </p>
       )}
+
+      <div className="mt-6">
+        <InviteToInterview applicationId={a.id} types={interviewTypes} />
+      </div>
 
       <div className="mt-6">
         <DecisionControl
