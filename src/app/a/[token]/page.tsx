@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BrandHeader, BrandFooter } from "@/components/Brand";
+import { BrandTheme } from "@/components/BrandTheme";
 import { currentOrg } from "@/lib/tenancy";
 import { loadAssessment } from "@/lib/assessment/session";
 import AssessmentRunner from "@/components/AssessmentRunner";
@@ -20,6 +21,7 @@ export default async function AssessmentPage({ params }: PageProps) {
 
   return (
     <>
+      <BrandTheme branding={org.branding} />
       <BrandHeader org={org} />
       <main className="flex-1 px-4 sm:px-6 py-6 sm:py-10">
         {result.status === "ok" ? (

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BrandHeader, BrandFooter } from "@/components/Brand";
-import { brandStyleVars } from "@/lib/brand-theme";
+import { BrandTheme } from "@/components/BrandTheme";
 import { adminClient } from "@/lib/supabase/admin";
 import { getOrgLocations } from "@/lib/locations";
 import type { OrganizationRow } from "@/lib/supabase/types";
@@ -11,8 +11,9 @@ type Posting = Pick<PostingRow, "id" | "title" | "public_token" | "location_id">
 
 /**
  * The branded org landing — shown at the org's subdomain root. The store's
- * public careers page: hero + open positions anyone can apply to. Pulls
- * wording from `org.branding`.
+ * public careers page: hero + the open roles right under it, then the culture
+ * pitch. Colors/logo/font come from `org.branding` via <BrandTheme>; wording
+ * from `org.branding` copy fields.
  */
 export default async function OrgLanding({ org }: { org: OrganizationRow }) {
   const b = org.branding;
@@ -52,13 +53,13 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
     : [];
 
   return (
-    // `display: contents` keeps the parent flex layout intact while the
-    // --brand-* overrides (and optional font) cascade to every descendant.
-    <div style={{ ...brandStyleVars(b), display: "contents" }}>
+    <>
+      <BrandTheme branding={b} />
       <BrandHeader org={org} />
       <main className="flex-1">
-        <section className="px-4 sm:px-6 pt-10 sm:pt-16 pb-10">
-          <div className="max-w-3xl mx-auto text-center">
+        {/* Hero — compact; the jobs are the next thing the eye hits. */}
+        <section className="px-4 sm:px-6 pt-10 sm:pt-14 pb-8">
+          <div className="max-w-2xl mx-auto text-center">
             <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] mb-4">
               {eyebrow}
             </span>
@@ -66,69 +67,76 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
               {h1Pre}{" "}
               <span className="text-[color:var(--brand-pink)]">{h1Post}</span>
             </h1>
-            <p className="mt-5 text-lg sm:text-xl text-[color:var(--brand-ink-muted)] max-w-xl mx-auto">
+            <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)] max-w-xl mx-auto">
               We&apos;re picky about who joins the crew. Strong attitude beats
               fancy resume. Apply in a few minutes, right from your phone.
             </p>
-            <div className="mt-7 flex items-center justify-center">
-              <a href="#what-were-looking-for" className="btn-ghost">
-                What we look for
-              </a>
-            </div>
           </div>
         </section>
 
-        <section
-          id="openings"
-          className="px-4 sm:px-6 py-12 bg-[color:var(--brand-ink)] text-white"
-        >
+        {/* Open positions — primary content, light cards on the page. */}
+        <section id="openings" className="px-4 sm:px-6 pb-14">
           <div className="max-w-2xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-center">
-              Open positions
-            </h2>
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Open positions
+              </h2>
+              {postings.length > 0 && (
+                <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)]">
+                  {postings.length} open
+                </span>
+              )}
+            </div>
+
             {postings.length === 0 ? (
-              <p className="mt-4 text-center text-white/70">
+              <div className="card text-center text-[color:var(--brand-ink-muted)]">
                 No open roles posted right now — check back soon, or stop by{" "}
                 {org.name} and ask.
-              </p>
+              </div>
             ) : multiLocation ? (
-              <div className="mt-6 space-y-6">
+              <div className="space-y-7">
                 {groups.map((g) => (
                   <div key={g.key}>
-                    <h3 className="font-bold text-white/90 mb-2">{g.label}</h3>
+                    <h3 className="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--brand-ink-muted)] mb-3">
+                      {g.label}
+                    </h3>
                     <ul className="space-y-3">
                       {g.postings.map((p) => (
-                        <PostingLi key={p.id} p={p} />
+                        <PostingCard key={p.id} p={p} />
                       ))}
                     </ul>
                   </div>
                 ))}
               </div>
             ) : (
-              <ul className="mt-6 space-y-3">
+              <ul className="space-y-3">
                 {postings.map((p) => (
-                  <PostingLi key={p.id} p={p} />
+                  <PostingCard key={p.id} p={p} />
                 ))}
               </ul>
             )}
           </div>
         </section>
 
+        {/* Culture pitch — secondary, below the jobs. */}
         <section
           id="what-were-looking-for"
-          className="px-4 sm:px-6 py-12 bg-white border-y border-[color:var(--brand-line)]"
+          className="px-4 sm:px-6 py-12 bg-[color:var(--brand-surface)] border-y border-[color:var(--brand-line)]"
         >
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-center">
               What we look for
             </h2>
             <p className="text-center text-[color:var(--brand-ink-muted)] mt-2 max-w-xl mx-auto">
-              You don&apos;t need fancy work history. You need a strong
-              attitude and the willingness to own your shift.
+              You don&apos;t need fancy work history. You need a strong attitude
+              and the willingness to own your shift.
             </p>
             <div className="grid sm:grid-cols-2 gap-4 mt-8">
               {WE_LOOK_FOR.map((item) => (
-                <div key={item.title} className="card">
+                <div
+                  key={item.title}
+                  className="rounded-2xl p-5 bg-[color:var(--brand-cream)] border border-[color:var(--brand-line)]"
+                >
                   <div className="text-2xl">{item.emoji}</div>
                   <h3 className="mt-2 font-bold text-lg">{item.title}</h3>
                   <p className="text-[color:var(--brand-ink-muted)] mt-1 text-sm leading-relaxed">
@@ -146,32 +154,27 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
               The role, straight up
             </h2>
             <ul className="mt-5 space-y-3 text-[color:var(--brand-ink)]">
-              <li className="flex gap-3">
-                <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-pink)] flex-shrink-0" />
-                Customer-facing. You&apos;ll be the face of the shop.
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-pink)] flex-shrink-0" />
-                Cleaning, restocking, and prep — the unglamorous stuff that
-                keeps a great shop great.
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-pink)] flex-shrink-0" />
-                Teamwork, professionalism, and following the playbook.
-              </li>
+              {ROLE_POINTS.map((point) => (
+                <li key={point} className="flex gap-3">
+                  <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-pink)] flex-shrink-0" />
+                  {point}
+                </li>
+              ))}
             </ul>
           </div>
         </section>
       </main>
       <BrandFooter org={org} />
-    </div>
+    </>
   );
 }
 
-function PostingLi({ p }: { p: Posting }) {
+function PostingCard({ p }: { p: Posting }) {
   return (
-    <li className="rounded-2xl bg-white/5 border border-white/10 p-4 flex items-center justify-between gap-3 flex-wrap">
-      <div className="font-bold text-lg">{p.title}</div>
+    <li className="card flex items-center justify-between gap-4 flex-wrap">
+      <div className="font-bold text-lg text-[color:var(--brand-ink)]">
+        {p.title}
+      </div>
       <Link
         href={`/j/${encodeURIComponent(p.public_token)}`}
         className="btn-primary"
@@ -181,6 +184,12 @@ function PostingLi({ p }: { p: Posting }) {
     </li>
   );
 }
+
+const ROLE_POINTS = [
+  "Customer-facing. You'll be the face of the shop.",
+  "Cleaning, restocking, and prep — the unglamorous stuff that keeps a great shop great.",
+  "Teamwork, professionalism, and following the playbook.",
+];
 
 const WE_LOOK_FOR = [
   {

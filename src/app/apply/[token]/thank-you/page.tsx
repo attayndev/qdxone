@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { BrandHeader, BrandFooter } from "@/components/Brand";
+import { BrandTheme } from "@/components/BrandTheme";
 import { currentOrg } from "@/lib/tenancy";
 
 export default async function ThankYou() {
   const org = await currentOrg();
   return (
     <>
+      <BrandTheme branding={org?.branding} />
       <BrandHeader org={org} />
       <main className="flex-1 px-4 sm:px-6 py-16">
         <div className="max-w-lg mx-auto card text-center">

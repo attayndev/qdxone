@@ -96,7 +96,7 @@ export function BrandHeader({
 export function BrandFooter({ org }: { org?: OrganizationRow | null }) {
   const name = org?.name ?? "Attayn";
   return (
-    <footer className="w-full mt-12 border-t border-[color:var(--brand-line)] bg-white">
+    <footer className="w-full mt-12 border-t border-[color:var(--brand-line)] bg-[color:var(--brand-surface)]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-xs text-[color:var(--brand-ink-muted)] flex flex-wrap gap-2 items-center justify-between">
         <span>© {new Date().getFullYear()} {name}</span>
         <span className="opacity-70">
