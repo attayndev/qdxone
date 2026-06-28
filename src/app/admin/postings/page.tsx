@@ -37,6 +37,7 @@ export default async function PostingsPage() {
         status: p.status,
         url,
         qrSvg: await qrSvg(url),
+        locationId: p.location_id,
         location: multiLocation
           ? (p.location_id ? locName.get(p.location_id) ?? null : null)
           : null,
