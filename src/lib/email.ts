@@ -156,6 +156,42 @@ function escape(s: string): string {
 }
 
 /**
+ * Invite a candidate to book an interview — emails the booking link AS the store
+ * (orgFrom + the owner's reply-to), same delivery path as the assessment email.
+ */
+export async function sendBookingInvite(args: {
+  to: string;
+  firstName: string;
+  orgName: string;
+  replyTo?: string;
+  interviewName: string;
+  link: string;
+}) {
+  if (!process.env.RESEND_API_KEY) return;
+  await client().emails.send({
+    from: orgFrom(args.orgName),
+    replyTo: args.replyTo,
+    to: args.to,
+    subject: `You're invited to book an interview with ${args.orgName}`,
+    html: `
+      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#1a1530">
+        <p style="font-size:18px">Hi ${escape(args.firstName)},</p>
+        <p>Great news — <strong>${escape(args.orgName)}</strong> would like to interview you for the ${escape(args.interviewName)}. Pick a time that works for you:</p>
+        <p style="margin:28px 0">
+          <a href="${args.link}" style="background:#ff2d87;color:white;padding:14px 22px;border-radius:9999px;text-decoration:none;font-weight:700;display:inline-block">
+            Book your interview
+          </a>
+        </p>
+        <p style="font-size:13px;color:#4a4360">Or copy and paste this link into your browser:<br>
+          <span style="word-break:break-all">${args.link}</span>
+        </p>
+      </div>
+    `,
+    text: `Hi ${args.firstName},\n\nGreat news — ${args.orgName} would like to interview you for the ${args.interviewName}. Pick a time that works for you:\n\n${args.link}\n\nThis link is yours to use once.`,
+  });
+}
+
+/**
  * Interview booking confirmation / reminder, sent to the candidate AS the store
  * (orgFrom + the owner's reply-to). Includes the when, the where (location or
  * the Meet link), and any candidate instructions.
