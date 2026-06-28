@@ -37,11 +37,20 @@ export interface CategoryScore {
   band: Band;
   facets: FacetScore[];
 }
+export interface Validity {
+  /** false = responses can't be trusted; don't act on the fit, suppress alerts. */
+  valid: boolean;
+  reasons: string[];
+  /** Mean within-facet range after reverse-scoring (0-4). Higher = contradictory. */
+  inconsistency: number;
+}
+
 export interface ScoreResult {
   categories: CategoryScore[];
   overall: OverallFit;
   attitude: { mean: number; band: Band } | null;
   stars: number; // 0-5
+  validity?: Validity;
 }
 
 const CATEGORY_ORDER = [
@@ -61,6 +70,57 @@ const keyed = (it: ScoredItem): number =>
   it.keying === "reverse" ? 6 - it.value : it.value;
 const avg = (xs: number[]): number =>
   xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0;
+
+/**
+ * Within-facet inconsistency: items on one facet (after reverse-scoring) should
+ * cluster for a careful responder — a careless/gaming responder (e.g. all-4s)
+ * contradicts themselves, since positive and reverse items diverge. Returns the
+ * mean max−min range across facets with ≥2 items (0-4 scale).
+ */
+function inconsistencyIndex(scored: ScoredItem[]): number {
+  const byFacet = new Map<string, number[]>();
+  for (const it of scored) {
+    if (it.value == null) continue;
+    const arr = byFacet.get(it.facet) ?? [];
+    arr.push(keyed(it));
+    byFacet.set(it.facet, arr);
+  }
+  const ranges: number[] = [];
+  for (const vals of byFacet.values()) {
+    if (vals.length >= 2) ranges.push(Math.max(...vals) - Math.min(...vals));
+  }
+  return ranges.length ? avg(ranges) : 0;
+}
+
+/**
+ * Validity verdict from careless-response signals + the inconsistency index.
+ * `valid: false` means the result can't be trusted — don't act on the fit and
+ * suppress the strong-candidate alert. The candidate is NOT auto-rejected; the
+ * operator sees the reasons and decides (interview, or offer a retake).
+ */
+export function assessValidity(input: {
+  scored: ScoredItem[];
+  attnFail: number;
+  attnTotal: number;
+  fastCount: number;
+  straightLine: boolean;
+}): Validity {
+  const inconsistency = inconsistencyIndex(input.scored);
+  const reasons: string[] = [];
+  if (input.attnFail > 0)
+    reasons.push(`Failed ${input.attnFail} attention check${input.attnFail > 1 ? "s" : ""}`);
+  if (input.straightLine) reasons.push("Straight-lined (same answer throughout)");
+  if (input.fastCount >= 5) reasons.push(`${input.fastCount} very fast answers (<1.5s)`);
+  if (inconsistency >= 2.5) reasons.push("Contradictory answers (low internal consistency)");
+
+  // Hard invalidation: data is untrustworthy.
+  const valid = !(
+    (input.attnTotal > 0 && input.attnFail >= input.attnTotal) || // failed ALL attention checks
+    input.straightLine ||
+    inconsistency >= 3.0
+  );
+  return { valid, reasons, inconsistency };
+}
 
 export function scoreAssessment(
   items: ScoredItem[],

@@ -8,6 +8,7 @@ import {
 } from "./form";
 import {
   scoreAssessment,
+  assessValidity,
   type ScoredItem,
   type ScoreResult,
   type OverallFit,
@@ -178,7 +179,7 @@ export async function scoreCandidateSession(
 
   const { data: resp } = await supa
     .from("assessment_responses")
-    .select("item_id, item_kind, value_int")
+    .select("item_id, item_kind, value_int, response_ms")
     .eq("session_id", sessionId);
   const { data: items } = await supa
     .from("item_bank_items")
@@ -198,7 +199,27 @@ export async function scoreCandidateSession(
       };
     });
   if (scored.length === 0) return null;
-  return scoreAssessment(scored);
+
+  // Validity signals (same definitions as the candidate report) so the
+  // notification path can suppress alerts on untrustworthy results.
+  const rows = resp ?? [];
+  const likert = rows.filter((r) => r.item_kind === "personality" && r.value_int != null);
+  const attn = rows.filter((r) => r.item_kind === "attention_check");
+  const attnFail = attn.filter(
+    (r) => r.value_int !== ATTENTION_CHECKS.find((c) => c.itemId === r.item_id)?.expected
+  ).length;
+  const fastCount = rows.filter((r) => r.response_ms != null && r.response_ms < 1500).length;
+  const straightLine = likert.length > 3 && new Set(likert.map((r) => r.value_int)).size === 1;
+
+  const result = scoreAssessment(scored);
+  result.validity = assessValidity({
+    scored,
+    attnFail,
+    attnTotal: attn.length,
+    fastCount,
+    straightLine,
+  });
+  return result;
 }
 
 /** Overall fit tier for every completed candidate in an org, by application id. */

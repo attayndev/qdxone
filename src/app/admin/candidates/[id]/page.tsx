@@ -5,6 +5,7 @@ import { adminClient } from "@/lib/supabase/admin";
 import { ATTENTION_CHECKS, orgCategoryAverages } from "@/lib/assessment/session";
 import {
   scoreAssessment,
+  assessValidity,
   screenerProfile,
   type ScoredItem,
   type ScoreResult,
@@ -65,6 +66,7 @@ export default async function CandidateDetail({ params }: PageProps) {
   let score: ScoreResult | null = null;
   let benchmark: { averages: Map<string, number>; n: number } | null = null;
   let screenerFlags: ScreenerFlag[] = [];
+  let scoredItems: ScoredItem[] = [];
   if (session) {
     const { data: resp } = await supa
       .from("assessment_responses")
@@ -94,7 +96,7 @@ export default async function CandidateDetail({ params }: PageProps) {
     }
 
     // Score the personality responses.
-    const scoredItems: ScoredItem[] = responses
+    scoredItems = responses
       .filter((r) => r.item_kind === "personality" && r.value_int != null && meta.has(r.item_id))
       .map((r) => {
         const m = meta.get(r.item_id)!;
@@ -132,18 +134,21 @@ export default async function CandidateDetail({ params }: PageProps) {
     screenerFlags = screenerProfile(screenerAnswers);
   }
 
-  // Careless-response flags.
+  // Response-quality / validity. Centralized in the scorer so it matches what
+  // gates the notifications; a hard fail means the fit can't be trusted.
   const likert = responses.filter((r) => r.item_kind === "personality" && r.value_int != null);
+  const attn = responses.filter((r) => r.item_kind === "attention_check");
+  const attnFail = attn.filter(
+    (r) => r.value_int !== ATTENTION_CHECKS.find((c) => c.itemId === r.item_id)?.expected
+  ).length;
   const fast = responses.filter((r) => r.response_ms != null && r.response_ms < 1500).length;
-  const attnFail = responses
-    .filter((r) => r.item_kind === "attention_check")
-    .filter((r) => r.value_int !== ATTENTION_CHECKS.find((c) => c.itemId === r.item_id)?.expected).length;
   const straightLine = likert.length > 3 && new Set(likert.map((r) => r.value_int)).size === 1;
 
-  const flags: string[] = [];
-  if (attnFail > 0) flags.push(`Failed ${attnFail} attention check${attnFail > 1 ? "s" : ""}`);
-  if (fast >= 5) flags.push(`${fast} very fast answers (<1.5s)`);
-  if (straightLine) flags.push("Straight-lined (same answer throughout)");
+  const validity = scoredItems.length
+    ? assessValidity({ scored: scoredItems, attnFail, attnTotal: attn.length, fastCount: fast, straightLine })
+    : null;
+  const flags: string[] = validity?.reasons ?? [];
+  const unreliable = validity ? !validity.valid : false;
 
   const availability = (a.availability ?? {}) as Record<string, string[]>;
   const availDays = Object.entries(availability).filter(([, v]) => Array.isArray(v) && v.length);
@@ -185,6 +190,16 @@ export default async function CandidateDetail({ params }: PageProps) {
           {session ? `Assessment: ${session.status}` : "No assessment"}
         </span>
       </div>
+
+      {unreliable && (
+        <div className="mt-4 rounded-xl border-2 border-amber-400 bg-amber-50 p-4">
+          <div className="font-bold text-amber-900">⚠️ Score unreliable — answers weren&apos;t careful</div>
+          <p className="text-sm text-amber-900/80 mt-1">
+            This candidate {flags.join("; ").toLowerCase()}. The fit below can&apos;t be
+            trusted — don&apos;t reject them on it; consider an interview or a retake.
+          </p>
+        </div>
+      )}
 
       {score && score.overall !== "Incomplete" ? (
         <ReportCard score={score} flags={screenerFlags} benchmark={benchmark} />
