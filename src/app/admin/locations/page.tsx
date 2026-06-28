@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { currentOrg } from "@/lib/tenancy";
 import { getOrgLocations } from "@/lib/locations";
+import { orgRoles } from "@/lib/roles";
 import { applicationConfig } from "@/lib/application-config";
 import LocationForm from "@/components/admin/LocationForm";
 import DeleteLocationButton from "@/components/admin/DeleteLocationButton";
@@ -51,6 +52,7 @@ export default async function LocationsPage() {
       <ApplicationFormSettings config={applicationConfig(org.branding)} />
       <CustomQuestionsEditor
         initial={applicationConfig(org.branding).custom_questions}
+        roles={orgRoles(org.branding)}
       />
       <AssessmentModeToggle
         autoSend={org.branding?.auto_send_assessment !== false}

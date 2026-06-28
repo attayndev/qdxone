@@ -246,6 +246,10 @@ export async function saveCustomQuestions(
       label: q.label.trim(),
       type: q.type,
       required: !!q.required,
+      // Empty list = applies to all roles.
+      roles: Array.isArray(q.roles)
+        ? q.roles.map((r) => r.trim()).filter(Boolean)
+        : [],
     }))
     .filter((q) => q.label)
     .slice(0, 15);
