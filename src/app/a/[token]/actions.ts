@@ -97,10 +97,15 @@ export async function completeAssessment(
           .maybeSingle();
         if (appRow) {
           const { notifyAssessmentComplete } = await import("@/lib/operator-notify");
+          // Untrustworthy responses (failed attention checks / straight-lined /
+          // contradictory) → report "Unreliable" so the strong-candidate alert
+          // doesn't fire on gamed data; assessment-done subscribers still hear.
+          const fit =
+            result.validity && !result.validity.valid ? "Unreliable" : result.overall;
           await notifyAssessmentComplete({
             orgId: session.org_id,
             candidateName: `${appRow.first_name} ${appRow.last_name}`,
-            fit: result.overall,
+            fit,
             applicationId: session.application_id,
           });
         }
