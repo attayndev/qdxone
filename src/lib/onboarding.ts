@@ -9,6 +9,7 @@ import type { OrganizationRow, OrgBranding } from "@/lib/supabase/types";
  */
 export type OnboardingStatus = {
   hasStore: boolean;
+  hasRoles: boolean;
   hasJob: boolean;
   hasBranding: boolean;
   hasTeam: boolean;
@@ -50,17 +51,19 @@ export async function getOnboarding(
 
   const b = org.branding;
   const hasStore = locs.length > 0;
+  const hasRoles = (b?.roles?.length ?? 0) > 0;
   const hasJob = (openPostings.count ?? 0) > 0;
   const hasBranding = brandingTouched(b);
   const hasTeam = (members.count ?? 0) > 1;
   const assessmentSet = typeof b?.auto_send_assessment === "boolean";
 
-  const steps = [hasStore, hasJob, hasBranding, hasTeam, assessmentSet];
+  const steps = [hasStore, hasRoles, hasJob, hasBranding, hasTeam, assessmentSet];
   const doneCount = steps.filter(Boolean).length;
 
   return {
     status: {
       hasStore,
+      hasRoles,
       hasJob,
       hasBranding,
       hasTeam,

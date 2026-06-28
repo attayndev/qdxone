@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lightbox } from "@/components/admin/Lightbox";
 import BrandStudio from "@/components/admin/BrandFromUrl";
-import { saveLocation, saveAssessmentMode } from "@/app/admin/locations/actions";
+import {
+  saveLocation,
+  saveAssessmentMode,
+  saveRoles,
+  generateRoleDescription,
+} from "@/app/admin/locations/actions";
 import { createPosting } from "@/app/admin/postings/actions";
 import { inviteMember } from "@/app/admin/team/actions";
 import { setOnboardingDismissed } from "@/app/admin/onboarding/actions";
@@ -12,7 +17,7 @@ import { ShareStep } from "./ShareStep";
 import type { OnboardingStatus, OnboardingLocation } from "@/lib/onboarding";
 import type { OrgBranding } from "@/lib/supabase/types";
 
-type StepId = "store" | "job" | "style" | "team" | "assessment" | "share";
+type StepId = "store" | "roles" | "job" | "style" | "team" | "assessment" | "share";
 
 const STEPS: {
   id: Exclude<StepId, "share">;
@@ -21,7 +26,8 @@ const STEPS: {
   done: (s: OnboardingStatus) => boolean;
 }[] = [
   { id: "store", title: "Add your store", blurb: "Tell us where you're hiring.", done: (s) => s.hasStore },
-  { id: "job", title: "Post your first job", blurb: "Pick a role — we'll draft the description.", done: (s) => s.hasJob },
+  { id: "roles", title: "Define your roles", blurb: "What jobs do you hire for? AI drafts each description.", done: (s) => s.hasRoles },
+  { id: "job", title: "Post your first job", blurb: "Pick a role — it goes live.", done: (s) => s.hasJob },
   { id: "style", title: "Style your page", blurb: "Paste your website; we match your brand.", done: (s) => s.hasBranding },
   { id: "team", title: "Invite a manager", blurb: "Optional — add someone to help review.", done: (s) => s.hasTeam },
   { id: "assessment", title: "Choose how assessments send", blurb: "Auto-send, or review first.", done: (s) => s.assessmentSet },
@@ -30,12 +36,14 @@ const STEPS: {
 export default function OnboardingGuide({
   status,
   locations,
+  roles,
   branding,
   careersUrl,
   orgName,
 }: {
   status: OnboardingStatus;
   locations: OnboardingLocation[];
+  roles: string[];
   branding: OrgBranding;
   careersUrl: string;
   orgName: string;
@@ -175,12 +183,29 @@ export default function OnboardingGuide({
       </Lightbox>
 
       <Lightbox
+        open={open === "roles"}
+        onClose={close}
+        title="Define your roles"
+        subtitle="List the jobs you hire for. Jot a few bullet points and let AI write the description."
+        expanded={expanded}
+        onToggleExpand={() => setExpanded((v) => !v)}
+      >
+        <RolesStep
+          initial={roles.map((name) => ({
+            name,
+            description: branding.role_descriptions?.[name] ?? "",
+          }))}
+          onDone={close}
+        />
+      </Lightbox>
+
+      <Lightbox
         open={open === "job"}
         onClose={close}
         title="Post your first job"
-        subtitle="Pick a role and the store. We'll draft the description for you."
+        subtitle="Pick a role and the store — it goes live for applicants."
       >
-        <JobStep locations={locations} onDone={close} />
+        <JobStep roles={roles} locations={locations} onDone={close} />
       </Lightbox>
 
       <Lightbox
@@ -266,9 +291,11 @@ function StoreStep({ onDone }: { onDone: () => void }) {
 }
 
 function JobStep({
+  roles,
   locations,
   onDone,
 }: {
+  roles: string[];
   locations: OnboardingLocation[];
   onDone: () => void;
 }) {
@@ -279,6 +306,13 @@ function JobStep({
     return (
       <p className="text-sm text-[color:var(--brand-ink-muted)]">
         Add your store first, then come back to post a job.
+      </p>
+    );
+  }
+  if (roles.length === 0) {
+    return (
+      <p className="text-sm text-[color:var(--brand-ink-muted)]">
+        Define your roles first — then you can post one in a click.
       </p>
     );
   }
@@ -296,7 +330,13 @@ function JobStep({
     <form action={action} className="space-y-4">
       <label className="block">
         <span className="label">Role</span>
-        <input name="title" required className="input" placeholder="Crew member" />
+        <select name="title" required className="input">
+          {roles.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
       </label>
       {locations.length > 1 && (
         <label className="block">
@@ -317,10 +357,131 @@ function JobStep({
       <button type="submit" className="btn-primary" disabled={busy}>
         {busy ? "Posting…" : "Post job"}
       </button>
-      <p className="text-xs text-[color:var(--brand-ink-muted)]">
-        You can write a description and tweak details after posting.
-      </p>
     </form>
+  );
+}
+
+type RoleDraft = { name: string; brief: string; description: string };
+
+function RolesStep({
+  initial,
+  onDone,
+}: {
+  initial: { name: string; description: string }[];
+  onDone: () => void;
+}) {
+  const [rolesList, setRolesList] = useState<RoleDraft[]>(
+    initial.length
+      ? initial.map((r) => ({ name: r.name, brief: "", description: r.description }))
+      : [{ name: "", brief: "", description: "" }]
+  );
+  const [busy, setBusy] = useState(false);
+  const [aiBusy, setAiBusy] = useState<number | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  const patch = (i: number, p: Partial<RoleDraft>) =>
+    setRolesList((rs) => rs.map((r, idx) => (idx === i ? { ...r, ...p } : r)));
+
+  async function writeWithAi(i: number) {
+    const role = rolesList[i];
+    if (!role.name.trim()) {
+      setErr("Name the role first, then ✨ Write with AI.");
+      return;
+    }
+    setErr(null);
+    setAiBusy(i);
+    const res = await generateRoleDescription(role.name.trim(), role.brief.trim());
+    setAiBusy(null);
+    if (res.ok) patch(i, { description: res.text });
+    else setErr(res.error);
+  }
+
+  async function save() {
+    setBusy(true);
+    setErr(null);
+    const res = await saveRoles(
+      rolesList
+        .filter((r) => r.name.trim())
+        .map((r) => ({ name: r.name.trim(), description: r.description.trim() || undefined }))
+    );
+    setBusy(false);
+    if (res.ok) onDone();
+    else setErr(res.error);
+  }
+
+  return (
+    <div className="space-y-5">
+      {rolesList.map((role, i) => (
+        <div key={i} className="rounded-2xl border border-[color:var(--brand-line)] p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <input
+              value={role.name}
+              onChange={(e) => patch(i, { name: e.target.value })}
+              placeholder="Role name (e.g. Crew Member)"
+              className="input flex-1 font-semibold"
+            />
+            {rolesList.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setRolesList((rs) => rs.filter((_, idx) => idx !== i))}
+                className="text-[color:var(--brand-ink-muted)] px-2 py-2"
+                aria-label="remove role"
+              >
+                ×
+              </button>
+            )}
+          </div>
+
+          <label className="block">
+            <span className="label">A few bullet points (optional)</span>
+            <textarea
+              value={role.brief}
+              onChange={(e) => patch(i, { brief: e.target.value })}
+              rows={2}
+              placeholder="• weekends • cash handling • loves people"
+              className="input"
+            />
+          </label>
+
+          <button
+            type="button"
+            onClick={() => writeWithAi(i)}
+            disabled={aiBusy === i}
+            className="btn-ghost text-sm"
+          >
+            {aiBusy === i ? "Writing…" : "✨ Write with AI"}
+          </button>
+          <p className="text-xs text-[color:var(--brand-ink-muted)] -mt-1">
+            Jot a few bullet points above and AI turns them into a full,
+            friendly job description. You can edit it after.
+          </p>
+
+          <label className="block">
+            <span className="label">Job description</span>
+            <textarea
+              value={role.description}
+              onChange={(e) => patch(i, { description: e.target.value })}
+              rows={5}
+              placeholder="Write it yourself, or use ✨ Write with AI above."
+              className="input"
+            />
+          </label>
+        </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={() => setRolesList((rs) => [...rs, { name: "", brief: "", description: "" }])}
+        className="text-xs font-semibold text-[color:var(--brand-pink-600)] underline"
+      >
+        + add another role
+      </button>
+
+      <Err msg={err} />
+      <button type="button" onClick={save} className="btn-primary w-full" disabled={busy}>
+        {busy ? "Saving…" : "Save roles"}
+      </button>
+    </div>
   );
 }
 
