@@ -23,6 +23,28 @@ export function BrandMark({
   const word = match ? match[2] : display;
   const color =
     org?.branding.primary_color ?? "var(--brand-pink)";
+  const logoUrl = org?.branding.logo_url;
+
+  // When the org has uploaded/auto-extracted a logo, show it in place of the
+  // text mark. Plain <img> (not next/image) so arbitrary operator logo URLs
+  // work without an allowlist of remote domains.
+  if (logoUrl) {
+    return (
+      <div className="flex items-center gap-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logoUrl}
+          alt={display}
+          className="h-9 w-auto max-w-[200px] object-contain"
+        />
+        {subtitle && (
+          <span className="hidden sm:inline text-xs uppercase tracking-[0.18em] text-[color:var(--brand-ink-muted)]">
+            {subtitle}
+          </span>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-3">

@@ -25,7 +25,15 @@ export interface OrgBranding {
   hero_copy_h1_pre?: string;
   hero_copy_h1_post?: string;
   industry?: string;
+  // Brand tokens for the public careers page (Tier A theming). Only the ones
+  // set override the default QDX palette; the rest fall back. Populated by hand
+  // or by the "Style my page like <url>" auto-brand extractor.
   primary_color?: string;
+  accent_color?: string;
+  bg_color?: string;
+  ink_color?: string;
+  font_family?: string;
+  logo_url?: string;
   // Operator-defined roles used when creating job postings.
   roles?: string[];
   // Optional job description per role name.
