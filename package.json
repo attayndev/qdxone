@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts",
     "db:link": "supabase link --project-ref tctukuzzjxihmqqeoifz",
     "db:push": "supabase db push"
@@ -36,6 +38,7 @@
     "supabase": "^2.106.0",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "vitest": "^4.1.9",
     "wrangler": "^4.102.0"
   }
 }
