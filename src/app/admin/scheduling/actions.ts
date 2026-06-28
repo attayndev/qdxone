@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
+import { currentOrgOrThrow, requireMembership, orgUrl } from "@/lib/tenancy";
+import { adminClient } from "@/lib/supabase/admin";
+import { createInvitation } from "@/lib/scheduling/invitations";
 import { disconnect } from "@/lib/scheduling/connections";
 import {
   setWeeklySchedule,
@@ -144,4 +146,52 @@ export async function removeInterviewType(id: string): Promise<void> {
   await requireMembership(org.id);
   await deleteInterviewType(org.id, id);
   revalidatePath("/admin/scheduling");
+}
+
+// ── Invitations ──────────────────────────────────────────────────────────────
+
+export type InviteResult =
+  | { ok: true; url: string }
+  | { ok: false; error: string };
+
+/** Mint a candidate booking link for an application + interview type. */
+export async function createInterviewInvite(
+  applicationId: string,
+  templateId: string
+): Promise<InviteResult> {
+  const org = await currentOrgOrThrow();
+  const m = await requireMembership(org.id);
+  const supa = adminClient();
+
+  // The interviewer is the template's roster entry (v1: a single one).
+  const { data: roster } = await supa
+    .from("interview_template_interviewers")
+    .select("user_id, is_active")
+    .eq("template_id", templateId)
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+  const interviewerId = (roster as { user_id: string } | null)?.user_id ?? m.user_id;
+
+  // Carry the posting the candidate applied to, if any.
+  const { data: appRow } = await supa
+    .from("applications")
+    .select("job_posting_id")
+    .eq("id", applicationId)
+    .eq("org_id", org.id)
+    .maybeSingle();
+
+  try {
+    const token = await createInvitation({
+      orgId: org.id,
+      applicationId,
+      templateId,
+      interviewerId,
+      jobPostingId: (appRow as { job_posting_id: string | null } | null)?.job_posting_id ?? null,
+      createdBy: m.user_id,
+    });
+    return { ok: true, url: orgUrl(org.slug, `/interview/${token}`) };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Could not create the link." };
+  }
 }
