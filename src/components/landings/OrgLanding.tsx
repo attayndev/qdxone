@@ -3,6 +3,7 @@ import { BrandHeader, BrandFooter } from "@/components/Brand";
 import { BrandTheme } from "@/components/BrandTheme";
 import { adminClient } from "@/lib/supabase/admin";
 import { getOrgLocations } from "@/lib/locations";
+import { careersCopy } from "@/lib/careers-copy";
 import type { OrganizationRow } from "@/lib/supabase/types";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -21,6 +22,7 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
     b.hero_copy_eyebrow ?? `Now hiring · ${b.location_subtitle ?? org.name}`;
   const h1Pre = b.hero_copy_h1_pre ?? "Join the team.";
   const h1Post = b.hero_copy_h1_post ?? "Earn it.";
+  const copy = careersCopy(b);
 
   const supa = adminClient();
   const { data } = await supa
@@ -68,8 +70,7 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
               <span className="text-[color:var(--brand-pink)]">{h1Post}</span>
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)] max-w-xl mx-auto">
-              We&apos;re picky about who joins the crew. Strong attitude beats
-              fancy resume. Apply in a few minutes, right from your phone.
+              {copy.subhead}
             </p>
           </div>
         </section>
@@ -128,16 +129,15 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
               What we look for
             </h2>
             <p className="text-center text-[color:var(--brand-ink-muted)] mt-2 max-w-xl mx-auto">
-              You don&apos;t need fancy work history. You need a strong attitude
-              and the willingness to own your shift.
+              {copy.lookForIntro}
             </p>
             <div className="grid sm:grid-cols-2 gap-4 mt-8">
-              {WE_LOOK_FOR.map((item) => (
+              {copy.values.map((item) => (
                 <div
                   key={item.title}
                   className="rounded-2xl p-5 bg-[color:var(--brand-cream)] border border-[color:var(--brand-line)]"
                 >
-                  <div className="text-2xl">{item.emoji}</div>
+                  {item.emoji && <div className="text-2xl">{item.emoji}</div>}
                   <h3 className="mt-2 font-bold text-lg">{item.title}</h3>
                   <p className="text-[color:var(--brand-ink-muted)] mt-1 text-sm leading-relaxed">
                     {item.body}
@@ -153,8 +153,13 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               The role, straight up
             </h2>
+            {copy.roleIntro && (
+              <p className="mt-3 text-[color:var(--brand-ink-muted)] max-w-2xl">
+                {copy.roleIntro}
+              </p>
+            )}
             <ul className="mt-5 space-y-3 text-[color:var(--brand-ink)]">
-              {ROLE_POINTS.map((point) => (
+              {copy.rolePoints.map((point) => (
                 <li key={point} className="flex gap-3">
                   <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-pink)] flex-shrink-0" />
                   {point}
@@ -184,42 +189,3 @@ function PostingCard({ p }: { p: Posting }) {
     </li>
   );
 }
-
-const ROLE_POINTS = [
-  "Customer-facing. You'll be the face of the shop.",
-  "Cleaning, restocking, and prep — the unglamorous stuff that keeps a great shop great.",
-  "Teamwork, professionalism, and following the playbook.",
-];
-
-const WE_LOOK_FOR = [
-  {
-    emoji: "💪",
-    title: "Ownership",
-    body: "When something goes wrong, you ask 'what was my part?' before 'whose fault is this?'",
-  },
-  {
-    emoji: "👂",
-    title: "Coachability",
-    body: "Feedback doesn't sting your ego — it sharpens you.",
-  },
-  {
-    emoji: "⏰",
-    title: "Reliability",
-    body: "If you say you'll be there, you're there — five minutes early.",
-  },
-  {
-    emoji: "📋",
-    title: "Respect for the rules",
-    body: "Even the ones you don't love.",
-  },
-  {
-    emoji: "🧹",
-    title: "Useful when it's slow",
-    body: "Empty store? You're already wiping, restocking, prepping.",
-  },
-  {
-    emoji: "😊",
-    title: "Customer-first attitude",
-    body: "When a guest is upset, you stay calm and make it right.",
-  },
-];

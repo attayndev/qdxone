@@ -26,9 +26,10 @@ export function BrandMark({
     org?.branding.primary_color ?? "var(--brand-pink)";
   const logoUrl = org?.branding.logo_url;
 
-  // When the org has uploaded/auto-extracted a logo, show it in place of the
-  // text mark. Plain <img> (not next/image) so arbitrary operator logo URLs
-  // work without an allowlist of remote domains.
+  // When the org has a logo, show it ALONGSIDE the name + location — the
+  // detected logo is often just a square icon/favicon, so the text keeps the
+  // store identifiable ("16 Handles · New City"). Plain <img> (not next/image)
+  // so arbitrary operator logo URLs work without a remote-domain allowlist.
   if (logoUrl) {
     return (
       <div className="flex items-center gap-3">
@@ -36,13 +37,18 @@ export function BrandMark({
         <img
           src={logoUrl}
           alt={display}
-          className="h-9 w-auto max-w-[200px] object-contain"
+          className="h-9 w-9 sm:h-10 sm:w-10 rounded object-contain flex-shrink-0"
         />
-        {subtitle && (
-          <span className="hidden sm:inline text-xs uppercase tracking-[0.18em] text-[color:var(--brand-ink-muted)]">
-            {subtitle}
-          </span>
-        )}
+        <div className="leading-tight">
+          <div className="font-extrabold tracking-tight text-[color:var(--brand-ink)]">
+            {display}
+          </div>
+          {subtitle && (
+            <div className="text-xs uppercase tracking-[0.18em] text-[color:var(--brand-ink-muted)]">
+              {subtitle}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
