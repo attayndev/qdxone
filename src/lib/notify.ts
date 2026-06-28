@@ -9,6 +9,7 @@ import { sendSms } from "./sms";
  */
 export async function sendAssessmentLink(args: {
   token: string;
+  orgId: string;
   orgSlug: string;
   orgName: string;
   firstName: string;
@@ -20,13 +21,14 @@ export async function sendAssessmentLink(args: {
 
   if (process.env.RESEND_API_KEY) {
     try {
-      const { sendAssessmentEmail } = await import("./email");
+      const { sendAssessmentEmail, orgReplyTo } = await import("./email");
       await sendAssessmentEmail({
         to: args.email,
         firstName: args.firstName,
         orgSlug: args.orgSlug,
         orgName: args.orgName,
         token: args.token,
+        replyTo: await orgReplyTo(args.orgId),
       });
     } catch (e) {
       console.error("assessment email failed", e);

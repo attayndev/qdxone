@@ -1,6 +1,6 @@
 import { adminClient } from "@/lib/supabase/admin";
 import { orgUrl } from "@/lib/tenancy";
-import { sendOperatorEmail } from "@/lib/email";
+import { sendOperatorEmail, orgFrom } from "@/lib/email";
 import { wantsEmail, type NotifyPrefs } from "@/lib/notify-prefs";
 
 /**
@@ -62,6 +62,7 @@ export async function notifyApplicationReceived(args: {
   const link = orgUrl(org.slug, `/admin/candidates/${args.applicationId}`);
   await sendOperatorEmail({
     to,
+    from: orgFrom(org.name),
     subject: `New application: ${args.candidateName} — ${args.role}`,
     html: `<p><strong>${esc(args.candidateName)}</strong> applied for <strong>${esc(args.role)}</strong> at ${esc(org.name)}.</p><p><a href="${link}">Open their application →</a></p>`,
     text: `${args.candidateName} applied for ${args.role} at ${org.name}.\n\nOpen: ${link}`,
@@ -94,6 +95,7 @@ export async function notifyAssessmentComplete(args: {
   const star = isStrong ? "⭐ " : "";
   await sendOperatorEmail({
     to,
+    from: orgFrom(org.name),
     subject: `${star}${args.candidateName} finished the assessment — ${args.fit}`,
     html: `<p><strong>${esc(args.candidateName)}</strong> finished the assessment at ${esc(org.name)} and scored <strong>${esc(args.fit)}</strong>.</p><p><a href="${link}">Open their report →</a></p>`,
     text: `${args.candidateName} finished the assessment at ${org.name} and scored ${args.fit}.\n\nOpen their report: ${link}`,

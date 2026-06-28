@@ -16,20 +16,49 @@ function client() {
 }
 
 const FROM = process.env.RESEND_FROM ?? "qdx <careers@qdx.one>";
+// Bare sending address — must stay our verified domain for deliverability;
+// you can't put the operator's address in From without their own domain auth.
+const FROM_ADDRESS = (FROM.match(/<([^>]+)>/)?.[1] ?? FROM).trim();
+
+/** A From line that shows the STORE's name but sends on our verified domain. */
+export function orgFrom(orgName: string): string {
+  return `${orgName} (via QDX) <${FROM_ADDRESS}>`;
+}
+
+/**
+ * The org's reply-to — its first owner's email — so candidate replies reach the
+ * store, not QDX. Best-effort (returns undefined if unresolved).
+ */
+export async function orgReplyTo(orgId: string): Promise<string | undefined> {
+  const { adminClient } = await import("./supabase/admin");
+  const supa = adminClient();
+  const { data: owner } = await supa
+    .from("org_members")
+    .select("user_id")
+    .eq("org_id", orgId)
+    .eq("role", "owner")
+    .limit(1)
+    .maybeSingle();
+  if (!owner) return undefined;
+  const { data } = await supa.auth.admin.getUserById(owner.user_id);
+  return data.user?.email ?? undefined;
+}
 
 /**
  * Generic operator-facing email (notifications). No-ops without RESEND_API_KEY.
- * `to` is a list of operator addresses already resolved + opted-in.
+ * `to` is a list of operator addresses already resolved + opted-in. Pass `from`
+ * (e.g. orgFrom(orgName)) to brand the sender as the store.
  */
 export async function sendOperatorEmail(args: {
   to: string[];
   subject: string;
   html: string;
   text: string;
+  from?: string;
 }) {
   if (!process.env.RESEND_API_KEY || args.to.length === 0) return;
   await client().emails.send({
-    from: FROM,
+    from: args.from ?? FROM,
     to: args.to,
     subject: args.subject,
     html: args.html,
@@ -44,10 +73,12 @@ export async function sendAssessmentEmail(args: {
   orgSlug: string;
   orgName: string;
   token: string;
+  replyTo?: string;
 }) {
   const link = orgUrl(args.orgSlug, `/a/${args.token}`);
   await client().emails.send({
-    from: FROM,
+    from: orgFrom(args.orgName),
+    replyTo: args.replyTo,
     to: args.to,
     subject: `One quick step — your ${args.orgName} assessment`,
     html: `
