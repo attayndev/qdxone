@@ -13,6 +13,8 @@ import {
 } from "@/lib/assessment/scoring";
 import DeleteCandidateButton from "@/components/admin/DeleteCandidateButton";
 import SendAssessmentButton from "@/components/admin/SendAssessmentButton";
+import DecisionControl from "@/components/admin/DecisionControl";
+import { isDecision, type Decision } from "@/lib/candidate-decision";
 import type { Database } from "@/lib/supabase/database.types";
 
 type AppRow = Database["public"]["Tables"]["applications"]["Row"];
@@ -42,7 +44,13 @@ export default async function CandidateDetail({ params }: PageProps) {
     .eq("org_id", org.id)
     .maybeSingle();
   if (!app) notFound();
-  const a = app as AppRow;
+  // decision columns added in migration 0012 — not in generated types yet.
+  const a = app as AppRow & {
+    decision: string | null;
+    decision_reason: string | null;
+    decision_at: string | null;
+  };
+  const currentDecision: Decision | null = isDecision(a.decision) ? a.decision : null;
 
   const { data: session } = await supa
     .from("assessment_sessions")
@@ -187,6 +195,19 @@ export default async function CandidateDetail({ params }: PageProps) {
             : "No assessment yet."}
         </p>
       )}
+
+      <div className="mt-6">
+        <DecisionControl
+          applicationId={a.id}
+          initialDecision={currentDecision}
+          initialReason={a.decision_reason ?? ""}
+          decidedLabel={
+            a.decision_at
+              ? `Recorded ${new Date(a.decision_at).toLocaleDateString()}`
+              : null
+          }
+        />
+      </div>
 
       <div className="grid lg:grid-cols-[1fr_1fr] gap-6 mt-6">
         {/* Application */}
