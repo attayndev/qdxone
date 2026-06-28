@@ -25,17 +25,21 @@ export default function PostingsClient({
   hasLocation,
   roles,
   locations,
+  careers,
 }: {
   postings: PostingView[];
   hasLocation: boolean;
   roles: string[];
   locations: StoreOption[];
+  careers: { url: string; qrSvg: string };
 }) {
   return (
-    <div className="grid lg:grid-cols-[1fr_2fr] gap-6 mt-6">
-      <CreateForm hasLocation={hasLocation} roles={roles} locations={locations} />
-      <div className="card">
-        <h2 className="font-extrabold text-lg">Your postings</h2>
+    <div className="mt-6 space-y-6">
+      <CareersShareCard careers={careers} />
+      <div className="grid lg:grid-cols-[1fr_2fr] gap-6">
+        <CreateForm hasLocation={hasLocation} roles={roles} locations={locations} />
+        <div className="card">
+          <h2 className="font-extrabold text-lg">Your postings</h2>
         <ul className="mt-3 space-y-4">
           {postings.length === 0 && (
             <li className="text-sm text-[color:var(--brand-ink-muted)]">
@@ -46,6 +50,54 @@ export default function PostingsClient({
             <PostingItem key={p.id} posting={p} roles={roles} locations={locations} />
           ))}
         </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CareersShareCard({ careers }: { careers: { url: string; qrSvg: string } }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="card">
+      <h2 className="font-extrabold text-lg">Your careers page</h2>
+      <p className="text-[color:var(--brand-ink-muted)] text-sm mt-1">
+        One link + QR for <strong>all</strong> your open roles — share it
+        anywhere, or print it for the window.
+      </p>
+      <div className="mt-3 flex flex-col sm:flex-row gap-4 items-start">
+        <div
+          className="shrink-0 rounded-lg bg-white p-2 border border-[color:var(--brand-line)] [&>svg]:w-28 [&>svg]:h-28"
+          dangerouslySetInnerHTML={{ __html: careers.qrSvg }}
+        />
+        <div className="min-w-0 flex-1">
+          <div className="font-mono text-xs break-all">{careers.url}</div>
+          <div className="mt-2 flex gap-3">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(careers.url);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1500);
+                } catch {
+                  window.open(careers.url, "_blank");
+                }
+              }}
+              className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+            >
+              {copied ? "Copied!" : "Copy link"}
+            </button>
+            <a
+              href={careers.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+            >
+              Open
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
