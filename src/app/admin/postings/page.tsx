@@ -28,6 +28,10 @@ export default async function PostingsPage() {
   const locName = new Map(locations.map((l) => [l.id, l.name]));
   const multiLocation = locations.length > 1;
 
+  // The org-level careers page: one link + QR covering every open role.
+  const careersUrl = orgUrl(org.slug);
+  const careersQr = await qrSvg(careersUrl);
+
   const postings: PostingView[] = await Promise.all(
     ((rows as PostingRow[] | null) ?? []).map(async (p) => {
       const url = orgUrl(org.slug, `/j/${p.public_token}`);
@@ -67,6 +71,7 @@ export default async function PostingsPage() {
         hasLocation={locations.length > 0}
         roles={orgRoles(org.branding)}
         locations={locations.map((l) => ({ id: l.id, name: l.name }))}
+        careers={{ url: careersUrl, qrSvg: careersQr }}
       />
     </div>
   );
