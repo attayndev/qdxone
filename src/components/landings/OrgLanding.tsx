@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandHeader, BrandFooter } from "@/components/Brand";
+import { brandStyleVars } from "@/lib/brand-theme";
 import { adminClient } from "@/lib/supabase/admin";
 import { getOrgLocations } from "@/lib/locations";
 import type { OrganizationRow } from "@/lib/supabase/types";
@@ -51,7 +52,9 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
     : [];
 
   return (
-    <>
+    // `display: contents` keeps the parent flex layout intact while the
+    // --brand-* overrides (and optional font) cascade to every descendant.
+    <div style={{ ...brandStyleVars(b), display: "contents" }}>
       <BrandHeader org={org} />
       <main className="flex-1">
         <section className="px-4 sm:px-6 pt-10 sm:pt-16 pb-10">
@@ -67,14 +70,47 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
               We&apos;re picky about who joins the crew. Strong attitude beats
               fancy resume. Apply in a few minutes, right from your phone.
             </p>
-            <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <a href="#openings" className="btn-primary">
-                See open roles
-              </a>
+            <div className="mt-7 flex items-center justify-center">
               <a href="#what-were-looking-for" className="btn-ghost">
                 What we look for
               </a>
             </div>
+          </div>
+        </section>
+
+        <section
+          id="openings"
+          className="px-4 sm:px-6 py-12 bg-[color:var(--brand-ink)] text-white"
+        >
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-center">
+              Open positions
+            </h2>
+            {postings.length === 0 ? (
+              <p className="mt-4 text-center text-white/70">
+                No open roles posted right now — check back soon, or stop by{" "}
+                {org.name} and ask.
+              </p>
+            ) : multiLocation ? (
+              <div className="mt-6 space-y-6">
+                {groups.map((g) => (
+                  <div key={g.key}>
+                    <h3 className="font-bold text-white/90 mb-2">{g.label}</h3>
+                    <ul className="space-y-3">
+                      {g.postings.map((p) => (
+                        <PostingLi key={p.id} p={p} />
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <ul className="mt-6 space-y-3">
+                {postings.map((p) => (
+                  <PostingLi key={p.id} p={p} />
+                ))}
+              </ul>
+            )}
           </div>
         </section>
 
@@ -126,45 +162,9 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
             </ul>
           </div>
         </section>
-
-        <section
-          id="openings"
-          className="px-4 sm:px-6 py-12 bg-[color:var(--brand-ink)] text-white"
-        >
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-center">
-              Open positions
-            </h2>
-            {postings.length === 0 ? (
-              <p className="mt-4 text-center text-white/70">
-                No open roles posted right now — check back soon, or stop by{" "}
-                {org.name} and ask.
-              </p>
-            ) : multiLocation ? (
-              <div className="mt-6 space-y-6">
-                {groups.map((g) => (
-                  <div key={g.key}>
-                    <h3 className="font-bold text-white/90 mb-2">{g.label}</h3>
-                    <ul className="space-y-3">
-                      {g.postings.map((p) => (
-                        <PostingLi key={p.id} p={p} />
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <ul className="mt-6 space-y-3">
-                {postings.map((p) => (
-                  <PostingLi key={p.id} p={p} />
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
       </main>
       <BrandFooter org={org} />
-    </>
+    </div>
   );
 }
 
