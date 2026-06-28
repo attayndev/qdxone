@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { currentOrg } from "@/lib/tenancy";
+import { currentOrg, orgUrl } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
+import { getOnboarding } from "@/lib/onboarding";
+import OnboardingGuide from "@/components/admin/onboarding/OnboardingGuide";
 import type { Database } from "@/lib/supabase/database.types";
 
 type AppRow = Database["public"]["Tables"]["applications"]["Row"];
@@ -10,6 +12,9 @@ export default async function AdminDashboard() {
   const org = await currentOrg();
   if (!org) notFound();
   const supa = adminClient();
+
+  const { status: onboarding, locations: onboardingLocations } =
+    await getOnboarding(org);
 
   const [{ data: apps }, { count: openPostings }] = await Promise.all([
     supa
@@ -44,6 +49,16 @@ export default async function AdminDashboard() {
         <Link href="/admin/postings" className="btn-primary">
           + New posting
         </Link>
+      </div>
+
+      <div className="mt-6">
+        <OnboardingGuide
+          status={onboarding}
+          locations={onboardingLocations}
+          branding={org.branding}
+          careersUrl={orgUrl(org.slug)}
+          orgName={org.name}
+        />
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">

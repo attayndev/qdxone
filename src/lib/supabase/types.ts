@@ -42,6 +42,8 @@ export interface OrgBranding {
   values?: { emoji?: string; title: string; body: string }[];
   role_intro?: string;
   role_points?: string[];
+  // Set once the owner dismisses (or finishes) the first-run setup guide.
+  onboarding_dismissed?: boolean;
   // Operator-defined roles used when creating job postings.
   roles?: string[];
   // Optional job description per role name.
