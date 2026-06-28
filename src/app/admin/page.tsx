@@ -55,6 +55,7 @@ export default async function AdminDashboard() {
         <OnboardingGuide
           status={onboarding}
           locations={onboardingLocations}
+          roles={org.branding.roles ?? []}
           branding={org.branding}
           careersUrl={orgUrl(org.slug)}
           orgName={org.name}
