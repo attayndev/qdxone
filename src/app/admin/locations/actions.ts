@@ -5,7 +5,6 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
-import { effectiveTier, hasFeature } from "@/lib/plan";
 import { syncLocationBilling } from "@/lib/billing";
 import type { CustomQuestion } from "@/lib/supabase/types";
 
@@ -172,14 +171,7 @@ export async function generateRoleDescription(
   const name = roleName.trim();
   if (!name) return { ok: false, error: "Name the role first." };
 
-  // AI-written job posts are an Operator feature (Operator = 2+ locations).
-  if (!hasFeature(effectiveTier(org), "ai_job_descriptions")) {
-    return {
-      ok: false,
-      error:
-        "AI-written job posts are an Operator feature — add a second location to unlock them.",
-    };
-  }
+  // AI job-description drafting is available to every org (ungated for beta).
 
   try {
     const { generateText } = await import("ai");
