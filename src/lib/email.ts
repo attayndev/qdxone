@@ -17,6 +17,26 @@ function client() {
 
 const FROM = process.env.RESEND_FROM ?? "qdx <careers@qdx.one>";
 
+/**
+ * Generic operator-facing email (notifications). No-ops without RESEND_API_KEY.
+ * `to` is a list of operator addresses already resolved + opted-in.
+ */
+export async function sendOperatorEmail(args: {
+  to: string[];
+  subject: string;
+  html: string;
+  text: string;
+}) {
+  if (!process.env.RESEND_API_KEY || args.to.length === 0) return;
+  await client().emails.send({
+    from: FROM,
+    to: args.to,
+    subject: args.subject,
+    html: args.html,
+    text: args.text,
+  });
+}
+
 
 export async function sendAssessmentEmail(args: {
   to: string;

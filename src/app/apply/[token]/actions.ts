@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
 import { generateToken } from "@/lib/tokens";
@@ -145,6 +146,21 @@ export async function submitApplication(
     subject_type: "application",
     subject_id: app.id,
     meta: { job_posting_id: posting.id },
+  });
+
+  // Notify operators who opted in for new applications (quiet by default).
+  after(async () => {
+    try {
+      const { notifyApplicationReceived } = await import("@/lib/operator-notify");
+      await notifyApplicationReceived({
+        orgId: org.id,
+        candidateName: `${v.first_name.trim()} ${v.last_name.trim()}`,
+        role: posting.title,
+        applicationId: app.id,
+      });
+    } catch (e) {
+      console.error("application-received notify failed", e);
+    }
   });
 
   // If the operator reviews applications first, don't auto-fire the

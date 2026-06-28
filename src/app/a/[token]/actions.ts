@@ -83,29 +83,30 @@ export async function completeAssessment(
     subject_id: session.id,
   });
 
-  // After responding: score it and alert the org's owners if Strong fit.
-  // (Assessments are unlimited — no billing/metering on completion.)
+  // After responding: score it, then notify the operators who opted in for a
+  // finished assessment (or just strong fits) — per their own prefs.
   after(async () => {
     try {
       const { scoreCandidateSession } = await import("@/lib/assessment/session");
       const result = await scoreCandidateSession(session.id);
-      if (result?.overall === "Strong fit" && session.application_id) {
+      if (result?.overall && session.application_id) {
         const { data: appRow } = await supa
           .from("applications")
           .select("first_name, last_name")
           .eq("id", session.application_id)
           .maybeSingle();
         if (appRow) {
-          const { sendStrongCandidateAlert } = await import("@/lib/email");
-          await sendStrongCandidateAlert({
+          const { notifyAssessmentComplete } = await import("@/lib/operator-notify");
+          await notifyAssessmentComplete({
             orgId: session.org_id,
-            name: `${appRow.first_name} ${appRow.last_name}`,
+            candidateName: `${appRow.first_name} ${appRow.last_name}`,
+            fit: result.overall,
             applicationId: session.application_id,
           });
         }
       }
     } catch (e) {
-      console.error("strong-candidate alert failed", e);
+      console.error("assessment-complete notify failed", e);
     }
   });
 
