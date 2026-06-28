@@ -28,7 +28,7 @@ export interface Env {
   RESEND_API_KEY?: string;
   RESEND_FROM?: string;
   PLATFORM_OWNER_EMAILS?: string;
-  AI_GATEWAY_API_KEY?: string;
+  ANTHROPIC_API_KEY?: string;
   AI_MODEL?: string;
   TELNYX_API_KEY?: string;
   TELNYX_FROM?: string;
@@ -47,7 +47,7 @@ const CONTAINER_SECRETS = [
   "RESEND_API_KEY",
   "RESEND_FROM",
   "PLATFORM_OWNER_EMAILS",
-  "AI_GATEWAY_API_KEY",
+  "ANTHROPIC_API_KEY",
   "AI_MODEL",
   "TELNYX_API_KEY",
   "TELNYX_FROM",

@@ -183,7 +183,10 @@ export async function generateRoleDescription(
 
   try {
     const { generateText } = await import("ai");
-    const model = process.env.AI_MODEL ?? "anthropic/claude-haiku-4.5";
+    const { anthropic } = await import("@ai-sdk/anthropic");
+    // Direct to Anthropic (reads ANTHROPIC_API_KEY) — NOT the Vercel AI Gateway.
+    // We're off Vercel; the gateway dependency (and its key) is gone.
+    const model = anthropic(process.env.AI_MODEL ?? "claude-haiku-4-5");
     const { text } = await generateText({
       model,
       prompt:
@@ -198,7 +201,7 @@ export async function generateRoleDescription(
     console.error("AI job description failed", e);
     return {
       ok: false,
-      error: "AI isn't set up yet (needs AI_GATEWAY_API_KEY).",
+      error: "AI isn't set up yet (needs ANTHROPIC_API_KEY).",
     };
   }
 }

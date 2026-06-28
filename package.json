@@ -12,6 +12,7 @@
     "db:push": "supabase db push"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.87",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.104.1",
     "ai": "^6.0.202",
