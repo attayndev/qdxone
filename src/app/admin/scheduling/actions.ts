@@ -6,6 +6,8 @@ import { currentOrgOrThrow, requireMembership, orgUrl } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
 import { createInvitation } from "@/lib/scheduling/invitations";
 import { disconnect } from "@/lib/scheduling/connections";
+import { listInterviewTypes } from "@/lib/scheduling/templates";
+import { sendBookingInvite, orgReplyTo } from "@/lib/email";
 import {
   setWeeklySchedule,
   type WeeklyWindow,
@@ -154,11 +156,20 @@ export type InviteResult =
   | { ok: true; url: string }
   | { ok: false; error: string };
 
-/** Mint a candidate booking link for an application + interview type. */
-export async function createInterviewInvite(
-  applicationId: string,
-  templateId: string
-): Promise<InviteResult> {
+export type EmailInviteResult =
+  | { ok: true; sentTo: string }
+  | { ok: false; error: string };
+
+interface MintedInvite {
+  url: string;
+  application: { email: string; first_name: string };
+  orgId: string;
+  orgName: string;
+  templateName: string;
+}
+
+/** Shared: resolve interviewer, create the invitation, return URL + candidate. */
+async function mintInvite(applicationId: string, templateId: string): Promise<MintedInvite> {
   const org = await currentOrgOrThrow();
   const m = await requireMembership(org.id);
   const supa = adminClient();
@@ -173,25 +184,66 @@ export async function createInterviewInvite(
     .maybeSingle();
   const interviewerId = (roster as { user_id: string } | null)?.user_id ?? m.user_id;
 
-  // Carry the posting the candidate applied to, if any.
   const { data: appRow } = await supa
     .from("applications")
-    .select("job_posting_id")
+    .select("job_posting_id, email, first_name")
     .eq("id", applicationId)
     .eq("org_id", org.id)
     .maybeSingle();
+  const app = appRow as { job_posting_id: string | null; email: string; first_name: string } | null;
+  if (!app) throw new Error("Candidate not found.");
 
+  const types = await listInterviewTypes(org.id);
+  const templateName = types.find((t) => t.id === templateId)?.name ?? "interview";
+
+  const token = await createInvitation({
+    orgId: org.id,
+    applicationId,
+    templateId,
+    interviewerId,
+    jobPostingId: app.job_posting_id,
+    createdBy: m.user_id,
+  });
+  return {
+    url: orgUrl(org.slug, `/interview/${token}`),
+    application: { email: app.email, first_name: app.first_name },
+    orgId: org.id,
+    orgName: org.name,
+    templateName,
+  };
+}
+
+/** Mint a candidate booking link (the owner shares it manually). */
+export async function createInterviewInvite(
+  applicationId: string,
+  templateId: string
+): Promise<InviteResult> {
   try {
-    const token = await createInvitation({
-      orgId: org.id,
-      applicationId,
-      templateId,
-      interviewerId,
-      jobPostingId: (appRow as { job_posting_id: string | null } | null)?.job_posting_id ?? null,
-      createdBy: m.user_id,
-    });
-    return { ok: true, url: orgUrl(org.slug, `/interview/${token}`) };
+    const { url } = await mintInvite(applicationId, templateId);
+    return { ok: true, url };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Could not create the link." };
+  }
+}
+
+/** Mint a booking link AND email it to the candidate, as the store. */
+export async function emailInterviewInvite(
+  applicationId: string,
+  templateId: string
+): Promise<EmailInviteResult> {
+  try {
+    const inv = await mintInvite(applicationId, templateId);
+    if (!inv.application.email) return { ok: false, error: "This candidate has no email on file." };
+    await sendBookingInvite({
+      to: inv.application.email,
+      firstName: inv.application.first_name,
+      orgName: inv.orgName,
+      replyTo: await orgReplyTo(inv.orgId),
+      interviewName: inv.templateName,
+      link: inv.url,
+    });
+    return { ok: true, sentTo: inv.application.email };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Could not send the invite." };
   }
 }

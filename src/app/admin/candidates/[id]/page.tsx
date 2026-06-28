@@ -220,7 +220,7 @@ export default async function CandidateDetail({ params }: PageProps) {
       )}
 
       <div className="mt-6">
-        <InviteToInterview applicationId={a.id} types={interviewTypes} />
+        <InviteToInterview applicationId={a.id} types={interviewTypes} candidateEmail={a.email} />
       </div>
 
       <div className="mt-6">

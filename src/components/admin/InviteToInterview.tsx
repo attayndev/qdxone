@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { createInterviewInvite } from "@/app/admin/scheduling/actions";
+import { createInterviewInvite, emailInterviewInvite } from "@/app/admin/scheduling/actions";
 
 interface TypeOption {
   id: string;
@@ -13,15 +13,19 @@ interface TypeOption {
 export default function InviteToInterview({
   applicationId,
   types,
+  candidateEmail,
 }: {
   applicationId: string;
   types: TypeOption[];
+  candidateEmail: string | null;
 }) {
   const [typeId, setTypeId] = useState(types[0]?.id ?? "");
   const [url, setUrl] = useState<string | null>(null);
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [emailing, startEmail] = useTransition();
 
   if (types.length === 0) {
     return (
@@ -41,9 +45,20 @@ export default function InviteToInterview({
   function generate() {
     setErr(null);
     setCopied(false);
+    setSentTo(null);
     start(async () => {
       const r = await createInterviewInvite(applicationId, typeId);
       if (r.ok) setUrl(r.url);
+      else setErr(r.error);
+    });
+  }
+
+  function emailCandidate() {
+    setErr(null);
+    setSentTo(null);
+    startEmail(async () => {
+      const r = await emailInterviewInvite(applicationId, typeId);
+      if (r.ok) setSentTo(r.sentTo);
       else setErr(r.error);
     });
   }
@@ -76,12 +91,29 @@ export default function InviteToInterview({
             ))}
           </select>
         </div>
-        <button onClick={generate} disabled={pending} className="btn-primary">
-          {pending ? "Creating…" : url ? "New link" : "Create booking link"}
+        <button
+          onClick={emailCandidate}
+          disabled={emailing || pending || !candidateEmail}
+          className="btn-primary"
+          title={candidateEmail ? `Email the link to ${candidateEmail}` : "No email on file"}
+        >
+          {emailing ? "Sending…" : "Email to candidate"}
+        </button>
+        <button
+          onClick={generate}
+          disabled={pending || emailing}
+          className="rounded-lg border border-black/15 px-4 py-2 text-sm font-medium hover:bg-black/5"
+        >
+          {pending ? "Creating…" : url ? "New link" : "Copy a link instead"}
         </button>
       </div>
 
       {err && <p className="text-red-700 text-sm mt-2">{err}</p>}
+      {sentTo && (
+        <p className="text-green-700 text-sm mt-2">
+          ✓ Invitation emailed to {sentTo} (from your store). They can book straight from the email.
+        </p>
+      )}
 
       {url && (
         <div className="mt-3">
