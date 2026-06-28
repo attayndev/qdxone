@@ -2,6 +2,11 @@ import { notFound } from "next/navigation";
 import { currentOrg, getMembership } from "@/lib/tenancy";
 import { googleOAuthConfigured } from "@/lib/calendar-providers/config";
 import { listConnectionStatuses } from "@/lib/scheduling/connections";
+import { getWeeklySchedule } from "@/lib/scheduling/availability-rules";
+import { listInterviewTypes } from "@/lib/scheduling/templates";
+import { getPrimaryLocation } from "@/lib/locations";
+import AvailabilityEditor from "@/components/admin/scheduling/AvailabilityEditor";
+import InterviewTypes from "@/components/admin/scheduling/InterviewTypes";
 import { disconnectCalendar } from "./actions";
 
 interface PageProps {
@@ -27,6 +32,17 @@ export default async function SchedulingPage({ searchParams }: PageProps) {
   const configured = googleOAuthConfigured();
   const connections = await listConnectionStatuses(org.id, m.user_id);
   const google = connections.find((c) => c.provider === "google" && c.status !== "revoked");
+  const isConnected = !!google;
+
+  const [schedule, interviewTypes, primaryLocation] = await Promise.all([
+    getWeeklySchedule(org.id, m.user_id),
+    listInterviewTypes(org.id),
+    getPrimaryLocation(org.id),
+  ]);
+  // Seed the timezone from the store when no schedule exists yet.
+  if (schedule.windows.length === 0 && primaryLocation?.timezone) {
+    schedule.timezone = primaryLocation.timezone;
+  }
 
   return (
     <div>
@@ -85,11 +101,27 @@ export default async function SchedulingPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      <p className="mt-6 text-xs text-[color:var(--brand-ink-muted)] max-w-prose">
-        Setting up availability rules and interview types comes next. Once your
-        calendar is connected you&apos;ll be able to send candidates a link to
-        book a time that works for both of you.
-      </p>
+      <section className="mt-10">
+        <h2 className="text-xl font-bold tracking-tight">Your weekly availability</h2>
+        <p className="text-sm text-[color:var(--brand-ink-muted)] mb-3 max-w-prose">
+          The hours you&apos;re open to interview. Candidates only ever see times
+          inside these windows that are also free on your calendar.
+        </p>
+        <AvailabilityEditor schedule={schedule} />
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-xl font-bold tracking-tight">Interview types</h2>
+        <p className="text-sm text-[color:var(--brand-ink-muted)] mb-3 max-w-prose">
+          How you meet candidates — a quick phone screen, an in-person sit-down, a
+          video call. You&apos;ll pick one of these when inviting a candidate to book.
+        </p>
+        <InterviewTypes
+          types={interviewTypes}
+          calendarConnected={isConnected}
+          defaultLocation={primaryLocation?.name ?? null}
+        />
+      </section>
     </div>
   );
 }
