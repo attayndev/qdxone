@@ -58,12 +58,17 @@ export async function computeOrgFairness(orgId: string): Promise<FairnessReport>
   const supa = adminClient();
 
   // 1. EEO self-ID rows (service-role only).
-  const { data: eeoData } = await eeoAdmin()
+  const { data: eeoData, error: eeoErr } = await eeoAdmin()
     .from("responses")
     .select(
       "application_id, declined, race_ethnicity, gender, veteran_status, disability_status"
     )
     .eq("org_id", orgId);
+  if (eeoErr) {
+    // e.g. PGRST106 — the `eeo` schema isn't exposed to the API. Surface it
+    // rather than rendering as an innocent "not enough data yet".
+    console.error("[computeOrgFairness] EEO read failed:", eeoErr.message);
+  }
   const eeoRows = (eeoData as EeoRow[] | null) ?? [];
 
   // 2. Overall fit tier per completed candidate, keyed by application_id.
