@@ -34,6 +34,14 @@ export interface OrgBranding {
   ink_color?: string;
   font_family?: string;
   logo_url?: string;
+  // Careers-page body copy (per-org). AI-drafted from the operator's site or
+  // hand-edited; each field falls back to a shared default when unset. The
+  // single source of defaults + the resolver live in lib/careers-copy.ts.
+  hero_copy_subhead?: string;
+  look_for_intro?: string;
+  values?: { emoji?: string; title: string; body: string }[];
+  role_intro?: string;
+  role_points?: string[];
   // Operator-defined roles used when creating job postings.
   roles?: string[];
   // Optional job description per role name.
