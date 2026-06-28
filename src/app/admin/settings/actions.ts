@@ -57,3 +57,49 @@ export async function updateBranding(formData: FormData) {
   revalidatePath("/");
   return { ok: true as const };
 }
+
+/**
+ * "Style my page like <url>" — scrape brand signals off the operator's own
+ * website and return a DRAFT token set (not saved; the operator previews +
+ * applies it). See lib/brand-extract.ts.
+ */
+export async function fetchBrandFromUrl(url: string) {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  if (!url?.trim()) return { ok: false as const, error: "Enter your website URL." };
+  const { extractBrandFromUrl } = await import("@/lib/brand-extract");
+  return extractBrandFromUrl(url);
+}
+
+const TokensSchema = z.object({
+  primary_color: z.string().optional(),
+  accent_color: z.string().optional(),
+  bg_color: z.string().optional(),
+  ink_color: z.string().optional(),
+  font_family: z.string().optional(),
+  logo_url: z.string().optional(),
+});
+
+/** Persist the operator's chosen brand tokens onto org.branding. */
+export async function applyBrandTokens(tokens: unknown) {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const parsed = TokensSchema.safeParse(tokens);
+  if (!parsed.success) return { ok: false as const, error: "Invalid brand tokens." };
+
+  // Only write keys that have a value; spread existing branding so we don't
+  // wipe copy/roles/application config.
+  const t = parsed.data;
+  const branding = { ...(org.branding ?? {}) };
+  for (const [k, val] of Object.entries(t)) {
+    if (typeof val === "string" && val.trim()) {
+      (branding as Record<string, unknown>)[k] = val.trim();
+    }
+  }
+
+  const supa = adminClient();
+  await supa.from("organizations").update({ branding }).eq("id", org.id);
+  revalidatePath("/admin/settings");
+  revalidatePath("/");
+  return { ok: true as const };
+}
