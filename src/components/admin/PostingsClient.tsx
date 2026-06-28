@@ -18,6 +18,41 @@ export type PostingView = {
   location?: string | null;
 };
 
+const slug = (s: string) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "careers";
+
+/** Download an SVG QR string as a file (prints sharp at any size). */
+function downloadQr(svg: string, name: string) {
+  const blob = new Blob([svg], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${slug(name)}-qr.svg`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/** Native share sheet on mobile; falls back to copying the link. */
+async function shareLink(url: string, title: string) {
+  const nav = navigator as Navigator & { share?: (d: ShareData) => Promise<void> };
+  if (nav.share) {
+    try {
+      await nav.share({ title, url });
+    } catch {
+      /* user cancelled */
+    }
+  } else {
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      window.open(url, "_blank");
+    }
+  }
+}
+
+const LINK_BTN =
+  "text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline";
+
 type StoreOption = { id: string; name: string };
 
 export default function PostingsClient({
@@ -72,7 +107,7 @@ function CareersShareCard({ careers }: { careers: { url: string; qrSvg: string }
         />
         <div className="min-w-0 flex-1">
           <div className="font-mono text-xs break-all">{careers.url}</div>
-          <div className="mt-2 flex gap-3">
+          <div className="mt-2 flex gap-3 flex-wrap">
             <button
               type="button"
               onClick={async () => {
@@ -84,16 +119,17 @@ function CareersShareCard({ careers }: { careers: { url: string; qrSvg: string }
                   window.open(careers.url, "_blank");
                 }
               }}
-              className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+              className={LINK_BTN}
             >
               {copied ? "Copied!" : "Copy link"}
             </button>
-            <a
-              href={careers.url}
-              target="_blank"
-              rel="noreferrer"
-              className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
-            >
+            <button type="button" onClick={() => shareLink(careers.url, "Careers")} className={LINK_BTN}>
+              Share
+            </button>
+            <button type="button" onClick={() => downloadQr(careers.qrSvg, "careers")} className={LINK_BTN}>
+              Download QR
+            </button>
+            <a href={careers.url} target="_blank" rel="noreferrer" className={LINK_BTN}>
               Open
             </a>
           </div>
@@ -333,7 +369,7 @@ function PostingItem({
             Public link
           </div>
           <div className="font-mono text-xs break-all mt-1">{posting.url}</div>
-          <div className="mt-2 flex gap-3">
+          <div className="mt-2 flex gap-3 flex-wrap">
             <button
               type="button"
               onClick={async () => {
@@ -345,16 +381,25 @@ function PostingItem({
                   window.open(posting.url, "_blank");
                 }
               }}
-              className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+              className={LINK_BTN}
             >
               {copied ? "Copied!" : "Copy link"}
             </button>
-            <a
-              href={posting.url}
-              target="_blank"
-              rel="noreferrer"
-              className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+            <button
+              type="button"
+              onClick={() => shareLink(posting.url, posting.title)}
+              className={LINK_BTN}
             >
+              Share
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadQr(posting.qrSvg, posting.title)}
+              className={LINK_BTN}
+            >
+              Download QR
+            </button>
+            <a href={posting.url} target="_blank" rel="noreferrer" className={LINK_BTN}>
               Open
             </a>
           </div>
