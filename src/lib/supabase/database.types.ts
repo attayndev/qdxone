@@ -19,6 +19,10 @@ export type Database = {
           availability: Json
           created_at: string
           custom_answers: Json
+          decided_by: string | null
+          decision: string | null
+          decision_at: string | null
+          decision_reason: string | null
           earliest_start_date: string | null
           eligible_to_work: boolean | null
           email: string
@@ -47,6 +51,10 @@ export type Database = {
           availability?: Json
           created_at?: string
           custom_answers?: Json
+          decided_by?: string | null
+          decision?: string | null
+          decision_at?: string | null
+          decision_reason?: string | null
           earliest_start_date?: string | null
           eligible_to_work?: boolean | null
           email: string
@@ -75,6 +83,10 @@ export type Database = {
           availability?: Json
           created_at?: string
           custom_answers?: Json
+          decided_by?: string | null
+          decision?: string | null
+          decision_at?: string | null
+          decision_reason?: string | null
           earliest_start_date?: string | null
           eligible_to_work?: boolean | null
           email?: string
@@ -379,6 +391,385 @@ export type Database = {
           },
         ]
       }
+      availability_overrides: {
+        Row: {
+          date: string
+          end_time: string | null
+          id: string
+          is_unavailable: boolean
+          org_id: string
+          reason: string | null
+          start_time: string | null
+          user_id: string
+        }
+        Insert: {
+          date: string
+          end_time?: string | null
+          id?: string
+          is_unavailable?: boolean
+          org_id: string
+          reason?: string | null
+          start_time?: string | null
+          user_id: string
+        }
+        Update: {
+          date?: string
+          end_time?: string | null
+          id?: string
+          is_unavailable?: boolean
+          org_id?: string
+          reason?: string | null
+          start_time?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_overrides_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      availability_rules: {
+        Row: {
+          day_of_week: number
+          end_time: string
+          id: string
+          is_active: boolean
+          org_id: string
+          start_time: string
+          template_id: string | null
+          timezone: string
+          user_id: string
+        }
+        Insert: {
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_active?: boolean
+          org_id: string
+          start_time: string
+          template_id?: string | null
+          timezone: string
+          user_id: string
+        }
+        Update: {
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          org_id?: string
+          start_time?: string
+          template_id?: string | null
+          timezone?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_rules_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_rules_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "interview_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_connections: {
+        Row: {
+          availability_calendar_id: string | null
+          booking_calendar_id: string | null
+          created_at: string
+          enc_access_token: string | null
+          enc_key_version: number
+          enc_refresh_token: string | null
+          external_account_id: string | null
+          id: string
+          last_sync_at: string | null
+          org_id: string
+          provider: string
+          status: string
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability_calendar_id?: string | null
+          booking_calendar_id?: string | null
+          created_at?: string
+          enc_access_token?: string | null
+          enc_key_version?: number
+          enc_refresh_token?: string | null
+          external_account_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          org_id: string
+          provider: string
+          status?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability_calendar_id?: string | null
+          booking_calendar_id?: string | null
+          created_at?: string
+          enc_access_token?: string | null
+          enc_key_version?: number
+          enc_refresh_token?: string | null
+          external_account_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          org_id?: string
+          provider?: string
+          status?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_connections_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interview_bookings: {
+        Row: {
+          application_id: string
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          conference_url: string | null
+          created_at: string
+          end_at: string
+          external_calendar_event_id: string | null
+          external_calendar_provider: string | null
+          id: string
+          idempotency_key: string | null
+          interviewer_id: string
+          invitation_id: string | null
+          meeting_location: string | null
+          meeting_type: string | null
+          org_id: string
+          original_booking_id: string | null
+          start_at: string
+          status: string
+          template_id: string | null
+          timezone: string
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          conference_url?: string | null
+          created_at?: string
+          end_at: string
+          external_calendar_event_id?: string | null
+          external_calendar_provider?: string | null
+          id?: string
+          idempotency_key?: string | null
+          interviewer_id: string
+          invitation_id?: string | null
+          meeting_location?: string | null
+          meeting_type?: string | null
+          org_id: string
+          original_booking_id?: string | null
+          start_at: string
+          status?: string
+          template_id?: string | null
+          timezone: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          conference_url?: string | null
+          created_at?: string
+          end_at?: string
+          external_calendar_event_id?: string | null
+          external_calendar_provider?: string | null
+          id?: string
+          idempotency_key?: string | null
+          interviewer_id?: string
+          invitation_id?: string | null
+          meeting_location?: string | null
+          meeting_type?: string | null
+          org_id?: string
+          original_booking_id?: string | null
+          start_at?: string
+          status?: string
+          template_id?: string | null
+          timezone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_bookings_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_bookings_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "scheduling_invitations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_bookings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_bookings_original_booking_id_fkey"
+            columns: ["original_booking_id"]
+            isOneToOne: false
+            referencedRelation: "interview_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_bookings_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "interview_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interview_template_interviewers: {
+        Row: {
+          id: string
+          is_active: boolean
+          priority: number
+          template_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          is_active?: boolean
+          priority?: number
+          template_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          is_active?: boolean
+          priority?: number
+          template_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_template_interviewers_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "interview_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interview_templates: {
+        Row: {
+          assignment_type: string
+          buffer_after_minutes: number
+          buffer_before_minutes: number
+          candidate_instructions: string | null
+          created_at: string
+          duration_minutes: number
+          id: string
+          interviewer_instructions: string | null
+          is_active: boolean
+          job_posting_id: string | null
+          location_id: string | null
+          max_advance_days: number
+          meeting_location: string | null
+          meeting_type: string
+          min_notice_minutes: number
+          name: string
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          assignment_type?: string
+          buffer_after_minutes?: number
+          buffer_before_minutes?: number
+          candidate_instructions?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          interviewer_instructions?: string | null
+          is_active?: boolean
+          job_posting_id?: string | null
+          location_id?: string | null
+          max_advance_days?: number
+          meeting_location?: string | null
+          meeting_type?: string
+          min_notice_minutes?: number
+          name: string
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          assignment_type?: string
+          buffer_after_minutes?: number
+          buffer_before_minutes?: number
+          candidate_instructions?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          interviewer_instructions?: string | null
+          is_active?: boolean
+          job_posting_id?: string | null
+          location_id?: string | null
+          max_advance_days?: number
+          meeting_location?: string | null
+          meeting_type?: string
+          min_notice_minutes?: number
+          name?: string
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_templates_job_posting_id_fkey"
+            columns: ["job_posting_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_templates_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_templates_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       item_bank_items: {
         Row: {
           category_academic: string
@@ -560,19 +951,25 @@ export type Database = {
       org_members: {
         Row: {
           created_at: string
+          notify_prefs: Json
           org_id: string
+          phone: string | null
           role: Database["public"]["Enums"]["org_role"]
           user_id: string
         }
         Insert: {
           created_at?: string
+          notify_prefs?: Json
           org_id: string
+          phone?: string | null
           role?: Database["public"]["Enums"]["org_role"]
           user_id: string
         }
         Update: {
           created_at?: string
+          notify_prefs?: Json
           org_id?: string
+          phone?: string | null
           role?: Database["public"]["Enums"]["org_role"]
           user_id?: string
         }
@@ -633,6 +1030,137 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      scheduling_invitations: {
+        Row: {
+          application_id: string
+          assigned_interviewer_id: string | null
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          job_posting_id: string | null
+          max_bookings: number
+          org_id: string
+          revoked_at: string | null
+          status: string
+          template_id: string
+          token_hash: string
+        }
+        Insert: {
+          application_id: string
+          assigned_interviewer_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at: string
+          id?: string
+          job_posting_id?: string | null
+          max_bookings?: number
+          org_id: string
+          revoked_at?: string | null
+          status?: string
+          template_id: string
+          token_hash: string
+        }
+        Update: {
+          application_id?: string
+          assigned_interviewer_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          job_posting_id?: string | null
+          max_bookings?: number
+          org_id?: string
+          revoked_at?: string | null
+          status?: string
+          template_id?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduling_invitations_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduling_invitations_job_posting_id_fkey"
+            columns: ["job_posting_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduling_invitations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduling_invitations_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "interview_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduling_jobs: {
+        Row: {
+          attempts: number
+          booking_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          last_error: string | null
+          org_id: string
+          payload: Json
+          run_after: string
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          last_error?: string | null
+          org_id: string
+          payload?: Json
+          run_after?: string
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          last_error?: string | null
+          org_id?: string
+          payload?: Json
+          run_after?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduling_jobs_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "interview_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduling_jobs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scoring_config: {
         Row: {
