@@ -8,6 +8,10 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
 
+  // Drain the interview-scheduling outbox (calendar events, confirmation +
+  // reminder emails). scheduled() calls /api/cron/scheduling every 2 minutes.
+  "triggers": { "crons": ["*/2 * * * *"] },
+
   // The container: Cloudflare builds this Dockerfile, pushes it to its registry,
   // and routes the Worker's requests to running instances.
   "containers": [
