@@ -1,11 +1,9 @@
 import { notFound } from "next/navigation";
 import { currentOrg } from "@/lib/tenancy";
 import { getOrgLocations } from "@/lib/locations";
-import { orgRolesDetailed } from "@/lib/roles";
 import { applicationConfig } from "@/lib/application-config";
 import LocationForm from "@/components/admin/LocationForm";
 import DeleteLocationButton from "@/components/admin/DeleteLocationButton";
-import RolesEditor from "@/components/admin/RolesEditor";
 import AssessmentModeToggle from "@/components/admin/AssessmentModeToggle";
 import ApplicationFormSettings from "@/components/admin/ApplicationFormSettings";
 import CustomQuestionsEditor from "@/components/admin/CustomQuestionsEditor";
@@ -50,7 +48,6 @@ export default async function LocationsPage() {
         </details>
       </div>
 
-      <RolesEditor initial={orgRolesDetailed(org.branding)} />
       <ApplicationFormSettings config={applicationConfig(org.branding)} />
       <CustomQuestionsEditor
         initial={applicationConfig(org.branding).custom_questions}
