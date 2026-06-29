@@ -122,14 +122,14 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
         </div>
         <div className="mt-2 rounded-xl border-2 border-[color:var(--brand-pink)] bg-[color:var(--brand-pink-50)] p-3">
           <div className="font-bold">
-            Solo — {cycle === "annual" ? "$590/yr" : "$59/mo"} per location
+            Solo — {cycle === "annual" ? "$590/yr" : "$59/mo"}
           </div>
           <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
             Unlimited assessments · 2 users
           </div>
         </div>
         <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
-          Per location. Card captured now, first charge after your 30-day trial.
+          Card captured now, first charge after your 30-day trial.
           Add a 2nd location later and you move to{" "}
           <span className="font-semibold">Operator</span> pricing automatically.
           Big group or brand?{" "}

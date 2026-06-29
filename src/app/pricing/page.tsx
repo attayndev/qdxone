@@ -27,7 +27,7 @@ export default function PricingPage() {
             <PlanCard
               name="Solo"
               priceLine="$59"
-              priceSub="/mo per location"
+              priceSub="/mo"
               annualNote="or $590/yr (2 months free)"
               meta="1 location · 2 users"
               tagline="Everything you need to hire for one store."
