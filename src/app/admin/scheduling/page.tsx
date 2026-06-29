@@ -4,9 +4,11 @@ import { googleOAuthConfigured } from "@/lib/calendar-providers/config";
 import { listConnectionStatuses } from "@/lib/scheduling/connections";
 import { getWeeklySchedule } from "@/lib/scheduling/availability-rules";
 import { listInterviewTypes } from "@/lib/scheduling/templates";
+import { listUpcomingBookings } from "@/lib/scheduling/bookings";
 import { getPrimaryLocation } from "@/lib/locations";
 import AvailabilityEditor from "@/components/admin/scheduling/AvailabilityEditor";
 import InterviewTypes from "@/components/admin/scheduling/InterviewTypes";
+import UpcomingInterviews from "@/components/admin/scheduling/UpcomingInterviews";
 import { disconnectCalendar } from "./actions";
 
 interface PageProps {
@@ -34,10 +36,11 @@ export default async function SchedulingPage({ searchParams }: PageProps) {
   const google = connections.find((c) => c.provider === "google" && c.status !== "revoked");
   const isConnected = !!google;
 
-  const [schedule, interviewTypes, primaryLocation] = await Promise.all([
+  const [schedule, interviewTypes, primaryLocation, upcoming] = await Promise.all([
     getWeeklySchedule(org.id, m.user_id),
     listInterviewTypes(org.id),
     getPrimaryLocation(org.id),
+    listUpcomingBookings(org.id),
   ]);
   // Seed the timezone from the store when no schedule exists yet.
   if (schedule.windows.length === 0 && primaryLocation?.timezone) {
@@ -64,6 +67,12 @@ export default async function SchedulingPage({ searchParams }: PageProps) {
         </div>
       )}
 
+      <section className="mb-10">
+        <h2 className="text-xl font-bold tracking-tight mb-3">Upcoming interviews</h2>
+        <UpcomingInterviews bookings={upcoming} />
+      </section>
+
+      <h2 className="text-xl font-bold tracking-tight mb-3">Connection &amp; setup</h2>
       <div className="rounded-xl border border-black/10 bg-white p-5 max-w-xl">
         <div className="flex items-center justify-between gap-4">
           <div>

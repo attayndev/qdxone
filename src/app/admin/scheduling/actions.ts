@@ -5,6 +5,7 @@ import { z } from "zod";
 import { currentOrgOrThrow, requireMembership, orgUrl } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
 import { createInvitation } from "@/lib/scheduling/invitations";
+import { cancelBooking } from "@/lib/scheduling/bookings";
 import { disconnect } from "@/lib/scheduling/connections";
 import { listInterviewTypes } from "@/lib/scheduling/templates";
 import { sendBookingInvite, orgReplyTo } from "@/lib/email";
@@ -27,6 +28,14 @@ export async function disconnectCalendar(provider: CalendarProviderId): Promise<
   const org = await currentOrgOrThrow();
   const m = await requireMembership(org.id);
   await disconnect(org.id, m.user_id, provider);
+  revalidatePath("/admin/scheduling");
+}
+
+/** Cancel an upcoming interview (frees the slot, deletes the event, notifies). */
+export async function cancelInterview(bookingId: string): Promise<void> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  await cancelBooking(org.id, bookingId);
   revalidatePath("/admin/scheduling");
 }
 
