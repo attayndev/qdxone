@@ -192,6 +192,34 @@ export async function sendBookingInvite(args: {
 }
 
 /**
+ * Tell a candidate their interview was cancelled (owner-initiated), as the store.
+ */
+export async function sendBookingCancellation(args: {
+  to: string;
+  firstName: string;
+  orgName: string;
+  replyTo?: string;
+  interviewName: string;
+  whenLabel: string;
+}) {
+  if (!process.env.RESEND_API_KEY) return;
+  await client().emails.send({
+    from: orgFrom(args.orgName),
+    replyTo: args.replyTo,
+    to: args.to,
+    subject: `Your interview with ${args.orgName} has been cancelled`,
+    html: `
+      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#1a1530">
+        <p style="font-size:18px">Hi ${escape(args.firstName)},</p>
+        <p>We're sorry — your ${escape(args.interviewName)} with <strong>${escape(args.orgName)}</strong> on ${escape(args.whenLabel)} has been cancelled.</p>
+        <p>If you'd still like to interview, just reply to this email and we'll find a new time.</p>
+      </div>
+    `,
+    text: `Hi ${args.firstName},\n\nWe're sorry — your ${args.interviewName} with ${args.orgName} on ${args.whenLabel} has been cancelled.\n\nIf you'd still like to interview, just reply to this email and we'll find a new time.`,
+  });
+}
+
+/**
  * Interview booking confirmation / reminder, sent to the candidate AS the store
  * (orgFrom + the owner's reply-to). Includes the when, the where (location or
  * the Meet link), and any candidate instructions.
