@@ -35,6 +35,13 @@ export default async function PostingsPage() {
   const postings: PostingView[] = await Promise.all(
     ((rows as PostingRow[] | null) ?? []).map(async (p) => {
       const url = orgUrl(org.slug, `/j/${p.public_token}`);
+      // pay_* / tips added in 0015 — not in the generated row type yet.
+      const pay = p as typeof p & {
+        pay_min: number | null;
+        pay_max: number | null;
+        pay_period: "hour" | "year" | null;
+        tips: boolean | null;
+      };
       return {
         id: p.id,
         title: p.title,
@@ -45,6 +52,10 @@ export default async function PostingsPage() {
         location: multiLocation
           ? (p.location_id ? locName.get(p.location_id) ?? null : null)
           : null,
+        payMin: pay.pay_min,
+        payMax: pay.pay_max,
+        payPeriod: pay.pay_period ?? "hour",
+        tips: pay.tips ?? false,
       };
     })
   );

@@ -7,6 +7,65 @@ import {
   updatePosting,
   deletePosting,
 } from "@/app/admin/postings/actions";
+import { formatPay } from "@/lib/pay";
+
+/** Pay-range + tips inputs, shared by the create and edit forms. */
+function PayFields({
+  min,
+  max,
+  period,
+  tips,
+}: {
+  min?: number | null;
+  max?: number | null;
+  period?: "hour" | "year";
+  tips?: boolean;
+}) {
+  return (
+    <div>
+      <label className="label">Pay range</label>
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          name="pay_min"
+          type="number"
+          step="0.01"
+          min="0"
+          className="input w-24"
+          placeholder="Min"
+          defaultValue={min ?? ""}
+          required
+        />
+        <span className="text-[color:var(--brand-ink-muted)]">to</span>
+        <input
+          name="pay_max"
+          type="number"
+          step="0.01"
+          min="0"
+          className="input w-24"
+          placeholder="Max"
+          defaultValue={max ?? ""}
+          required
+        />
+        <select name="pay_period" className="input w-auto" defaultValue={period ?? "hour"}>
+          <option value="hour">/ hour</option>
+          <option value="year">/ year</option>
+        </select>
+      </div>
+      <label className="flex items-center gap-2 text-sm mt-2">
+        <input
+          type="checkbox"
+          name="tips"
+          defaultChecked={tips ?? false}
+          className="h-4 w-4 accent-[color:var(--brand-pink)]"
+        />
+        This role earns tips (shows &ldquo;+ tips&rdquo;)
+      </label>
+      <p className="mt-1 text-xs text-[color:var(--brand-ink-muted)]">
+        Required: NY and several states require a good-faith pay range on every job ad.
+      </p>
+    </div>
+  );
+}
 
 export type PostingView = {
   id: string;
@@ -16,6 +75,10 @@ export type PostingView = {
   qrSvg: string;
   locationId?: string | null;
   location?: string | null;
+  payMin?: number | null;
+  payMax?: number | null;
+  payPeriod?: "hour" | "year";
+  tips?: boolean;
 };
 
 const slug = (s: string) =>
@@ -197,6 +260,7 @@ function CreateForm({
             </select>
           </div>
         )}
+        <PayFields />
         <button
           type="submit"
           disabled={pending || !hasLocation}
@@ -226,10 +290,8 @@ function PostingItem({
 
   function saveEdit(formData: FormData) {
     setError(null);
-    const title = (formData.get("title") ?? "").toString();
-    const locationId = (formData.get("location_id") ?? "").toString();
     startTransition(async () => {
-      const res = await updatePosting(posting.id, title, locationId);
+      const res = await updatePosting(posting.id, formData);
       if (res.ok) setEditing(false);
       else setError(res.error);
     });
@@ -283,6 +345,12 @@ function PostingItem({
               </select>
             </div>
           )}
+          <PayFields
+            min={posting.payMin}
+            max={posting.payMax}
+            period={posting.payPeriod}
+            tips={posting.tips}
+          />
           {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex gap-3">
             <button type="submit" disabled={pending} className="btn-primary">
@@ -317,10 +385,20 @@ function PostingItem({
               </span>
             )}
           </div>
-          <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
+          <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5 flex items-center gap-2 flex-wrap">
             <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)]">
               {posting.status}
             </span>
+            {formatPay({
+              min: posting.payMin,
+              max: posting.payMax,
+              period: posting.payPeriod ?? "hour",
+              tips: posting.tips ?? false,
+            }) ? (
+              <span>{formatPay({ min: posting.payMin, max: posting.payMax, period: posting.payPeriod ?? "hour", tips: posting.tips ?? false })}</span>
+            ) : (
+              <span className="text-amber-700">⚠ No pay range — edit to comply</span>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-3">
