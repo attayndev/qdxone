@@ -24,3 +24,4 @@ docs
 # The deploy files themselves
 Dockerfile
 .dockerignore
+mobile
