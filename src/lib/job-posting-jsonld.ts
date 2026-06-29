@@ -26,11 +26,59 @@ export interface JobPostingJsonLdInput {
   } | null;
 }
 
+/**
+ * Minimal, dependency-free Markdown → HTML for the description. Role descriptions
+ * are AI-drafted Markdown; Google for Jobs renders the description as HTML, so
+ * raw `#`/`**`/`-` would show literally. Emits only the safe subset Google
+ * supports (<p>, <strong>, <em>, <ul>, <li>), HTML-escaping text content.
+ */
+export function markdownToJobHtml(md: string): string {
+  const inline = (s: string) =>
+    s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "<em>$1</em>");
+  const out: string[] = [];
+  let inList = false;
+  const closeList = () => {
+    if (inList) {
+      out.push("</ul>");
+      inList = false;
+    }
+  };
+  for (const raw of md.replace(/\r\n/g, "\n").split("\n")) {
+    const line = raw.trim();
+    if (!line) {
+      closeList();
+      continue;
+    }
+    const heading = line.match(/^#{1,6}\s+(.*)$/);
+    const bullet = line.match(/^[-*]\s+(.*)$/);
+    if (heading) {
+      closeList();
+      out.push(`<p><strong>${inline(heading[1])}</strong></p>`);
+    } else if (bullet) {
+      if (!inList) {
+        out.push("<ul>");
+        inList = true;
+      }
+      out.push(`<li>${inline(bullet[1])}</li>`);
+    } else {
+      closeList();
+      out.push(`<p>${inline(line)}</p>`);
+    }
+  }
+  closeList();
+  return out.join("");
+}
+
 export function jobPostingJsonLd(i: JobPostingJsonLdInput): Record<string, unknown> {
   const description =
     i.description && i.description.trim().length > 0
-      ? i.description.trim()
-      : `${i.jobTitle} position at ${i.orgName}. Apply now — a short application and a quick assessment.`;
+      ? markdownToJobHtml(i.description.trim())
+      : `<p>${i.jobTitle} position at ${i.orgName}. Apply now — a short application and a quick assessment.</p>`;
 
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org/",
