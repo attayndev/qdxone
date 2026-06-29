@@ -22,8 +22,10 @@ export default function SignupPage() {
           </div>
 
           <p className="mt-4 text-xs text-[color:var(--brand-ink-muted)] text-center">
-            By signing up you agree to the standard terms. You can change
-            your plan or cancel any time.
+            By signing up you agree to our{" "}
+            <a href="/terms" className="underline">Terms of Service</a> and{" "}
+            <a href="/privacy" className="underline">Privacy Policy</a>. You can
+            change your plan or cancel any time.
           </p>
         </div>
       </main>
