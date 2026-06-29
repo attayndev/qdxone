@@ -48,19 +48,27 @@ Developers → Webhooks → **Add endpoint**.
   `customer.subscription.deleted`, `invoice.payment_failed`
 - Copy the **Signing secret** (`whsec_...`) → `STRIPE_WEBHOOK_SECRET`.
 
-## 3. Env vars
+## 3. Env vars (Cloudflare)
+
+The app runs on Cloudflare (Worker + Container), so these are **Wrangler
+secrets**, not Vercel env vars. All six are already in the `CONTAINER_SECRETS`
+allowlist in `worker/index.ts`, so they forward into the container automatically
+— you only need to set them and redeploy.
 
 ```
-STRIPE_SECRET_KEY=sk_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_PRICE_SOLO_MONTHLY=price_...
-STRIPE_PRICE_SOLO_ANNUAL=price_...
-STRIPE_PRICE_OPERATOR_MONTHLY=price_...
-STRIPE_PRICE_OPERATOR_ANNUAL=price_...
+npx wrangler secret put STRIPE_SECRET_KEY            # sk_test_... (then sk_live_... for Live)
+npx wrangler secret put STRIPE_WEBHOOK_SECRET        # whsec_... (the endpoint's signing secret)
+npx wrangler secret put STRIPE_PRICE_SOLO_MONTHLY    # price_...
+npx wrangler secret put STRIPE_PRICE_SOLO_ANNUAL     # price_...
+npx wrangler secret put STRIPE_PRICE_OPERATOR_MONTHLY # price_...
+npx wrangler secret put STRIPE_PRICE_OPERATOR_ANNUAL  # price_...
+npx wrangler deploy                                   # rebuilds the image; new container rolls in ~1-2 min
 ```
 
-Set these in the Vercel project (Production + Preview). After changing env vars,
-redeploy.
+Confirm with `npx wrangler secret list`. Do this once with **Test-mode** values
+(verify), then re-run `wrangler secret put` with the **Live-mode** key + price IDs
++ Live webhook secret and redeploy. Reminder: a NEW secret name (not in this list)
+also needs a line added to `CONTAINER_SECRETS` — these six are already there.
 
 ## 4. Local testing
 
