@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
+import { CommercialVideo } from "@/components/CommercialVideo";
 
 /**
  * Apex marketing site — qdx.one
@@ -11,6 +12,10 @@ export default function ApexLanding() {
       <ApexHeader active="/" />
       <main className="flex-1">
         <Hero />
+        <CommercialVideo
+          heading="See QDX in 60 seconds"
+          sub="The hiring page, the application, and the assessment — all on the candidate's phone."
+        />
         <PainStrip />
         <HowItWorks />
         <WhatWeMeasure />
