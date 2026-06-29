@@ -1,11 +1,14 @@
+"use client";
+
 /**
- * The QDXone commercial. Hosted in Supabase Storage (public `marketing` bucket),
- * not bundled in the app. Click-to-play with controls — no autoplay, so it never
- * competes with the hero CTA or hurts load time (preload=metadata only).
+ * The QDXone commercial (hosted on YouTube). A click-to-play facade: only the
+ * thumbnail loads on page view; YouTube's player iframe loads on click. Keeps the
+ * homepage fast and avoids autoplay competing with the hero CTA.
  */
 
-const VIDEO_URL =
-  "https://tctukuzzjxihmqqeoifz.supabase.co/storage/v1/object/public/marketing/qdxone-commercial.mp4";
+import { useState } from "react";
+
+const VIDEO_ID = "XPEMA4BkPRA";
 
 export function CommercialVideo({
   heading,
@@ -16,6 +19,8 @@ export function CommercialVideo({
   sub?: string;
   className?: string;
 }) {
+  const [playing, setPlaying] = useState(false);
+
   return (
     <section className={`px-4 sm:px-6 py-10 sm:py-14 ${className}`}>
       <div className="max-w-3xl mx-auto text-center">
@@ -25,11 +30,38 @@ export function CommercialVideo({
         {sub && (
           <p className="mt-2 text-[color:var(--brand-ink-muted)] max-w-xl mx-auto">{sub}</p>
         )}
-        <div className="mt-6 rounded-2xl overflow-hidden border border-[color:var(--brand-line)] shadow-xl bg-black">
-          <video controls preload="metadata" playsInline className="w-full h-auto block">
-            <source src={VIDEO_URL} type="video/mp4" />
-            Your browser doesn&apos;t support embedded video.
-          </video>
+        <div className="mt-6 relative rounded-2xl overflow-hidden border border-[color:var(--brand-line)] shadow-xl bg-black aspect-video">
+          {playing ? (
+            <iframe
+              className="absolute inset-0 h-full w-full"
+              src={`https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&rel=0&modestbranding=1`}
+              title="QDX One"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setPlaying(true)}
+              aria-label="Play the QDX One video"
+              className="group absolute inset-0 h-full w-full"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`https://i.ytimg.com/vi/${VIDEO_ID}/maxresdefault.jpg`}
+                onError={(e) => {
+                  e.currentTarget.src = `https://i.ytimg.com/vi/${VIDEO_ID}/hqdefault.jpg`;
+                }}
+                alt="Watch the QDX One video"
+                className="h-full w-full object-cover transition group-hover:opacity-90"
+              />
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--brand-pink)] shadow-lg transition group-hover:scale-105">
+                  <span className="ml-1 block border-y-[10px] border-l-[16px] border-y-transparent border-l-white" />
+                </span>
+              </span>
+            </button>
+          )}
         </div>
       </div>
     </section>
