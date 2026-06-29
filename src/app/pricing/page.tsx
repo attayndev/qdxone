@@ -41,6 +41,7 @@ export default function PricingPage() {
               meta="2+ locations · 2 + 1/location users"
               tagline="Everything in Solo, plus:"
               features={OPERATOR_FEATURES}
+              note="No separate signup — start free, add your locations, and you move to Operator automatically (billed $79 per location)."
               highlight
             />
             <EnterpriseCard />
@@ -103,6 +104,7 @@ function PlanCard({
   meta,
   tagline,
   features,
+  note,
   highlight,
 }: {
   name: string;
@@ -112,6 +114,7 @@ function PlanCard({
   meta: string;
   tagline: string;
   features: string[];
+  note?: string;
   highlight?: boolean;
 }) {
   return (
@@ -145,6 +148,11 @@ function PlanCard({
           <li key={f}>✓ {f}</li>
         ))}
       </ul>
+      {note && (
+        <p className="mt-4 text-xs text-[color:var(--brand-ink-muted)] border-t border-[color:var(--brand-line)] pt-3">
+          {note}
+        </p>
+      )}
     </div>
   );
 }

@@ -129,9 +129,11 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
           </div>
         </div>
         <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
-          Card captured now, first charge after your 30-day trial.
-          Add a 2nd location later and you move to{" "}
-          <span className="font-semibold">Operator</span> pricing automatically.
+          Card captured now, first charge after your 30-day trial.{" "}
+          <span className="font-semibold">Run more than one store?</span> Start
+          here — add your locations and you move to{" "}
+          <span className="font-semibold">Operator</span> ($79/location)
+          automatically.
           Big group or brand?{" "}
           <a href="/demo" className="font-semibold underline">
             Enterprise
