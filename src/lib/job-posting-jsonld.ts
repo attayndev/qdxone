@@ -24,6 +24,8 @@ export interface JobPostingJsonLdInput {
     addressRegion?: string | null; // state/region
     postalCode?: string | null;
   } | null;
+  /** schema.org MonetaryAmount (see lib/pay.ts payBaseSalary). */
+  baseSalary?: Record<string, unknown> | null;
 }
 
 /**
@@ -95,6 +97,7 @@ export function jobPostingJsonLd(i: JobPostingJsonLdInput): Record<string, unkno
     },
     directApply: true,
     identifier: { "@type": "PropertyValue", name: i.orgName, value: i.jobUrl },
+    ...(i.baseSalary ? { baseSalary: i.baseSalary } : {}),
   };
 
   const loc = i.location;
