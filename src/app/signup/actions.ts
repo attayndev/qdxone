@@ -6,6 +6,7 @@ import { otpClient } from "@/lib/supabase/otp";
 import { ROOT_DOMAIN, isReservedSubdomain, orgUrl } from "@/lib/tenancy";
 import { apexUrl } from "@/lib/host";
 import { TRIAL_DAYS } from "@/lib/plan";
+import { TERMS_VERSION } from "@/lib/legal";
 import type { BillingCycle } from "@/lib/supabase/types";
 
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$/;
@@ -105,6 +106,17 @@ export async function signup(
     meta: {
       plan: "solo",
       requested_by: v.email,
+    },
+  });
+
+  // Record clickwrap acceptance of the Terms + Privacy Policy — immutable proof
+  // of which version was agreed to, and when.
+  await supa.from("audit_events").insert({
+    org_id: org.id,
+    kind: "terms.accepted",
+    meta: {
+      terms_version: TERMS_VERSION,
+      accepted_by: v.email,
     },
   });
 
