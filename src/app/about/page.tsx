@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
+import { CommercialVideo } from "@/components/CommercialVideo";
 
 export const metadata = {
   title: "About QDX — built by an operator, for operators",
@@ -26,6 +27,8 @@ export default function AboutPage() {
             </p>
           </div>
         </section>
+
+        <CommercialVideo />
 
         <section className="px-4 sm:px-6 py-8">
           <div className="max-w-3xl mx-auto space-y-5 text-[17px] leading-relaxed">
