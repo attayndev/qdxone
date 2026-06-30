@@ -15,6 +15,9 @@ import { Container, getContainer } from "@cloudflare/containers";
 export interface Env {
   NEXT_CONTAINER: DurableObjectNamespace<NextContainer>;
 
+  // Static media bucket (the commercial, etc.), served at /media/* — see fetch().
+  MEDIA: R2Bucket;
+
   // Server-only secrets — set with `wrangler secret put <NAME>` (or in the
   // Cloudflare dashboard). NEXT_PUBLIC_* are NOT here; they're baked into the
   // image at build time (public values — see Dockerfile).
@@ -83,10 +86,54 @@ export class NextContainer extends Container<Env> {
   }
 }
 
+/**
+ * Serve a static file from the MEDIA R2 bucket, with HTTP Range support so
+ * browsers can seek/stream video. Strong, immutable caching lets Cloudflare's
+ * edge cache it after the first hit. GET/HEAD only.
+ */
+async function serveMedia(request: Request, env: Env, url: URL): Promise<Response> {
+  const key = decodeURIComponent(url.pathname.slice("/media/".length));
+  if (!key) return new Response("Not found", { status: 404 });
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return new Response("Method not allowed", { status: 405, headers: { Allow: "GET, HEAD" } });
+  }
+
+  const ranged = request.headers.has("range");
+  const object = await env.MEDIA.get(key, ranged ? { range: request.headers } : undefined);
+  if (!object) return new Response("Not found", { status: 404 });
+
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set("etag", object.httpEtag);
+  headers.set("Accept-Ranges", "bytes");
+  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+
+  if (request.method === "HEAD") {
+    headers.set("Content-Length", String(object.size));
+    return new Response(null, { status: 200, headers });
+  }
+
+  // `body` is present on an R2ObjectBody (a GET hit); a plain R2Object has none.
+  const body = (object as R2ObjectBody).body ?? null;
+  if (object.range && "offset" in object.range) {
+    const offset = object.range.offset ?? 0;
+    const length = object.range.length ?? object.size - offset;
+    headers.set("Content-Range", `bytes ${offset}-${offset + length - 1}/${object.size}`);
+    headers.set("Content-Length", String(length));
+    return new Response(body, { status: 206, headers });
+  }
+
+  headers.set("Content-Length", String(object.size));
+  return new Response(body, { status: 200, headers });
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    // One shared container serves every tenant (all state lives in Supabase).
-    // To scale horizontally later: `getRandom(env.NEXT_CONTAINER, N)`.
+    const url = new URL(request.url);
+    // Static media is served from R2 by the Worker; everything else proxies to
+    // the Next container (one shared instance serves every tenant — all state
+    // lives in Supabase). To scale out later: `getRandom(env.NEXT_CONTAINER, N)`.
+    if (url.pathname.startsWith("/media/")) return serveMedia(request, env, url);
     return getContainer(env.NEXT_CONTAINER, "main").fetch(request);
   },
 

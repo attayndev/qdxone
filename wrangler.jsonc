@@ -29,6 +29,10 @@
   "durable_objects": {
     "bindings": [{ "name": "NEXT_CONTAINER", "class_name": "NextContainer" }]
   },
+
+  // Static media (the commercial, etc.) served straight from R2 by the Worker
+  // at /media/* — keeps large files off the container and on the qdx.one origin.
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "qdxone-media" }],
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["NextContainer"] }],
 
   // Domain routing. The apex is a Custom Domain (wrangler creates the proxied
