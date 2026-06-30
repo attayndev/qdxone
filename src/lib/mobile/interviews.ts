@@ -1,13 +1,40 @@
 /**
- * Interview invites for the mobile app. Reuses the shared mintInterviewInvite
- * (same link the web mints) and the same email path, so the booking flow is
- * identical across surfaces. Service-role, scoped to the org from the JWT.
+ * Interview invites + the upcoming-interviews list for the mobile app. Reuses
+ * the shared mintInterviewInvite (same link the web mints), the same email
+ * path, and the web's listUpcomingBookings / cancelBooking — so the booking
+ * flow is identical across surfaces. Service-role, scoped to the org from JWT.
  */
 
 import "server-only";
 import { adminClient } from "@/lib/supabase/admin";
 import { mintInterviewInvite } from "@/lib/scheduling/invitations";
+import {
+  listUpcomingBookings,
+  cancelBooking,
+  type UpcomingBooking,
+} from "@/lib/scheduling/bookings";
 import { sendBookingInvite, orgReplyTo } from "@/lib/email";
+
+export type { UpcomingBooking };
+
+/** Upcoming interviews for the org, soonest first (web's list, reused). */
+export function listMobileInterviews(orgId: string): Promise<UpcomingBooking[]> {
+  return listUpcomingBookings(orgId);
+}
+
+/** Cancel a booking from the app — frees the slot, deletes the event, notifies. */
+export async function cancelMobileInterview(
+  orgId: string,
+  bookingId: string,
+  reason?: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    await cancelBooking(orgId, bookingId, reason);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Could not cancel." };
+  }
+}
 
 export type MobileInviteResult =
   | { ok: true; url: string; sentTo: string | null }
