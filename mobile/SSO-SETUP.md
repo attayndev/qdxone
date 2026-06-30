@@ -20,30 +20,29 @@ values from the first two.
 
 ## STEP 1 — Google Cloud Console  (→ Client ID + Secret)
 
-Go to **https://console.cloud.google.com** and sign in.
+**Reuse the existing Calendar OAuth client** — no need to create a new one. It's a
+Web client already in this Google project:
 
-1. **Pick/create a project.** Top-left project dropdown → *New Project* → name it
-   `QDX` → *Create* → make sure it's selected. (Or reuse an existing one.)
-2. **OAuth consent screen.** Left hamburger menu → *APIs & Services* → *OAuth
-   consent screen*.
-   - User type: **External** → *Create*.
-   - App name: `QDX`. User support email: pick yours. Developer contact email:
-     enter yours. → *Save and Continue*.
-   - *Scopes* screen: don't add any → *Save and Continue*.
-   - *Test users*: either add the operator emails that will sign in, **or** after
-     finishing click *Publish app* → *Confirm* so anyone can. (Email/profile
-     scopes need no Google verification, so publishing is instant.)
-3. **Create the OAuth client.** *APIs & Services* → *Credentials* → *+ Create
-   Credentials* → *OAuth client ID*.
-   - Application type: **Web application**.
-   - Name: `QDX Supabase`.
-   - Under *Authorized redirect URIs* → *+ Add URI* → paste:
-     `https://tctukuzzjxihmqqeoifz.supabase.co/auth/v1/callback`
-   - *Create*. A dialog shows the **Client ID** and **Client secret** —
-     copy both (you'll paste them into Supabase in Step 3).
+- Client ID: `946223476350-anc66odrgp801svgbv9va6i9rl6hnp0t.apps.googleusercontent.com`
+- Secret: already stored as the `GOOGLE_CALENDAR_CLIENT_SECRET` Wrangler secret
+  (and visible in the Google console on the client's page).
+
+Go to **https://console.cloud.google.com** → *APIs & Services* → *Credentials* →
+open that OAuth client (the one ending `…rl6hnp0t`):
+
+1. Under *Authorized redirect URIs* → *+ Add URI* → paste:
+   `https://tctukuzzjxihmqqeoifz.supabase.co/auth/v1/callback`
+2. *Save*. (One web client can serve both Calendar and Supabase sign-in.)
+3. Note the **Client ID** (above) and **Client secret** (shown on this page) —
+   you'll paste them into Supabase in Step 3.
 
 You do **not** need iOS/Android OAuth clients or SHA-1 — the app authenticates
-through Supabase's web client.
+through this web client via the browser flow.
+
+> Only if that client is ever unavailable: create a new one via *+ Create
+> Credentials → OAuth client ID → Web application*, add the same redirect URI,
+> and (first time in the project) fill the *OAuth consent screen* — External,
+> app name `QDX`, your support/developer emails, no extra scopes, then *Publish*.
 
 ---
 
