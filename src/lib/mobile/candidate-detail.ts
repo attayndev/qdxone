@@ -19,6 +19,7 @@ import {
   type FlagTone,
 } from "@/lib/assessment/scoring";
 import { isDecision } from "@/lib/candidate-decision";
+import { listInterviewTypes } from "@/lib/scheduling/templates";
 
 export interface MobileCandidateDetail {
   id: string;
@@ -32,6 +33,7 @@ export interface MobileCandidateDetail {
   decision: string | null;
   decisionReason: string | null;
   decisionAt: string | null;
+  interviewTypes: { id: string; name: string; durationMinutes: number }[];
   report: {
     overall: OverallFit;
     stars: number;
@@ -191,6 +193,12 @@ export async function getCandidateDetail(
     }
   }
 
+  const interviewTypes = (await listInterviewTypes(orgId)).map((t) => ({
+    id: t.id,
+    name: t.name,
+    durationMinutes: t.durationMinutes,
+  }));
+
   const availabilityRaw = (a.availability ?? {}) as Record<string, string[]>;
   const availability = Object.entries(availabilityRaw)
     .filter(([, v]) => Array.isArray(v) && v.length)
@@ -226,6 +234,7 @@ export async function getCandidateDetail(
     decision: isDecision(a.decision) ? a.decision : null,
     decisionReason: a.decision_reason,
     decisionAt: a.decision_at,
+    interviewTypes,
     report,
     application: {
       eligibleToWork: (a.eligible_to_work as boolean | null) ?? null,

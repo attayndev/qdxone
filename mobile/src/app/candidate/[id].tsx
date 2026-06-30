@@ -4,11 +4,13 @@ import {
   Alert,
   Pressable,
   ScrollView,
+  Share,
   Text,
   TextInput,
   View,
 } from "react-native";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { apiGet, apiSend } from "@/lib/api";
 import { brand } from "@/theme";
 
@@ -26,6 +28,7 @@ interface Detail {
   decision: string | null;
   decisionReason: string | null;
   decisionAt: string | null;
+  interviewTypes: { id: string; name: string; durationMinutes: number }[];
   report: {
     overall: string;
     stars: number;
@@ -237,6 +240,9 @@ export default function CandidateDetail() {
         </Card>
       )}
 
+      {/* Invite to interview */}
+      <InviteSection id={detail.id} types={detail.interviewTypes} hasEmail={!!detail.email} />
+
       {/* Decision */}
       <Card>
         <Text style={{ fontWeight: "800", color: brand.ink, fontSize: 16 }}>Decision</Text>
@@ -361,6 +367,145 @@ export default function CandidateDetail() {
         )}
       </Card>
     </ScrollView>
+  );
+}
+
+function InviteSection({
+  id,
+  types,
+  hasEmail,
+}: {
+  id: string;
+  types: { id: string; name: string; durationMinutes: number }[];
+  hasEmail: boolean;
+}) {
+  const [typeId, setTypeId] = useState(types[0]?.id ?? "");
+  const [url, setUrl] = useState<string | null>(null);
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const invite = useCallback(
+    async (email: boolean) => {
+      setErr(null);
+      setSentTo(null);
+      setBusy(true);
+      try {
+        const res = await apiSend<{ url: string; sentTo: string | null }>(
+          "POST",
+          `/api/mobile/candidates/${id}/invite`,
+          { templateId: typeId, email }
+        );
+        setUrl(res.url);
+        setSentTo(res.sentTo);
+        if (email && res.sentTo) {
+          Alert.alert("Sent", `Invitation emailed to ${res.sentTo}. They can book from the email.`);
+        }
+      } catch (e) {
+        setErr(e instanceof Error ? e.message : "Could not create the invite.");
+      } finally {
+        setBusy(false);
+      }
+    },
+    [id, typeId]
+  );
+
+  if (types.length === 0) {
+    return (
+      <Card>
+        <Text style={{ fontWeight: "800", color: brand.ink, fontSize: 16 }}>Invite to interview</Text>
+        <Text style={{ color: brand.inkMuted, fontSize: 13, marginTop: 6 }}>
+          First, create an interview type on your Calendar page on the web, then come back to invite.
+        </Text>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <Text style={{ fontWeight: "800", color: brand.ink, fontSize: 16 }}>Invite to interview</Text>
+      <Text style={{ color: brand.inkMuted, fontSize: 13, marginTop: 2 }}>
+        Send a link the candidate uses to book a time from your open slots.
+      </Text>
+
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+        {types.map((t) => {
+          const active = t.id === typeId;
+          return (
+            <Pressable
+              key={t.id}
+              onPress={() => setTypeId(t.id)}
+              style={{
+                borderWidth: 1.5,
+                borderColor: active ? brand.pink : brand.line,
+                backgroundColor: active ? brand.pink50 : brand.white,
+                borderRadius: 9999,
+                paddingHorizontal: 14,
+                paddingVertical: 8,
+              }}
+            >
+              <Text style={{ color: active ? brand.pink600 : brand.ink, fontWeight: active ? "700" : "500", fontSize: 13 }}>
+                {t.name} · {t.durationMinutes} min
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <Pressable
+        disabled={busy || !hasEmail}
+        onPress={() => invite(true)}
+        style={{
+          marginTop: 14,
+          backgroundColor: brand.pink,
+          borderRadius: 12,
+          paddingVertical: 13,
+          alignItems: "center",
+          opacity: busy || !hasEmail ? 0.4 : 1,
+        }}
+      >
+        <Text style={{ color: brand.white, fontWeight: "800", fontSize: 15 }}>
+          {busy ? "Working…" : "Email to candidate"}
+        </Text>
+      </Pressable>
+      {!hasEmail && (
+        <Text style={{ color: brand.inkMuted, fontSize: 12, marginTop: 6, textAlign: "center" }}>
+          No email on file — get a link to share by text instead.
+        </Text>
+      )}
+
+      <Pressable disabled={busy} onPress={() => invite(false)} style={{ marginTop: 12, alignItems: "center" }}>
+        <Text style={{ color: brand.pink600, fontWeight: "700", fontSize: 14 }}>
+          {url ? "New link" : "Get a link to share instead"}
+        </Text>
+      </Pressable>
+
+      {err && <Text style={{ color: "#b91c1c", fontSize: 13, marginTop: 10 }}>{err}</Text>}
+      {sentTo && (
+        <Text style={{ color: "#15803d", fontSize: 13, marginTop: 10 }}>
+          ✓ Emailed to {sentTo} (from your store).
+        </Text>
+      )}
+
+      {url && (
+        <View style={{ marginTop: 12, borderTopWidth: 1, borderTopColor: brand.line, paddingTop: 12 }}>
+          <Text style={{ fontFamily: "monospace", fontSize: 12, color: brand.ink }} numberOfLines={1}>
+            {url}
+          </Text>
+          <View style={{ flexDirection: "row", gap: 18, marginTop: 8 }}>
+            <Pressable onPress={() => Share.share({ message: url, url, title: "Interview booking link" })}>
+              <Text style={{ color: brand.pink600, fontWeight: "700", fontSize: 14 }}>Share</Text>
+            </Pressable>
+            <Pressable onPress={() => WebBrowser.openBrowserAsync(url)}>
+              <Text style={{ color: brand.pink600, fontWeight: "700", fontSize: 14 }}>Open</Text>
+            </Pressable>
+          </View>
+          <Text style={{ color: brand.inkMuted, fontSize: 11, marginTop: 6 }}>
+            Expires in 14 days and works once.
+          </Text>
+        </View>
+      )}
+    </Card>
   );
 }
 

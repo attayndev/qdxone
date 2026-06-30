@@ -9,6 +9,8 @@ import "server-only";
 import { createHash } from "node:crypto";
 import { adminClient } from "@/lib/supabase/admin";
 import { generateToken } from "@/lib/tokens";
+import { orgUrl } from "@/lib/tenancy";
+import { listInterviewTypes } from "./templates";
 import type { MeetingType } from "./types";
 
 export function hashToken(token: string): string {
@@ -137,6 +139,67 @@ export async function getInvitationByToken(
       bufferAfterMinutes: t.buffer_after_minutes as number,
       candidateInstructions: (t.candidate_instructions as string | null) ?? null,
     },
+  };
+}
+
+export interface MintedInterviewInvite {
+  url: string;
+  application: { email: string; firstName: string };
+  orgId: string;
+  orgName: string;
+  templateName: string;
+}
+
+/**
+ * Resolve the interviewer (the template's active roster entry, else the
+ * actor), create the booking invitation, and return the shareable URL plus the
+ * candidate + template details a caller needs to email it. Shared by the web
+ * scheduling action and the mobile API so both mint identical invites.
+ */
+export async function mintInterviewInvite(
+  org: { id: string; slug: string; name: string },
+  userId: string,
+  applicationId: string,
+  templateId: string
+): Promise<MintedInterviewInvite> {
+  const supa = adminClient();
+
+  // The interviewer is the template's roster entry (v1: a single one).
+  const { data: roster } = await supa
+    .from("interview_template_interviewers")
+    .select("user_id, is_active")
+    .eq("template_id", templateId)
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+  const interviewerId = (roster as { user_id: string } | null)?.user_id ?? userId;
+
+  const { data: appRow } = await supa
+    .from("applications")
+    .select("job_posting_id, email, first_name")
+    .eq("id", applicationId)
+    .eq("org_id", org.id)
+    .maybeSingle();
+  const app = appRow as { job_posting_id: string | null; email: string; first_name: string } | null;
+  if (!app) throw new Error("Candidate not found.");
+
+  const types = await listInterviewTypes(org.id);
+  const templateName = types.find((t) => t.id === templateId)?.name ?? "interview";
+
+  const token = await createInvitation({
+    orgId: org.id,
+    applicationId,
+    templateId,
+    interviewerId,
+    jobPostingId: app.job_posting_id,
+    createdBy: userId,
+  });
+  return {
+    url: orgUrl(org.slug, `/interview/${token}`),
+    application: { email: app.email, firstName: app.first_name },
+    orgId: org.id,
+    orgName: org.name,
+    templateName,
   };
 }
 

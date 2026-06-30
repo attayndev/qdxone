@@ -2,12 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { currentOrgOrThrow, requireMembership, orgUrl } from "@/lib/tenancy";
-import { adminClient } from "@/lib/supabase/admin";
-import { createInvitation } from "@/lib/scheduling/invitations";
+import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
+import { mintInterviewInvite } from "@/lib/scheduling/invitations";
 import { cancelBooking } from "@/lib/scheduling/bookings";
 import { disconnect } from "@/lib/scheduling/connections";
-import { listInterviewTypes } from "@/lib/scheduling/templates";
 import { sendBookingInvite, orgReplyTo } from "@/lib/email";
 import {
   setWeeklySchedule,
@@ -169,57 +167,16 @@ export type EmailInviteResult =
   | { ok: true; sentTo: string }
   | { ok: false; error: string };
 
-interface MintedInvite {
-  url: string;
-  application: { email: string; first_name: string };
-  orgId: string;
-  orgName: string;
-  templateName: string;
-}
-
-/** Shared: resolve interviewer, create the invitation, return URL + candidate. */
-async function mintInvite(applicationId: string, templateId: string): Promise<MintedInvite> {
+/** Shared: resolve org + actor, then mint via the shared invitation core. */
+async function mintInvite(applicationId: string, templateId: string) {
   const org = await currentOrgOrThrow();
   const m = await requireMembership(org.id);
-  const supa = adminClient();
-
-  // The interviewer is the template's roster entry (v1: a single one).
-  const { data: roster } = await supa
-    .from("interview_template_interviewers")
-    .select("user_id, is_active")
-    .eq("template_id", templateId)
-    .eq("is_active", true)
-    .limit(1)
-    .maybeSingle();
-  const interviewerId = (roster as { user_id: string } | null)?.user_id ?? m.user_id;
-
-  const { data: appRow } = await supa
-    .from("applications")
-    .select("job_posting_id, email, first_name")
-    .eq("id", applicationId)
-    .eq("org_id", org.id)
-    .maybeSingle();
-  const app = appRow as { job_posting_id: string | null; email: string; first_name: string } | null;
-  if (!app) throw new Error("Candidate not found.");
-
-  const types = await listInterviewTypes(org.id);
-  const templateName = types.find((t) => t.id === templateId)?.name ?? "interview";
-
-  const token = await createInvitation({
-    orgId: org.id,
+  return mintInterviewInvite(
+    { id: org.id, slug: org.slug, name: org.name },
+    m.user_id,
     applicationId,
-    templateId,
-    interviewerId,
-    jobPostingId: app.job_posting_id,
-    createdBy: m.user_id,
-  });
-  return {
-    url: orgUrl(org.slug, `/interview/${token}`),
-    application: { email: app.email, first_name: app.first_name },
-    orgId: org.id,
-    orgName: org.name,
-    templateName,
-  };
+    templateId
+  );
 }
 
 /** Mint a candidate booking link (the owner shares it manually). */
@@ -245,7 +202,7 @@ export async function emailInterviewInvite(
     if (!inv.application.email) return { ok: false, error: "This candidate has no email on file." };
     await sendBookingInvite({
       to: inv.application.email,
-      firstName: inv.application.first_name,
+      firstName: inv.application.firstName,
       orgName: inv.orgName,
       replyTo: await orgReplyTo(inv.orgId),
       interviewName: inv.templateName,
