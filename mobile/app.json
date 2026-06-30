@@ -11,7 +11,8 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "one.qdx.operator",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "one.qdx.operator",
@@ -30,6 +31,7 @@
     "plugins": [
       "expo-router",
       "expo-notifications",
+      "expo-apple-authentication",
       [
         "expo-splash-screen",
         {

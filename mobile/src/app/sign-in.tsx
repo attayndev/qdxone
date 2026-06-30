@@ -9,21 +9,40 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { Redirect } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { brand } from "@/theme";
 
 export default function SignIn() {
-  const { session } = useAuth();
+  const { session, appleAvailable, signInWithGoogle, signInWithApple } = useAuth();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [stage, setStage] = useState<"email" | "code">("email");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [ssoBusy, setSsoBusy] = useState<null | "google" | "apple">(null);
 
   // Already signed in → into the app.
   if (session) return <Redirect href="/(tabs)" />;
+
+  async function runSso(which: "google" | "apple") {
+    setError(null);
+    setSsoBusy(which);
+    try {
+      await (which === "google" ? signInWithGoogle() : signInWithApple());
+      // Success flips session → the Redirect above takes over.
+    } catch (e) {
+      // Apple's own cancel throws ERR_REQUEST_CANCELED — treat as a no-op.
+      const code = (e as { code?: string })?.code;
+      if (code !== "ERR_REQUEST_CANCELED") {
+        setError(e instanceof Error ? e.message : "Sign-in failed.");
+      }
+    } finally {
+      setSsoBusy(null);
+    }
+  }
 
   async function sendCode() {
     setError(null);
@@ -118,6 +137,57 @@ export default function SignIn() {
           <Pressable onPress={() => setStage("email")} style={{ marginTop: 16, alignItems: "center" }}>
             <Text style={{ color: brand.inkMuted }}>Use a different email</Text>
           </Pressable>
+        )}
+
+        {stage === "email" && (
+          <View style={{ marginTop: 28 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 18 }}>
+              <View style={{ flex: 1, height: 1, backgroundColor: brand.line }} />
+              <Text style={{ color: brand.inkMuted, fontSize: 13 }}>or</Text>
+              <View style={{ flex: 1, height: 1, backgroundColor: brand.line }} />
+            </View>
+
+            <Pressable
+              onPress={() => runSso("google")}
+              disabled={ssoBusy !== null || busy}
+              style={({ pressed }) => [
+                {
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 10,
+                  backgroundColor: brand.white,
+                  borderColor: brand.line,
+                  borderWidth: 1,
+                  borderRadius: 9999,
+                  paddingVertical: 14,
+                  opacity: pressed ? 0.85 : 1,
+                },
+                (ssoBusy !== null || busy) && { opacity: 0.5 },
+              ]}
+            >
+              {ssoBusy === "google" ? (
+                <ActivityIndicator color={brand.ink} />
+              ) : (
+                <>
+                  <Text style={{ fontSize: 16, fontWeight: "700" }}>G</Text>
+                  <Text style={{ color: brand.ink, fontWeight: "700", fontSize: 16 }}>
+                    Continue with Google
+                  </Text>
+                </>
+              )}
+            </Pressable>
+
+            {appleAvailable && (
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                cornerRadius={9999}
+                style={{ height: 50, marginTop: 12 }}
+                onPress={() => runSso("apple")}
+              />
+            )}
+          </View>
         )}
       </KeyboardAvoidingView>
     </SafeAreaView>

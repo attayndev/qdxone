@@ -21,5 +21,6 @@ export const supabase = createClient(url, anonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false, // no URL-based auth on native
+    flowType: "pkce", // Google OAuth opens a browser → we exchange the code
   },
 });
