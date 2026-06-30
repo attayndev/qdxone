@@ -2,6 +2,7 @@ import { adminClient } from "@/lib/supabase/admin";
 import { orgUrl } from "@/lib/tenancy";
 import { sendOperatorEmail, orgFrom } from "@/lib/email";
 import { sendSms } from "@/lib/sms";
+import { sendOrgPush } from "@/lib/mobile/push";
 import { wantsEmail, wantsSms, type NotifyPrefs } from "@/lib/notify-prefs";
 
 /**
@@ -65,12 +66,13 @@ async function dispatch(args: {
   smsMatch: (m: MemberPrefRow) => boolean;
   email: (org: { name: string }, link: string) => { subject: string; html: string; text: string };
   sms: (org: { name: string }, link: string) => string;
+  /** Push title/body for the operator app — sent to every registered device. */
+  push: (org: { name: string }) => { title: string; body: string };
   applicationId: string;
 }) {
   const all = await members(args.orgId);
   const emailMembers = all.filter(args.emailMatch);
   const smsMembers = all.filter((m) => !!m.phone && args.smsMatch(m));
-  if (emailMembers.length === 0 && smsMembers.length === 0) return;
 
   const org = await orgInfo(args.orgId);
   if (!org) return;
@@ -88,6 +90,17 @@ async function dispatch(args: {
   for (const m of smsMembers) {
     await sendSms(m.phone, body); // best-effort; no-ops if Telnyx unset
   }
+
+  // Push to the operator app — its own channel; installing + granting is the
+  // opt-in, so it reaches every registered device (no-ops if there are none).
+  // Tapping deep-links to the candidate via `applicationId` in the payload.
+  const p = args.push(org);
+  await sendOrgPush({
+    orgId: args.orgId,
+    title: p.title,
+    body: p.body,
+    data: { applicationId: args.applicationId, url: link },
+  });
 }
 
 /** A new application landed (pre-assessment). Quiet by default. */
@@ -108,6 +121,10 @@ export async function notifyApplicationReceived(args: {
       text: `${args.candidateName} applied for ${args.role} at ${org.name}.\n\nOpen: ${link}`,
     }),
     sms: (org, link) => `${org.name}: ${args.candidateName} applied for ${args.role}. ${link}`,
+    push: () => ({
+      title: "New applicant",
+      body: `${args.candidateName} applied for ${args.role}.`,
+    }),
   });
 }
 
@@ -139,5 +156,9 @@ export async function notifyAssessmentComplete(args: {
       text: `${args.candidateName} finished the assessment at ${org.name} and scored ${args.fit}.\n\nOpen their report: ${link}`,
     }),
     sms: (org, link) => `${star}${org.name}: ${args.candidateName} finished the assessment — ${args.fit}. ${link}`,
+    push: () => ({
+      title: `${star}Assessment complete`,
+      body: `${args.candidateName} finished the assessment — ${args.fit}.`,
+    }),
   });
 }
