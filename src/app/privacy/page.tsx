@@ -105,7 +105,7 @@ export default function PrivacyPage() {
             used to score, rank, or screen any applicant.
           </p>
 
-          <H n={6}>Retention</H>
+          <H n={7}>Retention</H>
           <p>
             We keep personal information for as long as needed to provide the Service
             and for legitimate legal, compliance, and recordkeeping purposes, then
@@ -113,7 +113,7 @@ export default function PrivacyPage() {
             workspace data, subject to legal retention requirements.
           </p>
 
-          <H n={7}>Your choices &amp; rights</H>
+          <H n={8}>Your choices &amp; rights</H>
           <p>
             Depending on your location, you may have rights to access, correct,
             delete, or port your personal information, or to object to certain
@@ -122,7 +122,7 @@ export default function PrivacyPage() {
             support that employer in responding.
           </p>
 
-          <H n={8}>Security</H>
+          <H n={9}>Security</H>
           <p>
             We use administrative, technical, and organizational safeguards —
             including encryption in transit, encryption of sensitive tokens at rest,
@@ -132,19 +132,19 @@ export default function PrivacyPage() {
             occurs.
           </p>
 
-          <H n={9}>Children</H>
+          <H n={10}>Children</H>
           <p>
             The Service is not intended for individuals under 16, and we do not
             knowingly collect their personal information.
           </p>
 
-          <H n={10}>Changes</H>
+          <H n={11}>Changes</H>
           <p>
             We may update this Policy; we will revise the effective date and, for
             material changes, provide notice where appropriate.
           </p>
 
-          <H n={11}>Contact</H>
+          <H n={12}>Contact</H>
           <p>
             Privacy questions or requests?{" "}
             <a href={`mailto:${LEGAL_EMAIL}`} className="underline text-[color:var(--brand-blue-600)]">
