@@ -12,7 +12,10 @@
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "one.qdx.operator",
       "supportsTablet": true,
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "one.qdx.operator",
