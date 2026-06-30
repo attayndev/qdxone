@@ -28,6 +28,17 @@ function RootNav() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="sign-in" />
+      <Stack.Screen
+        name="candidate/[id]"
+        options={{
+          headerShown: true,
+          headerTitle: "Candidate",
+          headerStyle: { backgroundColor: brand.white },
+          headerTitleStyle: { color: brand.ink, fontWeight: "800" },
+          headerTintColor: brand.pink600,
+          headerBackTitle: "Back",
+        }}
+      />
     </Stack>
   );
 }

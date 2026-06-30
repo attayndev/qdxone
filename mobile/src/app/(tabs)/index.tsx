@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { router, useFocusEffect } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { apiGet } from "@/lib/api";
 import { brand } from "@/theme";
@@ -55,9 +56,12 @@ export default function Candidates() {
     }
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  // Reload on focus so a decision recorded on the detail screen shows here.
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -101,8 +105,9 @@ export default function Candidates() {
       renderItem={({ item }) => {
         const fit = item.fit ? FIT_COLOR[item.fit] ?? FIT_COLOR.Incomplete : null;
         return (
-          <View
-            style={{
+          <Pressable
+            onPress={() => router.push(`/candidate/${item.id}`)}
+            style={({ pressed }) => ({
               backgroundColor: brand.white,
               borderRadius: 14,
               borderWidth: 1,
@@ -112,7 +117,8 @@ export default function Candidates() {
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "space-between",
-            }}
+              opacity: pressed ? 0.6 : 1,
+            })}
           >
             <View style={{ flex: 1, paddingRight: 10 }}>
               <Text style={{ fontWeight: "800", color: brand.ink, fontSize: 16 }} numberOfLines={1}>
@@ -127,7 +133,7 @@ export default function Candidates() {
                 <Text style={{ color: fit.fg, fontWeight: "700", fontSize: 12 }}>{item.fit}</Text>
               </View>
             )}
-          </View>
+          </Pressable>
         );
       }}
     />
