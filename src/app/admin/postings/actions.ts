@@ -1,56 +1,29 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
-import { generateToken } from "@/lib/tokens";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
-import { getPrimaryLocation, getOrgLocations } from "@/lib/locations";
+import { getOrgLocations } from "@/lib/locations";
+import {
+  parsePostingInput,
+  createJobPosting,
+  type RawPostingInput,
+  type CreatePostingResult,
+} from "@/lib/postings";
 
-const PostingSchema = z
-  .object({
-    // The posting is for a role the operator defined (e.g. "Team Member").
-    title: z.string().min(1, "Pick a role").max(120),
-    // Which store this posting is for (optional; defaults to the primary store).
-    location_id: z.string().uuid().optional().or(z.literal("")),
-    // Pay transparency (NY + other states): a good-faith min/max base range.
-    pay_min: z.coerce.number().positive("Enter a minimum pay").max(2_000_000),
-    pay_max: z.coerce.number().positive("Enter a maximum pay").max(2_000_000),
-    pay_period: z.enum(["hour", "year"]),
-  })
-  .refine((d) => d.pay_max >= d.pay_min, {
-    message: "Max pay must be at least the minimum",
-    path: ["pay_max"],
-  });
+export type { CreatePostingResult };
 
-type ParsedPosting = {
-  title: string;
-  location_id?: string;
-  pay_min: number;
-  pay_max: number;
-  pay_period: "hour" | "year";
-  tips: boolean;
-};
-
-function parsePosting(
-  formData: FormData
-): { ok: true; data: ParsedPosting } | { ok: false; error: string } {
-  const parsed = PostingSchema.safeParse({
-    title: formData.get("title") ?? "",
-    location_id: formData.get("location_id") ?? "",
-    pay_min: formData.get("pay_min") ?? "",
-    pay_max: formData.get("pay_max") ?? "",
-    pay_period: formData.get("pay_period") ?? "hour",
-  });
-  if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
-  }
-  return { ok: true, data: { ...parsed.data, tips: formData.get("tips") === "on" } };
+/** Pull the posting fields out of submitted form data for validation. */
+function rawFromForm(formData: FormData): RawPostingInput {
+  return {
+    title: formData.get("title"),
+    location_id: formData.get("location_id"),
+    pay_min: formData.get("pay_min"),
+    pay_max: formData.get("pay_max"),
+    pay_period: formData.get("pay_period"),
+    tips: formData.get("tips"),
+  };
 }
-
-export type CreatePostingResult =
-  | { ok: true; token: string }
-  | { ok: false; error: string };
 
 export async function createPosting(
   formData: FormData
@@ -58,60 +31,12 @@ export async function createPosting(
   const org = await currentOrgOrThrow();
   const m = await requireMembership(org.id);
 
-  const parsed = parsePosting(formData);
+  const parsed = parsePostingInput(rawFromForm(formData));
   if (!parsed.ok) return { ok: false, error: parsed.error };
-  const v = parsed.data;
 
-  // Resolve the store: a chosen location (verified to be this org's) or the
-  // primary store as the default.
-  let locationId: string | null = null;
-  if (v.location_id) {
-    const locs = await getOrgLocations(org.id);
-    locationId = locs.find((l) => l.id === v.location_id)?.id ?? null;
-  }
-  if (!locationId) {
-    const primary = await getPrimaryLocation(org.id);
-    locationId = primary?.id ?? null;
-  }
-  if (!locationId) {
-    return { ok: false, error: "Set up your store profile first." };
-  }
-
-  const supa = adminClient();
-  const token = generateToken();
-  const { data, error } = await supa
-    .from("job_postings")
-    // pay_* / tips added in 0015 — not in generated types yet.
-    .insert({
-      org_id: org.id,
-      location_id: locationId,
-      title: v.title,
-      public_token: token,
-      status: "open",
-      created_by: m.user_id,
-      pay_min: v.pay_min,
-      pay_max: v.pay_max,
-      pay_period: v.pay_period,
-      tips: v.tips,
-    } as never)
-    .select("public_token")
-    .single();
-
-  if (error || !data) {
-    console.error("posting insert failed", error);
-    return { ok: false, error: "Could not create the posting. Try again." };
-  }
-
-  await supa.from("audit_log").insert({
-    org_id: org.id,
-    actor_user_id: m.user_id,
-    action: "posting.created",
-    subject_type: "job_posting",
-    meta: { role: v.title },
-  });
-
-  revalidatePath("/admin/postings");
-  return { ok: true, token: data.public_token };
+  const result = await createJobPosting(org.id, m.user_id, parsed.data);
+  if (result.ok) revalidatePath("/admin/postings");
+  return result;
 }
 
 export async function setPostingStatus(id: string, status: "open" | "closed") {
@@ -133,7 +58,7 @@ export async function updatePosting(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const org = await currentOrgOrThrow();
   await requireMembership(org.id);
-  const parsed = parsePosting(formData);
+  const parsed = parsePostingInput(rawFromForm(formData));
   if (!parsed.ok) return { ok: false, error: parsed.error };
   const v = parsed.data;
 
