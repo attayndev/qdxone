@@ -7,16 +7,9 @@
  */
 
 import "server-only";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { adminClient } from "@/lib/supabase/admin";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
-
-// `push_tokens` (migration 0016) isn't in the generated types yet, so reach it
-// through an untyped view of the service-role client (same trick as eeoAdmin).
-function db(): SupabaseClient {
-  return adminClient() as unknown as SupabaseClient;
-}
 
 export type DevicePlatform = "ios" | "android" | "unknown";
 
@@ -29,7 +22,7 @@ export async function registerPushToken(input: {
   if (!input.token.startsWith("ExponentPushToken") && !input.token.startsWith("ExpoPushToken")) {
     return { ok: false, error: "Not an Expo push token." };
   }
-  const { error } = await db()
+  const { error } = await adminClient()
     .from("push_tokens")
     .upsert(
       {
@@ -69,7 +62,7 @@ export async function sendOrgPush(args: {
   body: string;
   data?: Record<string, unknown>;
 }): Promise<void> {
-  const supa = db();
+  const supa = adminClient();
   const { data: rows } = await supa
     .from("push_tokens")
     .select("token")

@@ -824,9 +824,13 @@ export type Database = {
           id: string
           location_id: string | null
           org_id: string
+          pay_max: number | null
+          pay_min: number | null
+          pay_period: string
           public_token: string
           role_type: Database["public"]["Enums"]["location_role_type"]
           status: Database["public"]["Enums"]["job_posting_status"]
+          tips: boolean
           title: string
           updated_at: string
         }
@@ -836,9 +840,13 @@ export type Database = {
           id?: string
           location_id?: string | null
           org_id: string
+          pay_max?: number | null
+          pay_min?: number | null
+          pay_period?: string
           public_token: string
           role_type?: Database["public"]["Enums"]["location_role_type"]
           status?: Database["public"]["Enums"]["job_posting_status"]
+          tips?: boolean
           title: string
           updated_at?: string
         }
@@ -848,9 +856,13 @@ export type Database = {
           id?: string
           location_id?: string | null
           org_id?: string
+          pay_max?: number | null
+          pay_min?: number | null
+          pay_period?: string
           public_token?: string
           role_type?: Database["public"]["Enums"]["location_role_type"]
           status?: Database["public"]["Enums"]["job_posting_status"]
+          tips?: boolean
           title?: string
           updated_at?: string
         }
@@ -1030,6 +1042,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      push_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          org_id: string
+          platform: string
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          org_id: string
+          platform?: string
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          org_id?: string
+          platform?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_tokens_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scheduling_invitations: {
         Row: {
