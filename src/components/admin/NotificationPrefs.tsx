@@ -85,7 +85,7 @@ export default function NotificationPrefs({
           setSaved(false);
           setter((m) => ({ ...m, [eventKey]: ev.target.checked }));
         }}
-        className="h-5 w-5 accent-[color:var(--brand-pink)] disabled:opacity-40"
+        className="h-5 w-5 accent-[color:var(--brand-blue)] disabled:opacity-40"
       />
     );
   }

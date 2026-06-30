@@ -14,12 +14,12 @@ export default function ForMultiUnitPage() {
       <main className="flex-1">
         <section className="px-4 sm:px-6 pt-12 pb-10">
           <div className="max-w-3xl mx-auto">
-            <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] mb-4">
+            <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-4">
               For multi-unit & franchise
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
               Standardize how you hire.{" "}
-              <span className="text-[color:var(--brand-pink)]">
+              <span className="text-[color:var(--brand-blue)]">
                 Across every location.
               </span>
             </h1>
@@ -105,7 +105,7 @@ export default function ForMultiUnitPage() {
 function Stat({ big, small }: { big: string; small: string }) {
   return (
     <div className="card text-center">
-      <div className="text-4xl sm:text-5xl font-black text-[color:var(--brand-pink)]">
+      <div className="text-4xl sm:text-5xl font-black text-[color:var(--brand-blue)]">
         {big}
       </div>
       <p className="mt-2 text-[color:var(--brand-ink-muted)] text-sm leading-relaxed">
@@ -118,7 +118,7 @@ function Stat({ big, small }: { big: string; small: string }) {
 function Bullet({ title, body }: { title: string; body: string }) {
   return (
     <li className="flex gap-3">
-      <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-pink)] flex-shrink-0" />
+      <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-blue)] flex-shrink-0" />
       <div>
         <strong>{title}</strong>{" "}
         <span className="text-[color:var(--brand-ink-muted)]">{body}</span>

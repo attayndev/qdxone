@@ -2,23 +2,28 @@
 
 /*
   QDX One — restaurant hiring platform
-  Visual direction: energetic pink/magenta primary, cream surface, deep
-  navy text. Rounded, generous spacing, mobile-first, approachable but
-  not childish.
+  Visual direction: deep navy structure with a single amber "signal" accent —
+  the brand idea is "score, don't filter." Warm off-white surface, rounded,
+  generous spacing, mobile-first, premium but approachable.
+
+  Palette:  Ink #16223D · Mid #43568A · Slate #98A6BE · Signal #F6A623
 */
 
 :root {
-  --brand-pink: #ff2d87;
-  --brand-pink-600: #e6157a;
-  --brand-pink-50: #ffe3f0;
-  --brand-cream: #fff7ee;
-  --brand-ink: #1a1530;
-  --brand-ink-muted: #4a4360;
-  --brand-line: #f1d9c8;
-  --brand-mint: #2bd4a8;
-  --brand-yellow: #ffd23f;
+  /* New semantic palette */
+  --brand-ink: #16223d;        /* Ink — text / darkest */
+  --brand-ink-muted: #5a6b8c;  /* muted slate-blue text */
+  --brand-blue: #43568a;       /* Mid — primary interactive */
+  --brand-blue-600: #16223d;   /* darker — hover / 3D button shadow */
+  --brand-slate: #98a6be;      /* Slate — quiet UI / secondary */
+  --brand-amber: #f6a623;      /* Signal — the only accent, used sparingly */
+  --brand-amber-600: #db8f12;
+  --brand-cream: #fbfaf7;      /* warm off-white canvas */
+  --brand-line: #e7e3d9;       /* warm hairline */
+  --brand-soft: #e8edf7;       /* soft blue tint — focus ring / soft fill */
+  --brand-mint: #2bd4a8;       /* success */
   /* Card/input surface — lifted off the page background. Per-org theming
-     overrides this (and the vars above) at :root via BrandTheme. */
+     overrides this (and the vars below) at :root via BrandTheme. */
   --brand-surface: #ffffff;
 
   --background: var(--brand-cream);
@@ -28,15 +33,17 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-brand: var(--brand-pink);
-  --color-brand-strong: var(--brand-pink-600);
-  --color-brand-soft: var(--brand-pink-50);
+  --color-brand: var(--brand-blue);
+  --color-brand-strong: var(--brand-blue-600);
+  --color-brand-soft: var(--brand-soft);
+  --color-blue: var(--brand-blue);
+  --color-slate: var(--brand-slate);
+  --color-amber: var(--brand-amber);
   --color-cream: var(--brand-cream);
   --color-ink: var(--brand-ink);
   --color-ink-muted: var(--brand-ink-muted);
   --color-line: var(--brand-line);
   --color-mint: var(--brand-mint);
-  --color-yellow: var(--brand-yellow);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -61,15 +68,15 @@ body {
   gap: 0.5rem;
   padding: 0.85rem 1.4rem;
   border-radius: 9999px;
-  background: var(--brand-pink);
+  background: var(--brand-blue);
   color: white;
   font-weight: 700;
   letter-spacing: 0.01em;
   transition: transform 0.05s ease, background 0.15s ease, box-shadow 0.15s ease;
-  box-shadow: 0 6px 0 var(--brand-pink-600);
+  box-shadow: 0 6px 0 var(--brand-blue-600);
 }
-.btn-primary:hover { background: var(--brand-pink-600); }
-.btn-primary:active { transform: translateY(2px); box-shadow: 0 4px 0 var(--brand-pink-600); }
+.btn-primary:hover { background: var(--brand-blue-600); }
+.btn-primary:active { transform: translateY(2px); box-shadow: 0 4px 0 var(--brand-blue-600); }
 .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
 
 .btn-ghost {
@@ -103,7 +110,7 @@ body {
   font-size: 1rem;
   color: var(--brand-ink);
 }
-.input:focus { outline: none; border-color: var(--brand-pink); box-shadow: 0 0 0 3px var(--brand-pink-50); }
+.input:focus { outline: none; border-color: var(--brand-blue); box-shadow: 0 0 0 3px var(--brand-soft); }
 
 .label { display: block; font-weight: 600; margin-bottom: 0.4rem; color: var(--brand-ink); font-size: 0.95rem; }
 

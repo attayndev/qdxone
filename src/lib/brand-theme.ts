@@ -11,7 +11,7 @@ import type { OrgBranding } from "@/lib/supabase/types";
  * any page wrapper, so a descendant override wouldn't reach it.
  *
  * Only tokens that are set are overridden; the rest fall back to the default
- * palette. Shades (`-600`, `-50`, `-surface`, `-line`, `-ink-muted`) are derived
+ * palette. Shades (`-600`, `-soft`, `-surface`, `-line`, `-ink-muted`) are derived
  * so a single primary/bg/ink stays coherent across buttons, cards, and borders.
  */
 
@@ -56,9 +56,9 @@ function brandVarMap(b: OrgBranding | null | undefined): Record<string, string> 
   if (!b) return vars;
 
   if (b.primary_color && parseHex(b.primary_color)) {
-    vars["--brand-pink"] = b.primary_color;
-    vars["--brand-pink-600"] = mix(b.primary_color, BLACK, 0.18);
-    vars["--brand-pink-50"] = mix(b.primary_color, WHITE, 0.88);
+    vars["--brand-blue"] = b.primary_color;
+    vars["--brand-blue-600"] = mix(b.primary_color, BLACK, 0.18);
+    vars["--brand-soft"] = mix(b.primary_color, WHITE, 0.88);
   }
   if (b.accent_color && parseHex(b.accent_color)) {
     vars["--brand-mint"] = b.accent_color;

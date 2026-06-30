@@ -83,7 +83,7 @@ export default function BookingClient({
                     className={
                       "rounded-lg border px-3 py-2 text-sm font-medium transition " +
                       (isSel
-                        ? "border-transparent bg-[color:var(--brand-pink)] text-white"
+                        ? "border-transparent bg-[color:var(--brand-blue)] text-white"
                         : "border-black/15 hover:bg-black/5")
                     }
                   >

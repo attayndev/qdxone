@@ -11,7 +11,7 @@ type Item = { q: string; a: React.ReactNode };
 type Section = { title: string; items: Item[] };
 
 const SAMPLE = (
-  <Link href="/assessments" className="underline text-[color:var(--brand-pink-600)]">
+  <Link href="/assessments" className="underline text-[color:var(--brand-blue-600)]">
     See sample questions →
   </Link>
 );
@@ -232,7 +232,7 @@ export default function FaqPage() {
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
             How QDX works, what it costs, and how it keeps hiring fair — in plain
             words. Don&apos;t see your question?{" "}
-            <Link href="/demo" className="underline text-[color:var(--brand-pink-600)]">
+            <Link href="/demo" className="underline text-[color:var(--brand-blue-600)]">
               Talk to us
             </Link>
             .
@@ -241,7 +241,7 @@ export default function FaqPage() {
           <div className="mt-10 space-y-10">
             {SECTIONS.map((section) => (
               <section key={section.title}>
-                <h2 className="text-xl font-extrabold tracking-tight text-[color:var(--brand-pink-600)]">
+                <h2 className="text-xl font-extrabold tracking-tight text-[color:var(--brand-blue-600)]">
                   {section.title}
                 </h2>
                 <div className="mt-3 divide-y divide-[color:var(--brand-line)] bg-white rounded-2xl border border-[color:var(--brand-line)]">
@@ -252,7 +252,7 @@ export default function FaqPage() {
                     >
                       <summary className="flex cursor-pointer items-center justify-between gap-3 font-bold">
                         {it.q}
-                        <span className="text-[color:var(--brand-pink)] transition group-open:rotate-45">
+                        <span className="text-[color:var(--brand-blue)] transition group-open:rotate-45">
                           +
                         </span>
                       </summary>

@@ -91,7 +91,7 @@ export default async function SuperAdminPage() {
                     href={orgUrl(o.slug)}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-bold hover:text-[color:var(--brand-pink-600)]"
+                    className="font-bold hover:text-[color:var(--brand-blue-600)]"
                   >
                     {o.name}
                   </a>

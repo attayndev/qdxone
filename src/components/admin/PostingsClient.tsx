@@ -56,7 +56,7 @@ function PayFields({
           type="checkbox"
           name="tips"
           defaultChecked={tips ?? false}
-          className="h-4 w-4 accent-[color:var(--brand-pink)]"
+          className="h-4 w-4 accent-[color:var(--brand-blue)]"
         />
         This role earns tips (shows &ldquo;+ tips&rdquo;)
       </label>
@@ -114,7 +114,7 @@ async function shareLink(url: string, title: string) {
 }
 
 const LINK_BTN =
-  "text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline";
+  "text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline";
 
 type StoreOption = { id: string; name: string };
 
@@ -230,7 +230,7 @@ function CreateForm({
         flyers.
       </p>
       {!hasLocation && (
-        <p className="mt-3 text-sm text-[color:var(--brand-pink-600)]">
+        <p className="mt-3 text-sm text-[color:var(--brand-blue-600)]">
           Set up your store profile first, then come back to post.
         </p>
       )}
@@ -386,7 +386,7 @@ function PostingItem({
             )}
           </div>
           <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5 flex items-center gap-2 flex-wrap">
-            <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)]">
+            <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)]">
               {posting.status}
             </span>
             {formatPay({
@@ -406,7 +406,7 @@ function PostingItem({
             type="button"
             disabled={pending}
             onClick={() => setEditing(true)}
-            className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+            className="text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline"
           >
             Edit
           </button>
@@ -421,7 +421,7 @@ function PostingItem({
                 );
               })
             }
-            className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+            className="text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline"
           >
             {posting.status === "open" ? "Close" : "Reopen"}
           </button>

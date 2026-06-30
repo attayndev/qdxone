@@ -15,12 +15,12 @@ export default function DemoPage() {
         <section className="px-4 sm:px-6 pt-12 pb-10">
           <div className="max-w-3xl mx-auto grid md:grid-cols-2 gap-10 items-start">
             <div>
-              <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] mb-4">
+              <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-4">
                 Book a demo
               </span>
               <h1 className="text-4xl font-black tracking-tight leading-[1.05]">
                 15 minutes.{" "}
-                <span className="text-[color:var(--brand-pink)]">
+                <span className="text-[color:var(--brand-blue)]">
                   Operator to operator.
                 </span>
               </h1>
@@ -39,7 +39,7 @@ export default function DemoPage() {
                 Just want to start? You can{" "}
                 <a
                   href="/signup"
-                  className="underline text-[color:var(--brand-pink-600)]"
+                  className="underline text-[color:var(--brand-blue-600)]"
                 >
                   sign up directly
                 </a>{" "}

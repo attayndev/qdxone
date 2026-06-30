@@ -62,12 +62,12 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
         {/* Hero — compact; the jobs are the next thing the eye hits. */}
         <section className="px-4 sm:px-6 pt-10 sm:pt-14 pb-8">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] mb-4">
+            <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-4">
               {eyebrow}
             </span>
             <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.05]">
               {h1Pre}{" "}
-              <span className="text-[color:var(--brand-pink)]">{h1Post}</span>
+              <span className="text-[color:var(--brand-blue)]">{h1Post}</span>
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)] max-w-xl mx-auto">
               {copy.subhead}
@@ -83,7 +83,7 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
                 Open positions
               </h2>
               {postings.length > 0 && (
-                <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)]">
+                <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)]">
                   {postings.length} open
                 </span>
               )}
@@ -161,7 +161,7 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
             <ul className="mt-5 space-y-3 text-[color:var(--brand-ink)]">
               {copy.rolePoints.map((point) => (
                 <li key={point} className="flex gap-3">
-                  <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-pink)] flex-shrink-0" />
+                  <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-blue)] flex-shrink-0" />
                   {point}
                 </li>
               ))}

@@ -75,7 +75,27 @@ export default function PrivacyPage() {
             never the contents of your calendar.
           </p>
 
-          <H n={5}>Voluntary EEO data is kept separate</H>
+          <H n={5}>Text messages (SMS)</H>
+          <p>
+            If an applicant opts in, the employer they applied to (via {LEGAL_SHORT},
+            using our messaging provider Telnyx) sends <strong>transactional</strong>{" "}
+            text messages about that application — for example, the assessment link and
+            status updates. Opt-in is <strong>optional and is never a condition of
+            applying or of any hire</strong>; an applicant chooses it by checking the SMS
+            box on the application form. Message frequency varies. Message and data rates
+            may apply. Reply <strong>STOP</strong> to opt out at any time, or{" "}
+            <strong>HELP</strong> for help.
+          </p>
+          <p className="mt-2">
+            <strong>Mobile opt-in data is never shared or sold.</strong> Phone numbers and
+            SMS consent are used solely to send these application-related messages. We do
+            not sell this information, and no mobile information (phone numbers or SMS
+            opt-in/consent) is shared with third parties or affiliates for their own
+            marketing or promotional purposes. Telnyx processes messages on our behalf
+            only to deliver them.
+          </p>
+
+          <H n={6}>Voluntary EEO data is kept separate</H>
           <p>
             When an applicant chooses to provide equal-employment-opportunity
             self-identification, that data is stored in an isolated partition and is
@@ -127,7 +147,7 @@ export default function PrivacyPage() {
           <H n={11}>Contact</H>
           <p>
             Privacy questions or requests?{" "}
-            <a href={`mailto:${LEGAL_EMAIL}`} className="underline text-[color:var(--brand-pink-600)]">
+            <a href={`mailto:${LEGAL_EMAIL}`} className="underline text-[color:var(--brand-blue-600)]">
               {LEGAL_EMAIL}
             </a>
             .

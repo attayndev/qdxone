@@ -98,7 +98,7 @@ export default function TermsPage() {
             (&ldquo;Customer Data&rdquo;). You grant us a license to host, process, and
             use Customer Data to provide and improve the Service and as described in
             our{" "}
-            <a href="/privacy" className="underline text-[color:var(--brand-pink-600)]">
+            <a href="/privacy" className="underline text-[color:var(--brand-blue-600)]">
               Privacy Policy
             </a>
             . You are responsible for collecting and using applicant data lawfully —
@@ -169,7 +169,7 @@ export default function TermsPage() {
           <H n={13}>Contact</H>
           <p>
             Questions about these Terms?{" "}
-            <a href={`mailto:${LEGAL_EMAIL}`} className="underline text-[color:var(--brand-pink-600)]">
+            <a href={`mailto:${LEGAL_EMAIL}`} className="underline text-[color:var(--brand-blue-600)]">
               {LEGAL_EMAIL}
             </a>
             .

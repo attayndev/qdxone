@@ -61,12 +61,12 @@ export default function AssessmentsPage() {
       <main className="flex-1">
         <section className="px-4 sm:px-6 pt-12 pb-10">
           <div className="max-w-3xl mx-auto">
-            <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] mb-4">
+            <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-4">
               Inside the assessment
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
               Real statements.{" "}
-              <span className="text-[color:var(--brand-pink)]">Real signal.</span>{" "}
+              <span className="text-[color:var(--brand-blue)]">Real signal.</span>{" "}
               Not personality astrology.
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)]">
@@ -83,7 +83,7 @@ export default function AssessmentsPage() {
             {SAMPLES.map((s, i) => (
               <div
                 key={i}
-                className="card border-l-4 border-l-[color:var(--brand-pink)]"
+                className="card border-l-4 border-l-[color:var(--brand-blue)]"
               >
                 <div className="text-xs uppercase tracking-wider text-[color:var(--brand-ink-muted)] font-semibold">
                   Sample item {i + 1}

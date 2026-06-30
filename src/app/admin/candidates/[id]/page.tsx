@@ -194,7 +194,7 @@ export default async function CandidateDetail({ params }: PageProps) {
             {new Date(a.submitted_at).toLocaleDateString()}
           </p>
         </div>
-        <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)]">
+        <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)]">
           {session ? `Assessment: ${session.status}` : "No assessment"}
         </span>
       </div>
@@ -309,7 +309,7 @@ export default async function CandidateDetail({ params }: PageProps) {
         {/* Assessment */}
         <div className="space-y-6">
           {flags.length > 0 && (
-            <div className="card border-2 border-[color:var(--brand-pink)]">
+            <div className="card border-2 border-[color:var(--brand-blue)]">
               <h2 className="font-extrabold text-lg">⚠️ Quality flags</h2>
               <ul className="mt-2 space-y-1">
                 {flags.map((f) => (

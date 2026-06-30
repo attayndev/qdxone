@@ -163,7 +163,7 @@ function Chip({
       onClick={onClick}
       className={`chip cursor-pointer border ${
         active
-          ? "bg-[color:var(--brand-pink)] text-white border-transparent"
+          ? "bg-[color:var(--brand-blue)] text-white border-transparent"
           : "bg-transparent text-[color:var(--brand-ink-muted)] border-[color:var(--brand-line)]"
       }`}
     >

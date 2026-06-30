@@ -35,7 +35,7 @@ export default async function JobPostingPage({ params }: PageProps) {
       <BrandHeader org={org} />
       <main className="flex-1 px-4 sm:px-6 py-10 sm:py-16">
         <div className="max-w-2xl mx-auto">
-          <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)]">
+          <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)]">
             Now hiring
           </span>
           <h1 className="mt-4 text-3xl sm:text-5xl font-black tracking-tight leading-tight">

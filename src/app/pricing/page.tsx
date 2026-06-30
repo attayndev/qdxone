@@ -121,11 +121,11 @@ function PlanCard({
     <div
       className={[
         "card",
-        highlight ? "border-2 border-[color:var(--brand-pink)] relative" : "",
+        highlight ? "border-2 border-[color:var(--brand-blue)] relative" : "",
       ].join(" ")}
     >
       {highlight && (
-        <span className="chip bg-[color:var(--brand-pink)] text-white absolute -top-3 left-6">
+        <span className="chip bg-[color:var(--brand-blue)] text-white absolute -top-3 left-6">
           Most popular
         </span>
       )}

@@ -78,8 +78,8 @@ function FieldRow({
             className={[
               "px-3 py-1.5 text-sm font-semibold capitalize transition",
               value === m
-                ? "bg-[color:var(--brand-pink)] text-white"
-                : "bg-white text-[color:var(--brand-ink)] hover:bg-[color:var(--brand-pink-50)]",
+                ? "bg-[color:var(--brand-blue)] text-white"
+                : "bg-white text-[color:var(--brand-ink)] hover:bg-[color:var(--brand-soft)]",
             ].join(" ")}
           >
             {m}

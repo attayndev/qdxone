@@ -15,7 +15,7 @@ export default function AboutPage() {
       <main className="flex-1">
         <section className="px-4 sm:px-6 pt-12 pb-6">
           <div className="max-w-3xl mx-auto">
-            <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] mb-4">
+            <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-4">
               About QDX
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
@@ -154,7 +154,7 @@ export default function AboutPage() {
 function Principle({ t, b }: { t: string; b: string }) {
   return (
     <li className="flex gap-3">
-      <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-pink)] flex-shrink-0" />
+      <span className="mt-2 inline-block w-2 h-2 rounded-full bg-[color:var(--brand-blue)] flex-shrink-0" />
       <div>
         <strong>{t}</strong>{" "}
         <span className="text-[color:var(--brand-ink-muted)]">{b}</span>

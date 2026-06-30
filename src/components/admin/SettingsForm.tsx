@@ -66,7 +66,7 @@ export default function SettingsForm({ org }: { org: OrganizationRow }) {
           <input
             name="primary_color"
             className="input"
-            placeholder="#ff2d87"
+            placeholder="#43568a"
             defaultValue={b.primary_color ?? ""}
           />
         </div>

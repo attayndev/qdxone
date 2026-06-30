@@ -14,7 +14,7 @@ export default function HowItWorksPage() {
       <main className="flex-1">
         <section className="px-4 sm:px-6 pt-12 pb-10">
           <div className="max-w-3xl mx-auto">
-            <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] mb-4">
+            <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-4">
               How it works
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
@@ -105,7 +105,7 @@ function Step({
   return (
     <div className="card flex gap-4 sm:gap-6">
       <div className="flex-shrink-0 w-12 sm:w-16">
-        <div className="text-5xl font-black text-[color:var(--brand-pink)] leading-none">
+        <div className="text-5xl font-black text-[color:var(--brand-blue)] leading-none">
           {n}
         </div>
       </div>

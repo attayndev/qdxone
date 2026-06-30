@@ -42,7 +42,7 @@ export default async function LocationsPage() {
         ))}
 
         <details className="max-w-2xl">
-          <summary className="cursor-pointer font-semibold text-[color:var(--brand-pink-600)]">
+          <summary className="cursor-pointer font-semibold text-[color:var(--brand-blue-600)]">
             + Add {locations.length === 0 ? "a store" : "another store"}
           </summary>
           <LocationForm location={null} />

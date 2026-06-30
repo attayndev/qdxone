@@ -82,16 +82,16 @@ export async function sendAssessmentEmail(args: {
     to: args.to,
     subject: `One quick step — your ${args.orgName} assessment`,
     html: `
-      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#1a1530">
+      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#16223d">
         <p style="font-size:18px">Hey ${escape(args.firstName)},</p>
         <p>Thanks for applying to <strong>${escape(args.orgName)}</strong>! There's just one quick step left: a short, five-minute assessment you can complete right from your phone.</p>
         <p style="margin:28px 0">
-          <a href="${link}" style="background:#ff2d87;color:white;padding:14px 22px;border-radius:9999px;text-decoration:none;font-weight:700;display:inline-block">
+          <a href="${link}" style="background:#43568a;color:white;padding:14px 22px;border-radius:9999px;text-decoration:none;font-weight:700;display:inline-block">
             Start the assessment
           </a>
         </p>
         <p>No need to rush. Take it when you have a few quiet minutes and can give it your full attention.</p>
-        <p style="font-size:13px;color:#4a4360">Your link is active for 72 hours. You can also copy and paste it into your browser:<br>
+        <p style="font-size:13px;color:#5a6b8c">Your link is active for 72 hours. You can also copy and paste it into your browser:<br>
           <span style="word-break:break-all">${link}</span>
         </p>
       </div>
@@ -174,15 +174,15 @@ export async function sendBookingInvite(args: {
     to: args.to,
     subject: `You're invited to book an interview with ${args.orgName}`,
     html: `
-      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#1a1530">
+      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#16223d">
         <p style="font-size:18px">Hi ${escape(args.firstName)},</p>
         <p>Great news — <strong>${escape(args.orgName)}</strong> would like to interview you for the ${escape(args.interviewName)}. Pick a time that works for you:</p>
         <p style="margin:28px 0">
-          <a href="${args.link}" style="background:#ff2d87;color:white;padding:14px 22px;border-radius:9999px;text-decoration:none;font-weight:700;display:inline-block">
+          <a href="${args.link}" style="background:#43568a;color:white;padding:14px 22px;border-radius:9999px;text-decoration:none;font-weight:700;display:inline-block">
             Book your interview
           </a>
         </p>
-        <p style="font-size:13px;color:#4a4360">Or copy and paste this link into your browser:<br>
+        <p style="font-size:13px;color:#5a6b8c">Or copy and paste this link into your browser:<br>
           <span style="word-break:break-all">${args.link}</span>
         </p>
       </div>
@@ -209,7 +209,7 @@ export async function sendBookingCancellation(args: {
     to: args.to,
     subject: `Your interview with ${args.orgName} has been cancelled`,
     html: `
-      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#1a1530">
+      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#16223d">
         <p style="font-size:18px">Hi ${escape(args.firstName)},</p>
         <p>We're sorry — your ${escape(args.interviewName)} with <strong>${escape(args.orgName)}</strong> on ${escape(args.whenLabel)} has been cancelled.</p>
         <p>If you'd still like to interview, just reply to this email and we'll find a new time.</p>
@@ -264,19 +264,19 @@ export async function sendBookingEmail(args: {
     to: args.to,
     subject,
     html: `
-      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#1a1530">
+      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#16223d">
         <p style="font-size:18px">Hi ${escape(args.firstName)},</p>
         <p>${lead}</p>
         <table style="margin:20px 0;border-collapse:collapse">
           ${rows
             .map(
               ([k, v]) =>
-                `<tr><td style="padding:6px 16px 6px 0;color:#4a4360;vertical-align:top">${k}</td><td style="padding:6px 0"><strong>${v}</strong></td></tr>`
+                `<tr><td style="padding:6px 16px 6px 0;color:#5a6b8c;vertical-align:top">${k}</td><td style="padding:6px 0"><strong>${v}</strong></td></tr>`
             )
             .join("")}
         </table>
         ${args.instructions ? `<p style="background:#faf7ff;border-radius:8px;padding:12px 14px">${escape(args.instructions)}</p>` : ""}
-        <p style="font-size:13px;color:#4a4360">Need to make a change? Just reply to this email.</p>
+        <p style="font-size:13px;color:#5a6b8c">Need to make a change? Just reply to this email.</p>
       </div>
     `,
     text:

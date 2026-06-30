@@ -146,8 +146,8 @@ function Question({
             className={[
               "flex items-center gap-3 rounded-xl px-3 py-2 border cursor-pointer transition",
               value === o.value
-                ? "border-[color:var(--brand-pink)] bg-[color:var(--brand-pink-50)]"
-                : "border-[color:var(--brand-line)] bg-white hover:border-[color:var(--brand-pink)]/60",
+                ? "border-[color:var(--brand-blue)] bg-[color:var(--brand-soft)]"
+                : "border-[color:var(--brand-line)] bg-white hover:border-[color:var(--brand-blue)]/60",
             ].join(" ")}
           >
             <input

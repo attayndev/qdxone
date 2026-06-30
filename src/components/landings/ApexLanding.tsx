@@ -36,13 +36,13 @@ function Hero() {
   return (
     <section className="px-4 sm:px-6 pt-12 sm:pt-20 pb-10">
       <div className="max-w-4xl mx-auto text-center">
-        <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] mb-5">
+        <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-5">
           Hiring built for restaurants
         </span>
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.02]">
           Post the job.
           <br />
-          <span className="text-[color:var(--brand-pink)]">
+          <span className="text-[color:var(--brand-blue)]">
             Get back a scored shortlist.
           </span>
         </h1>
@@ -128,7 +128,7 @@ function HowItWorks() {
         <div className="text-center mt-10">
           <Link
             href="/how-it-works"
-            className="font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+            className="font-semibold text-[color:var(--brand-blue-600)] hover:underline"
           >
             See a full walkthrough →
           </Link>
@@ -141,7 +141,7 @@ function HowItWorks() {
 function Step({ n, title, body }: { n: string; title: string; body: string }) {
   return (
     <div className="card">
-      <div className="text-4xl font-black text-[color:var(--brand-pink)] leading-none">
+      <div className="text-4xl font-black text-[color:var(--brand-blue)] leading-none">
         {n}
       </div>
       <h3 className="mt-3 font-extrabold text-lg leading-snug">{title}</h3>
@@ -229,12 +229,12 @@ function LookInside() {
     <section className="px-4 sm:px-6 py-16 bg-[color:var(--brand-cream)] border-y border-[color:var(--brand-line)]">
       <div className="max-w-5xl mx-auto">
         <div className="max-w-2xl">
-          <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] mb-3">
+          <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-3">
             A look inside the assessment
           </span>
           <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
             Real statements. Real signal.{" "}
-            <span className="text-[color:var(--brand-pink)]">
+            <span className="text-[color:var(--brand-blue)]">
               Not personality astrology.
             </span>
           </h2>
@@ -249,7 +249,7 @@ function LookInside() {
           {samples.map((s, i) => (
             <div
               key={i}
-              className="card border-l-4 border-l-[color:var(--brand-pink)]"
+              className="card border-l-4 border-l-[color:var(--brand-blue)]"
             >
               <div className="text-xs uppercase tracking-wider text-[color:var(--brand-ink-muted)] font-semibold">
                 Sample item
@@ -320,7 +320,7 @@ function AudienceCard({
 }) {
   return (
     <div className="card">
-      <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)]">
+      <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)]">
         {chip}
       </span>
       <h3 className="mt-3 font-black text-2xl tracking-tight">{title}</h3>
@@ -329,7 +329,7 @@ function AudienceCard({
       </p>
       <Link
         href={href}
-        className="mt-4 inline-block font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+        className="mt-4 inline-block font-semibold text-[color:var(--brand-blue-600)] hover:underline"
       >
         Learn more →
       </Link>
@@ -371,7 +371,7 @@ function FounderBlock() {
         <div className="mt-7">
           <Link
             href="/about"
-            className="inline-flex items-center gap-2 font-semibold text-[color:var(--brand-pink)] hover:underline"
+            className="inline-flex items-center gap-2 font-semibold text-[color:var(--brand-blue)] hover:underline"
           >
             Read the full story →
           </Link>
@@ -388,7 +388,7 @@ function PricingPeek() {
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
           Per-location pricing.{" "}
-          <span className="text-[color:var(--brand-pink)]">No fluff.</span>
+          <span className="text-[color:var(--brand-blue)]">No fluff.</span>
         </h2>
         <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg max-w-xl mx-auto">
           Unlimited assessments on every plan — no caps, no surprise bills. One
@@ -429,13 +429,13 @@ function PricePeek({
     <div
       className={
         "card " +
-        (highlight ? "border-2 border-[color:var(--brand-pink)]" : "")
+        (highlight ? "border-2 border-[color:var(--brand-blue)]" : "")
       }
     >
       <div className="flex items-baseline justify-between">
         <h3 className="font-black text-xl">{name}</h3>
         {highlight && (
-          <span className="chip bg-[color:var(--brand-pink)] text-white">
+          <span className="chip bg-[color:var(--brand-blue)] text-white">
             Most popular
           </span>
         )}
@@ -486,7 +486,7 @@ function Faq() {
           traits.{" "}
           <Link
             href="/assessments"
-            className="underline text-[color:var(--brand-pink-600)]"
+            className="underline text-[color:var(--brand-blue-600)]"
           >
             See sample items →
           </Link>
@@ -524,7 +524,7 @@ function Faq() {
             >
               <summary className="flex cursor-pointer items-center justify-between gap-3 font-bold">
                 {it.q}
-                <span className="text-[color:var(--brand-pink)] group-open:rotate-45 transition-transform text-2xl leading-none">
+                <span className="text-[color:var(--brand-blue)] group-open:rotate-45 transition-transform text-2xl leading-none">
                   +
                 </span>
               </summary>
@@ -537,7 +537,7 @@ function Faq() {
         <div className="mt-6 text-center">
           <Link
             href="/faq"
-            className="font-semibold underline text-[color:var(--brand-pink-600)]"
+            className="font-semibold underline text-[color:var(--brand-blue-600)]"
           >
             See all questions →
           </Link>
@@ -554,7 +554,7 @@ function FinalCta() {
       <div className="max-w-3xl mx-auto text-center">
         <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
           Better hires. Faster.{" "}
-          <span className="text-[color:var(--brand-pink)]">
+          <span className="text-[color:var(--brand-blue)]">
             Built for the restaurant world.
           </span>
         </h2>

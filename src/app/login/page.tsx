@@ -37,7 +37,7 @@ export default async function ApexLoginPage({ searchParams }: PageProps) {
           </div>
           <p className="mt-5 text-sm text-[color:var(--brand-ink-muted)]">
             Don&apos;t have an account yet?{" "}
-            <Link href="/signup" className="text-[color:var(--brand-pink-600)] underline">
+            <Link href="/signup" className="text-[color:var(--brand-blue-600)] underline">
               Start free
             </Link>
             .

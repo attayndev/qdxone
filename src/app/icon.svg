@@ -1,0 +1,12 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QDX One">
+  <defs>
+    <linearGradient id="qdx-bg" x1="256" y1="0" x2="256" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1e2e4f"/>
+      <stop offset="1" stop-color="#141f38"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="114" ry="114" fill="url(#qdx-bg)"/>
+  <rect x="162" y="264" width="48" height="108" rx="24" fill="#5c6b8c"/>
+  <rect x="232" y="192" width="48" height="180" rx="24" fill="#9fb0d4"/>
+  <rect x="302" y="112" width="48" height="260" rx="24" fill="#f6a623"/>
+</svg>

@@ -75,7 +75,7 @@ export default function OnboardingGuide({
         <button
           type="button"
           onClick={relaunch}
-          className="text-sm font-semibold text-[color:var(--brand-pink-600)] underline"
+          className="text-sm font-semibold text-[color:var(--brand-blue-600)] underline"
         >
           {status.complete
             ? "Re-open setup guide"
@@ -89,7 +89,7 @@ export default function OnboardingGuide({
   const canShare = status.hasStore && status.hasJob;
 
   return (
-    <div className="card mb-8 border-2 border-[color:var(--brand-pink-50)]">
+    <div className="card mb-8 border-2 border-[color:var(--brand-soft)]">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-xl font-black tracking-tight">
@@ -114,7 +114,7 @@ export default function OnboardingGuide({
       <div className="mt-4 flex items-center gap-3">
         <div className="flex-1 h-2 rounded-full bg-[color:var(--brand-cream)] overflow-hidden">
           <div
-            className="h-full bg-[color:var(--brand-pink)] transition-all"
+            className="h-full bg-[color:var(--brand-blue)] transition-all"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -137,7 +137,7 @@ export default function OnboardingGuide({
                 <span
                   className={`flex-shrink-0 w-6 h-6 rounded-full grid place-items-center text-sm font-bold ${
                     done
-                      ? "bg-[color:var(--brand-pink)] text-white"
+                      ? "bg-[color:var(--brand-blue)] text-white"
                       : "border-2 border-[color:var(--brand-line)] text-[color:var(--brand-ink-muted)]"
                   }`}
                 >
@@ -153,7 +153,7 @@ export default function OnboardingGuide({
                     </span>
                   )}
                 </span>
-                <span className="text-sm font-semibold text-[color:var(--brand-pink-600)]">
+                <span className="text-sm font-semibold text-[color:var(--brand-blue-600)]">
                   {done ? "Edit" : "Start"}
                 </span>
               </button>
@@ -472,7 +472,7 @@ function RolesStep({
       <button
         type="button"
         onClick={() => setRolesList((rs) => [...rs, { name: "", brief: "", description: "" }])}
-        className="text-xs font-semibold text-[color:var(--brand-pink-600)] underline"
+        className="text-xs font-semibold text-[color:var(--brand-blue-600)] underline"
       >
         + add another role
       </button>
@@ -529,7 +529,7 @@ function AssessmentStep({ onDone }: { onDone: () => void }) {
         type="button"
         disabled={busy}
         onClick={() => choose(true)}
-        className="w-full text-left rounded-xl border-2 border-[color:var(--brand-line)] p-4 hover:border-[color:var(--brand-pink)]"
+        className="w-full text-left rounded-xl border-2 border-[color:var(--brand-line)] p-4 hover:border-[color:var(--brand-blue)]"
       >
         <div className="font-bold">Auto-send (recommended)</div>
         <div className="text-sm text-[color:var(--brand-ink-muted)]">
@@ -540,7 +540,7 @@ function AssessmentStep({ onDone }: { onDone: () => void }) {
         type="button"
         disabled={busy}
         onClick={() => choose(false)}
-        className="w-full text-left rounded-xl border-2 border-[color:var(--brand-line)] p-4 hover:border-[color:var(--brand-pink)]"
+        className="w-full text-left rounded-xl border-2 border-[color:var(--brand-line)] p-4 hover:border-[color:var(--brand-blue)]"
       >
         <div className="font-bold">Review first</div>
         <div className="text-sm text-[color:var(--brand-ink-muted)]">

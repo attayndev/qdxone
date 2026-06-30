@@ -74,7 +74,7 @@ export default async function AdminDashboard() {
           <h2 className="font-extrabold text-lg">Recent candidates</h2>
           <Link
             href="/admin/candidates"
-            className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+            className="text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline"
           >
             View all
           </Link>
@@ -89,7 +89,7 @@ export default async function AdminDashboard() {
               <li key={a.id} className="py-3 flex items-center justify-between gap-3">
                 <Link
                   href={`/admin/candidates/${a.id}`}
-                  className="font-semibold hover:text-[color:var(--brand-pink-600)]"
+                  className="font-semibold hover:text-[color:var(--brand-blue-600)]"
                 >
                   {a.first_name} {a.last_name}
                 </Link>

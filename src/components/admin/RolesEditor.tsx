@@ -82,7 +82,7 @@ export default function RolesEditor({ initial }: { initial: RoleDetail[] }) {
               type="button"
               disabled={aiIdx === i || !role.name.trim()}
               onClick={() => writeAi(i)}
-              className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline disabled:opacity-40"
+              className="text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline disabled:opacity-40"
             >
               {aiIdx === i ? "Writing…" : "✨ Write with AI"}
             </button>

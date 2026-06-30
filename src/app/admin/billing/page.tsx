@@ -41,7 +41,7 @@ export default async function BillingPage({ searchParams }: PageProps) {
       </div>
 
       {sp.reason && (
-        <p className="card bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] font-semibold">
+        <p className="card bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] font-semibold">
           {sp.reason === "trial_expired"
             ? "Your free trial has ended. Add a plan to keep reviewing candidates."
             : sp.reason === "past_due"

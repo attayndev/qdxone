@@ -19,10 +19,10 @@ type Phase =
   | { type: "saved" };
 
 const SWATCHES: { key: keyof BrandTokens; label: string; fallback: string }[] = [
-  { key: "primary_color", label: "Primary", fallback: "#ff2d87" },
+  { key: "primary_color", label: "Primary", fallback: "#43568a" },
   { key: "accent_color", label: "Accent", fallback: "#2bd4a8" },
-  { key: "bg_color", label: "Background", fallback: "#fff7ee" },
-  { key: "ink_color", label: "Text", fallback: "#1a1530" },
+  { key: "bg_color", label: "Background", fallback: "#fbfaf7" },
+  { key: "ink_color", label: "Text", fallback: "#16223d" },
 ];
 
 function tokensFromBranding(b: OrgBranding): BrandTokens {
@@ -210,7 +210,7 @@ export default function BrandFromUrl({ branding }: { branding: OrgBranding }) {
             type="button"
             onClick={onDraftCopy}
             disabled={busy}
-            className="text-xs font-semibold text-[color:var(--brand-pink-600)] underline"
+            className="text-xs font-semibold text-[color:var(--brand-blue-600)] underline"
           >
             ✨ Draft with AI
           </button>
@@ -283,7 +283,7 @@ export default function BrandFromUrl({ branding }: { branding: OrgBranding }) {
             onClick={() =>
               setCopyField("values", [...copy.values, { emoji: "", title: "", body: "" }])
             }
-            className="mt-2 text-xs font-semibold text-[color:var(--brand-pink-600)] underline"
+            className="mt-2 text-xs font-semibold text-[color:var(--brand-blue-600)] underline"
           >
             + add value
           </button>
@@ -334,7 +334,7 @@ export default function BrandFromUrl({ branding }: { branding: OrgBranding }) {
           <button
             type="button"
             onClick={() => setCopyField("rolePoints", [...copy.rolePoints, ""])}
-            className="mt-2 text-xs font-semibold text-[color:var(--brand-pink-600)] underline"
+            className="mt-2 text-xs font-semibold text-[color:var(--brand-blue-600)] underline"
           >
             + add bullet
           </button>

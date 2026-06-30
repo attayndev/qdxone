@@ -84,7 +84,7 @@ export default function AssessmentRunner({
       <div className="mb-6">
         <div className="h-2 rounded-full bg-[color:var(--brand-line)] overflow-hidden">
           <div
-            className="h-full bg-[color:var(--brand-pink)] transition-all"
+            className="h-full bg-[color:var(--brand-blue)] transition-all"
             style={{ width: `${Math.max(4, pct)}%` }}
           />
         </div>
@@ -116,7 +116,7 @@ export default function AssessmentRunner({
                   type="button"
                   disabled={pending}
                   onClick={() => record(o.value, null)}
-                  className="w-full text-left rounded-2xl px-4 py-3 border border-[color:var(--brand-line)] bg-white hover:border-[color:var(--brand-pink)] transition"
+                  className="w-full text-left rounded-2xl px-4 py-3 border border-[color:var(--brand-line)] bg-white hover:border-[color:var(--brand-blue)] transition"
                 >
                   {o.label}
                 </button>
@@ -180,7 +180,7 @@ function Likert({
           type="button"
           disabled={disabled}
           onClick={() => onPick(i + 1)}
-          className="flex-1 rounded-xl border-2 border-[color:var(--brand-line)] bg-white py-2 px-0.5 flex flex-col items-center gap-1 hover:border-[color:var(--brand-pink)] hover:bg-[color:var(--brand-pink-50)] transition disabled:opacity-50"
+          className="flex-1 rounded-xl border-2 border-[color:var(--brand-line)] bg-white py-2 px-0.5 flex flex-col items-center gap-1 hover:border-[color:var(--brand-blue)] hover:bg-[color:var(--brand-soft)] transition disabled:opacity-50"
           aria-label={`${i + 1} — ${label}`}
         >
           <span className="text-lg font-bold leading-none">{i + 1}</span>

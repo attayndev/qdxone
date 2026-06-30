@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { QdxWordmark } from "@/components/QdxLogo";
 
 const NAV = [
   { href: "/how-it-works", label: "How it works" },
@@ -13,11 +14,8 @@ export function ApexHeader({ active }: { active?: string } = {}) {
   return (
     <header className="w-full border-b border-[color:var(--brand-line)] bg-[color:var(--brand-cream)] sticky top-0 z-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-        <Link href="/" className="font-black text-2xl tracking-tight">
-          <span className="text-[color:var(--brand-pink)]">qdx</span>
-          <span className="text-[color:var(--brand-ink-muted)] text-sm font-semibold ml-1.5 align-middle">
-            .one
-          </span>
+        <Link href="/" className="block">
+          <QdxWordmark />
         </Link>
         <nav className="hidden md:flex items-center gap-5 text-sm">
           {NAV.map((n) => (
@@ -25,9 +23,9 @@ export function ApexHeader({ active }: { active?: string } = {}) {
               key={n.href}
               href={n.href}
               className={
-                "font-semibold hover:text-[color:var(--brand-pink)] " +
+                "font-semibold hover:text-[color:var(--brand-blue)] " +
                 (active === n.href
-                  ? "text-[color:var(--brand-pink-600)]"
+                  ? "text-[color:var(--brand-blue-600)]"
                   : "text-[color:var(--brand-ink)]")
               }
             >
@@ -38,13 +36,13 @@ export function ApexHeader({ active }: { active?: string } = {}) {
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/login"
-            className="hidden sm:inline text-sm font-semibold hover:text-[color:var(--brand-pink)]"
+            className="hidden sm:inline text-sm font-semibold hover:text-[color:var(--brand-blue)]"
           >
             Sign in
           </Link>
           <Link
             href="/signup"
-            className="btn-primary !py-2 !px-3.5 !text-sm !shadow-[0_4px_0_var(--brand-pink-600)]"
+            className="btn-primary !py-2 !px-3.5 !text-sm !shadow-[0_4px_0_var(--brand-blue-600)]"
           >
             Start free
           </Link>
@@ -60,7 +58,7 @@ export function ApexHeader({ active }: { active?: string } = {}) {
               className={
                 "font-semibold " +
                 (active === n.href
-                  ? "text-[color:var(--brand-pink-600)]"
+                  ? "text-[color:var(--brand-blue-600)]"
                   : "text-[color:var(--brand-ink-muted)]")
               }
             >
@@ -78,12 +76,7 @@ export function ApexFooter() {
     <footer className="w-full mt-16 border-t border-[color:var(--brand-line)] bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid sm:grid-cols-4 gap-6 text-sm">
         <div>
-          <div className="font-black text-xl tracking-tight">
-            <span className="text-[color:var(--brand-pink)]">qdx</span>
-            <span className="text-[color:var(--brand-ink-muted)] text-xs font-semibold ml-1.5 align-middle">
-              .one
-            </span>
-          </div>
+          <QdxWordmark size="sm" />
           <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
             The hiring platform built for restaurants.
           </p>
@@ -138,7 +131,7 @@ function FL({ href, children }: { href: string; children: React.ReactNode }) {
     <li>
       <Link
         href={href}
-        className="hover:text-[color:var(--brand-pink-600)] font-medium"
+        className="hover:text-[color:var(--brand-blue-600)] font-medium"
       >
         {children}
       </Link>

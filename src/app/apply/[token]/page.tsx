@@ -93,7 +93,7 @@ export default async function ApplyPage({ params }: PageProps) {
       <main className="flex-1 px-4 sm:px-6 py-6 sm:py-10">
         {payLabel && (
           <div className="max-w-xl mx-auto mb-4">
-            <span className="inline-block rounded-full bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] font-semibold px-4 py-1.5 text-sm">
+            <span className="inline-block rounded-full bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] font-semibold px-4 py-1.5 text-sm">
               {payLabel}
             </span>
           </div>

@@ -129,7 +129,7 @@ export default function EnterprisePage() {
           <div className="mt-8 space-y-10">
             {SECTIONS.map((section) => (
               <section key={section.title}>
-                <h2 className="text-xl font-extrabold tracking-tight text-[color:var(--brand-pink-600)]">
+                <h2 className="text-xl font-extrabold tracking-tight text-[color:var(--brand-blue-600)]">
                   {section.title}
                 </h2>
                 <div className="mt-3 divide-y divide-[color:var(--brand-line)] bg-white rounded-2xl border border-[color:var(--brand-line)]">

@@ -16,7 +16,7 @@ export default function LogoutButton() {
         await createClient().auth.signOut();
         router.replace("/admin/login");
       }}
-      className="text-sm font-semibold text-[color:var(--brand-pink-600)] hover:underline"
+      className="text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline"
     >
       {busy ? "…" : "Sign out"}
     </button>

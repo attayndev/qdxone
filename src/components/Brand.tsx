@@ -23,7 +23,7 @@ export function BrandMark({
   const numeric = match?.[1];
   const word = match ? match[2] : display;
   const color =
-    org?.branding.primary_color ?? "var(--brand-pink)";
+    org?.branding.primary_color ?? "var(--brand-blue)";
   const logoUrl = org?.branding.logo_url;
 
   // When the org has a logo, show it ALONGSIDE the name + location — the
@@ -91,7 +91,7 @@ export function BrandHeader({
           <BrandMark org={org} />
         </Link>
         {showApply && (
-          <span className="text-xs sm:text-sm text-[color:var(--brand-pink-600)] font-semibold">
+          <span className="text-xs sm:text-sm text-[color:var(--brand-blue-600)] font-semibold">
             Careers · Now hiring
           </span>
         )}

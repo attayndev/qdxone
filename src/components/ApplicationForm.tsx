@@ -173,13 +173,33 @@ export default function ApplicationForm({
             type="checkbox"
             checked={smsConsent}
             onChange={(e) => setSmsConsent(e.target.checked)}
-            className="mt-1 h-5 w-5 flex-shrink-0 accent-[color:var(--brand-pink)]"
+            className="mt-1 h-5 w-5 flex-shrink-0 accent-[color:var(--brand-blue)]"
           />
           <span className="text-sm">
             <span className="font-semibold">Text me about this application</span>{" "}
             <span className="text-[color:var(--brand-ink-muted)]">(optional)</span>
             <span className="block text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
-              {smsConsentDisclosure(orgName)}
+              {smsConsentDisclosure(orgName)} See our{" "}
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="underline"
+              >
+                Terms
+              </a>{" "}
+              and{" "}
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="underline"
+              >
+                Privacy Policy
+              </a>
+              .
             </span>
           </span>
         </label>
@@ -197,7 +217,7 @@ export default function ApplicationForm({
               className={[
                 "flex-1 h-12 rounded-xl border-2 font-bold transition",
                 eligible === val
-                  ? "border-[color:var(--brand-pink)] bg-[color:var(--brand-pink)] text-white"
+                  ? "border-[color:var(--brand-blue)] bg-[color:var(--brand-blue)] text-white"
                   : "border-[color:var(--brand-line)] bg-white",
               ].join(" ")}
             >
@@ -235,7 +255,7 @@ export default function ApplicationForm({
                           className={[
                             "w-10 h-9 rounded-lg border-2 transition",
                             on
-                              ? "border-[color:var(--brand-pink)] bg-[color:var(--brand-pink)]"
+                              ? "border-[color:var(--brand-blue)] bg-[color:var(--brand-blue)]"
                               : "border-[color:var(--brand-line)] bg-white",
                           ].join(" ")}
                           aria-label={`${day} ${block}`}
@@ -312,7 +332,7 @@ export default function ApplicationForm({
                 <label className="label">
                   {q.label}{" "}
                   {q.required && (
-                    <span className="text-[color:var(--brand-pink-600)]">*</span>
+                    <span className="text-[color:var(--brand-blue-600)]">*</span>
                   )}
                 </label>
                 {q.type === "long_text" ? (
@@ -335,7 +355,7 @@ export default function ApplicationForm({
                         className={[
                           "flex-1 h-11 rounded-xl border-2 font-bold transition",
                           customAnswers[q.id] === opt
-                            ? "border-[color:var(--brand-pink)] bg-[color:var(--brand-pink)] text-white"
+                            ? "border-[color:var(--brand-blue)] bg-[color:var(--brand-blue)] text-white"
                             : "border-[color:var(--brand-line)] bg-white",
                         ].join(" ")}
                       >
@@ -377,7 +397,7 @@ export default function ApplicationForm({
 
 function ModeTag({ mode }: { mode: "optional" | "required" | "hidden" }) {
   if (mode === "required") {
-    return <span className="text-sm text-[color:var(--brand-pink-600)]">(required)</span>;
+    return <span className="text-sm text-[color:var(--brand-blue-600)]">(required)</span>;
   }
   return (
     <span className="font-normal text-[color:var(--brand-ink-muted)] text-sm">

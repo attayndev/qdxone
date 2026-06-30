@@ -133,7 +133,7 @@ export default async function CandidatesPage({ searchParams }: PageProps) {
                       {DECISION[a.decision].label}
                     </span>
                   )}
-                  <span className="chip bg-[color:var(--brand-pink-50)] text-[color:var(--brand-pink-600)] whitespace-nowrap">
+                  <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] whitespace-nowrap">
                     {STATUS[a.status]?.label ?? a.status}
                   </span>
                 </div>

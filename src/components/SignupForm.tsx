@@ -107,20 +107,20 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
             <button
               type="button"
               onClick={() => setCycle("monthly")}
-              className={`px-2.5 py-1 rounded-md ${cycle === "monthly" ? "bg-[color:var(--brand-pink)] text-white" : "text-[color:var(--brand-ink-muted)]"}`}
+              className={`px-2.5 py-1 rounded-md ${cycle === "monthly" ? "bg-[color:var(--brand-blue)] text-white" : "text-[color:var(--brand-ink-muted)]"}`}
             >
               Monthly
             </button>
             <button
               type="button"
               onClick={() => setCycle("annual")}
-              className={`px-2.5 py-1 rounded-md ${cycle === "annual" ? "bg-[color:var(--brand-pink)] text-white" : "text-[color:var(--brand-ink-muted)]"}`}
+              className={`px-2.5 py-1 rounded-md ${cycle === "annual" ? "bg-[color:var(--brand-blue)] text-white" : "text-[color:var(--brand-ink-muted)]"}`}
             >
               Annual · 2 mo free
             </button>
           </div>
         </div>
-        <div className="mt-2 rounded-xl border-2 border-[color:var(--brand-pink)] bg-[color:var(--brand-pink-50)] p-3">
+        <div className="mt-2 rounded-xl border-2 border-[color:var(--brand-blue)] bg-[color:var(--brand-soft)] p-3">
           <div className="font-bold">
             Solo — {cycle === "annual" ? "$590/yr" : "$59/mo"}
           </div>
