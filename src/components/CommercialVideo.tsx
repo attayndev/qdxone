@@ -5,16 +5,17 @@
  * so it doesn't compete with the hero CTA. No third-party embed, no cookies.
  */
 
-const VIDEO_SRC = "/media/qdxone.mp4";
-
 export function CommercialVideo({
   heading,
   sub,
   className = "",
+  src = "/media/qdxone.mp4",
 }: {
   heading?: string;
   sub?: string;
   className?: string;
+  /** R2-hosted video path; defaults to the 60-second commercial. */
+  src?: string;
 }) {
   return (
     <section className={`px-4 sm:px-6 py-10 sm:py-14 ${className}`}>
@@ -28,7 +29,7 @@ export function CommercialVideo({
         <div className="mt-6 relative rounded-2xl overflow-hidden border border-[color:var(--brand-line)] shadow-xl bg-black aspect-video">
           <video
             className="absolute inset-0 h-full w-full"
-            src={VIDEO_SRC}
+            src={src}
             controls
             playsInline
             preload="metadata"
@@ -36,7 +37,7 @@ export function CommercialVideo({
           >
             <p className="text-white p-4">
               Your browser can’t play this video.{" "}
-              <a href={VIDEO_SRC} className="underline">
+              <a href={src} className="underline">
                 Download it
               </a>{" "}
               instead.
