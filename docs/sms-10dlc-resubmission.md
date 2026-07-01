@@ -6,6 +6,12 @@ frequency, "msg & data rates may apply", and a privacy-policy link.
 
 ## What changed in the product (so the CTA is now verifiable)
 
+- **NEW public CTA page → https://qdx.one/messaging** — a single, publicly
+  reachable URL that shows the exact opt-in box + wording and states all six
+  required elements (opt-in path, HELP, STOP, frequency, "msg & data rates may
+  apply", privacy). **Use this as the campaign's Call-to-Action / message-flow
+  URL** — reviewers can't reach the application form (it's behind an employer's
+  posting link), so this page is what makes the CTA verifiable.
 - The opt-in checkbox disclosure now states **all** required elements (sender +
   purpose, **message frequency**, **msg & data rates may apply**, **STOP/HELP**)
   and links to **Terms** and **Privacy Policy** right at the checkbox.

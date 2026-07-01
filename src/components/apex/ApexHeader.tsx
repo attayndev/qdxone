@@ -99,6 +99,7 @@ export function ApexFooter() {
           <FL href="/signup">Start free</FL>
           <FL href="/terms">Terms</FL>
           <FL href="/privacy">Privacy</FL>
+          <FL href="/messaging">SMS terms</FL>
         </FooterCol>
       </div>
       <div className="border-t border-[color:var(--brand-line)] px-4 sm:px-6 py-4 text-xs text-[color:var(--brand-ink-muted)] flex justify-between max-w-6xl mx-auto">
