@@ -2,8 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { currentOrg } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
+import { fitByApplication } from "@/lib/assessment/fit";
+import { asView, matchesSearch, CANDIDATE_VIEWS } from "@/lib/candidate-filter";
 import CandidateFilters from "@/components/admin/CandidateFilters";
 import type { Database } from "@/lib/supabase/database.types";
+import type { OverallFit } from "@/lib/assessment/scoring";
 
 type AppRow = Database["public"]["Tables"]["applications"]["Row"];
 
@@ -20,28 +23,32 @@ const DECISION: Record<string, { label: string; cls: string }> = {
   declined: { label: "Declined", cls: "bg-amber-100 text-amber-800" },
 };
 
+const FIT_CLS: Record<OverallFit, string> = {
+  "Strong fit": "bg-emerald-100 text-emerald-800",
+  Consider: "bg-emerald-50 text-emerald-700",
+  Caution: "bg-amber-100 text-amber-800",
+  "Not recommended": "bg-rose-100 text-rose-700",
+  Incomplete: "bg-gray-100 text-gray-500",
+};
+
 interface PageProps {
-  searchParams: Promise<{
-    q?: string;
-    role?: string;
-    status?: string;
-    decision?: string;
-    show?: string;
-  }>;
+  searchParams: Promise<{ q?: string; view?: string }>;
 }
 
 export default async function CandidatesPage({ searchParams }: PageProps) {
   const sp = await searchParams;
+  const view = asView(sp.view);
+  const q = sp.q ?? "";
   const org = await currentOrg();
   if (!org) notFound();
   const supa = adminClient();
 
-  // Full-pipeline counts (unfiltered) for the cards + how many are decided.
+  // Full-pipeline counts (unfiltered) for the overview cards.
   const { data: allStatus } = await supa
     .from("applications")
-    .select("status, decision")
+    .select("status")
     .eq("org_id", org.id);
-  const statusRows = (allStatus as { status: string; decision: string | null }[] | null) ?? [];
+  const statusRows = (allStatus as { status: string }[] | null) ?? [];
   const counts: Record<string, number> = {
     new: 0,
     assessment_sent: 0,
@@ -49,29 +56,33 @@ export default async function CandidatesPage({ searchParams }: PageProps) {
     decision_made: 0,
   };
   for (const r of statusRows) counts[r.status] = (counts[r.status] ?? 0) + 1;
-  const decidedCount = statusRows.filter((r) => r.decision).length;
 
-  // Filtered list.
+  // List query — the view sets the server-side stage/decision filter.
   let query = supa
     .from("applications")
     .select("*")
     .eq("org_id", org.id)
     .order("submitted_at", { ascending: false })
     .limit(200);
-  if (sp.decision) query = query.eq("decision", sp.decision);
-  else if (sp.show !== "all") query = query.is("decision", null); // hide decided by default
-  if (sp.status) query = query.eq("status", sp.status as AppRow["status"]);
-  if (sp.role) query = query.contains("positions", [sp.role]);
-  if (sp.q) {
-    const t = sp.q.replace(/[%,()]/g, "").trim();
-    if (t) query = query.or(`first_name.ilike.%${t}%,last_name.ilike.%${t}%,email.ilike.%${t}%`);
-  }
-  const { data } = await query;
-  const apps = (data as AppRow[] | null) ?? [];
+  if (view === "decided") query = query.not("decision", "is", null);
+  else query = query.is("decision", null); // active / new / review / strong are all open
+  if (view === "new") query = query.in("status", ["new", "assessment_sent"]);
+  else if (view === "review") query = query.eq("status", "assessment_complete");
 
-  const roles = (org.branding?.roles ?? []) as string[];
-  const filtersActive = !!(sp.q || sp.role || sp.status || sp.decision);
-  const hidingDecided = !sp.decision && sp.show !== "all" && decidedCount > 0;
+  const [{ data }, fit] = await Promise.all([query, fitByApplication(org.id)]);
+  let apps = (data as AppRow[] | null) ?? [];
+
+  // "Strong fit" + free-text search are applied in memory against the computed
+  // fit — the same predicate meaning as the mobile app.
+  if (view === "strong") apps = apps.filter((a) => fit.get(a.id) === "Strong fit");
+  if (q.trim()) {
+    apps = apps.filter((a) =>
+      matchesSearch(
+        { firstName: a.first_name, lastName: a.last_name, email: a.email, role: a.positions?.[0] ?? "" },
+        q
+      )
+    );
+  }
 
   return (
     <div>
@@ -91,55 +102,51 @@ export default async function CandidatesPage({ searchParams }: PageProps) {
         ))}
       </div>
 
-      <CandidateFilters roles={roles} />
-
-      {hidingDecided && (
-        <p className="text-xs text-[color:var(--brand-ink-muted)] mt-2">
-          {decidedCount} decided candidate{decidedCount === 1 ? "" : "s"} hidden — tick
-          &ldquo;Include decided&rdquo; to show them.
-        </p>
-      )}
+      <CandidateFilters />
 
       <div className="card mt-4 p-0 overflow-hidden">
         <ul className="divide-y divide-[color:var(--brand-line)]">
           {apps.length === 0 && (
             <li className="p-6 text-sm text-[color:var(--brand-ink-muted)]">
-              {filtersActive || hidingDecided
-                ? "No candidates match these filters."
+              {q.trim() || view !== "active"
+                ? `No candidates in "${CANDIDATE_VIEWS.find((v) => v.key === view)?.label}"${
+                    q.trim() ? " matching your search" : ""
+                  }.`
                 : "No applications yet. Share a posting's link or QR to start collecting candidates."}
             </li>
           )}
-          {apps.map((a) => (
-            <li key={a.id}>
-              <Link
-                href={`/admin/candidates/${a.id}`}
-                className="flex items-center justify-between gap-3 p-4 hover:bg-[color:var(--brand-cream)]"
-              >
-                <div className="min-w-0">
-                  <div className="font-semibold truncate">
-                    {a.first_name} {a.last_name}
+          {apps.map((a) => {
+            const f = fit.get(a.id);
+            return (
+              <li key={a.id}>
+                <Link
+                  href={`/admin/candidates/${a.id}`}
+                  className="flex items-center justify-between gap-3 p-4 hover:bg-[color:var(--brand-cream)]"
+                >
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate">
+                      {a.first_name} {a.last_name}
+                    </div>
+                    <div className="text-xs text-[color:var(--brand-ink-muted)] flex flex-wrap gap-2 mt-0.5">
+                      <span>{a.positions?.[0] ?? "—"}</span>
+                      <span>·</span>
+                      <span>{a.email}</span>
+                      <span>·</span>
+                      <span>{new Date(a.submitted_at).toLocaleDateString()}</span>
+                    </div>
                   </div>
-                  <div className="text-xs text-[color:var(--brand-ink-muted)] flex flex-wrap gap-2 mt-0.5">
-                    <span>{a.positions?.[0] ?? "—"}</span>
-                    <span>·</span>
-                    <span>{a.email}</span>
-                    <span>·</span>
-                    <span>{new Date(a.submitted_at).toLocaleDateString()}</span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {f && <span className={`chip whitespace-nowrap ${FIT_CLS[f]}`}>{f}</span>}
+                    {a.decision && DECISION[a.decision] && (
+                      <span className={`chip whitespace-nowrap ${DECISION[a.decision].cls}`}>
+                        {DECISION[a.decision].label}
+                      </span>
+                    )}
                   </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {a.decision && DECISION[a.decision] && (
-                    <span className={`chip whitespace-nowrap ${DECISION[a.decision].cls}`}>
-                      {DECISION[a.decision].label}
-                    </span>
-                  )}
-                  <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] whitespace-nowrap">
-                    {STATUS[a.status]?.label ?? a.status}
-                  </span>
-                </div>
-              </Link>
-            </li>
-          ))}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>

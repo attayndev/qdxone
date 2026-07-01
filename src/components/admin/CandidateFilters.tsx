@@ -2,26 +2,19 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { CANDIDATE_VIEWS, asView } from "@/lib/candidate-filter";
 
-const STATUSES = [
-  { v: "", label: "All stages" },
-  { v: "new", label: "New" },
-  { v: "assessment_sent", label: "Assessment sent" },
-  { v: "assessment_complete", label: "Assessment complete" },
-  { v: "decision_made", label: "Decision made" },
-];
-const DECISIONS = [
-  { v: "", label: "Any decision" },
-  { v: "hired", label: "Hired" },
-  { v: "not_hired", label: "Not hired" },
-  { v: "declined", label: "Declined" },
-];
-
-export default function CandidateFilters({ roles }: { roles: string[] }) {
+/**
+ * Candidate list filter: one search box + a single row of one-tap "view" chips.
+ * Replaces the old three-dropdowns-plus-checkbox. State lives in the URL
+ * (`view`, `q`); the page renders the matching list server-side.
+ */
+export default function CandidateFilters() {
   const router = useRouter();
   const sp = useSearchParams();
   const [q, setQ] = useState(sp.get("q") ?? "");
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const view = asView(sp.get("view"));
 
   function push(next: Record<string, string>) {
     const params = new URLSearchParams(sp.toString());
@@ -44,45 +37,34 @@ export default function CandidateFilters({ roles }: { roles: string[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q]);
 
-  const showDecided = sp.get("show") === "all";
-  const status = sp.get("status") ?? "";
-  const role = sp.get("role") ?? "";
-  const decision = sp.get("decision") ?? "";
-
   return (
-    <div className="flex flex-wrap items-center gap-2 mt-6">
+    <div className="mt-6 space-y-3">
       <input
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="Search name or email"
-        className="input w-56"
+        placeholder="Search by name, email, or role"
+        className="input w-full sm:w-80"
       />
-      <select className="input w-auto" value={status} onChange={(e) => push({ status: e.target.value })}>
-        {STATUSES.map((s) => (
-          <option key={s.v} value={s.v}>{s.label}</option>
-        ))}
-      </select>
-      {roles.length > 0 && (
-        <select className="input w-auto" value={role} onChange={(e) => push({ role: e.target.value })}>
-          <option value="">All roles</option>
-          {roles.map((r) => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
-      )}
-      <select className="input w-auto" value={decision} onChange={(e) => push({ decision: e.target.value })}>
-        {DECISIONS.map((d) => (
-          <option key={d.v} value={d.v}>{d.label}</option>
-        ))}
-      </select>
-      <label className="flex items-center gap-2 text-sm text-[color:var(--brand-ink-muted)] ml-1">
-        <input
-          type="checkbox"
-          checked={showDecided}
-          onChange={(e) => push({ show: e.target.checked ? "all" : "" })}
-        />
-        Include decided
-      </label>
+      <div className="flex flex-wrap gap-2">
+        {CANDIDATE_VIEWS.map((v) => {
+          const active = v.key === view;
+          return (
+            <button
+              key={v.key}
+              type="button"
+              onClick={() => push({ view: v.key })}
+              className={
+                "rounded-full px-4 py-1.5 text-sm font-semibold border transition " +
+                (active
+                  ? "bg-[color:var(--brand-blue)] text-white border-[color:var(--brand-blue)]"
+                  : "bg-white text-[color:var(--brand-ink)] border-[color:var(--brand-line)] hover:border-[color:var(--brand-blue)]")
+              }
+            >
+              {v.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

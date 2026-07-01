@@ -1,16 +1,24 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
+  ScrollView,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { apiGet } from "@/lib/api";
 import { brand, tone } from "@/theme";
+import {
+  CANDIDATE_VIEWS,
+  matchesSearch,
+  matchesView,
+  type CandidateView,
+} from "@/lib/candidateFilter";
 
 interface Candidate {
   id: string;
@@ -44,6 +52,8 @@ export default function Candidates() {
   const [candidates, setCandidates] = useState<Candidate[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [view, setView] = useState<CandidateView>("active");
+  const [q, setQ] = useState("");
 
   const load = useCallback(async () => {
     try {
@@ -69,6 +79,11 @@ export default function Candidates() {
     setRefreshing(false);
   }, [load]);
 
+  const filtered = useMemo(
+    () => (candidates ?? []).filter((c) => matchesView(c, view) && matchesSearch(c, q)),
+    [candidates, view, q]
+  );
+
   if (candidates === null) {
     return (
       <View style={{ flex: 1, backgroundColor: brand.cream, alignItems: "center", justifyContent: "center" }}>
@@ -78,14 +93,9 @@ export default function Candidates() {
   }
 
   return (
-    <FlatList
-      style={{ flex: 1, backgroundColor: brand.cream }}
-      contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
-      data={candidates}
-      keyExtractor={(c) => c.id}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand.blue} />}
-      ListHeaderComponent={
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+    <View style={{ flex: 1, backgroundColor: brand.cream }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 12, gap: 10 }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={{ color: brand.inkMuted, fontSize: 13 }} numberOfLines={1}>
             {session?.user.email}
           </Text>
@@ -93,49 +103,109 @@ export default function Candidates() {
             <Text style={{ color: brand.blueDeep, fontWeight: "600", fontSize: 13 }}>Sign out</Text>
           </Pressable>
         </View>
-      }
-      ListEmptyComponent={
-        <View style={{ padding: 24, alignItems: "center" }}>
-          <Text style={{ fontSize: 40 }}>🗂️</Text>
-          <Text style={{ marginTop: 8, color: brand.inkMuted, textAlign: "center" }}>
-            {error ? error : "No applicants yet. Share a posting's link or QR to start collecting candidates."}
-          </Text>
-        </View>
-      }
-      renderItem={({ item }) => {
-        const fit = item.fit ? FIT_COLOR[item.fit] ?? FIT_COLOR.Incomplete : null;
-        return (
-          <Pressable
-            onPress={() => router.push(`/candidate/${item.id}`)}
-            style={({ pressed }) => ({
-              backgroundColor: brand.white,
-              borderRadius: 14,
-              borderWidth: 1,
-              borderColor: brand.line,
-              padding: 14,
-              marginBottom: 10,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              opacity: pressed ? 0.6 : 1,
-            })}
-          >
-            <View style={{ flex: 1, paddingRight: 10 }}>
-              <Text style={{ fontWeight: "800", color: brand.ink, fontSize: 16 }} numberOfLines={1}>
-                {item.firstName} {item.lastName}
-              </Text>
-              <Text style={{ color: brand.inkMuted, fontSize: 13, marginTop: 2 }} numberOfLines={1}>
-                {item.role} · {STATUS_LABEL[item.status] ?? item.status}
-              </Text>
-            </View>
-            {fit && (
-              <View style={{ backgroundColor: fit.bg, borderRadius: 9999, paddingHorizontal: 12, paddingVertical: 5 }}>
-                <Text style={{ color: fit.fg, fontWeight: "700", fontSize: 12 }}>{item.fit}</Text>
+
+        <TextInput
+          value={q}
+          onChangeText={setQ}
+          placeholder="Search by name, email, or role"
+          placeholderTextColor={brand.inkMuted}
+          autoCapitalize="none"
+          autoCorrect={false}
+          style={{
+            borderWidth: 1,
+            borderColor: brand.line,
+            borderRadius: 12,
+            paddingHorizontal: 14,
+            paddingVertical: 10,
+            backgroundColor: brand.white,
+            color: brand.ink,
+            fontSize: 15,
+          }}
+        />
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 8, paddingBottom: 2 }}
+        >
+          {CANDIDATE_VIEWS.map((v) => {
+            const active = v.key === view;
+            return (
+              <Pressable
+                key={v.key}
+                onPress={() => setView(v.key)}
+                style={{
+                  borderWidth: 1.5,
+                  borderColor: active ? brand.blue : brand.line,
+                  backgroundColor: active ? brand.blue : brand.white,
+                  borderRadius: 9999,
+                  paddingHorizontal: 14,
+                  paddingVertical: 7,
+                }}
+              >
+                <Text style={{ color: active ? brand.white : brand.ink, fontWeight: "700", fontSize: 13 }}>
+                  {v.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      <FlatList
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+        data={filtered}
+        keyExtractor={(c) => c.id}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand.blue} />}
+        ListEmptyComponent={
+          <View style={{ padding: 24, alignItems: "center" }}>
+            <Text style={{ fontSize: 40 }}>🗂️</Text>
+            <Text style={{ marginTop: 8, color: brand.inkMuted, textAlign: "center" }}>
+              {error
+                ? error
+                : candidates.length === 0
+                  ? "No applicants yet. Share a posting's link or QR to start collecting candidates."
+                  : "No candidates match this filter."}
+            </Text>
+          </View>
+        }
+        renderItem={({ item }) => {
+          const fit = item.fit ? FIT_COLOR[item.fit] ?? FIT_COLOR.Incomplete : null;
+          return (
+            <Pressable
+              onPress={() => router.push(`/candidate/${item.id}`)}
+              style={({ pressed }) => ({
+                backgroundColor: brand.white,
+                borderRadius: 14,
+                borderWidth: 1,
+                borderColor: brand.line,
+                padding: 14,
+                marginBottom: 10,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                opacity: pressed ? 0.6 : 1,
+              })}
+            >
+              <View style={{ flex: 1, paddingRight: 10 }}>
+                <Text style={{ fontWeight: "800", color: brand.ink, fontSize: 16 }} numberOfLines={1}>
+                  {item.firstName} {item.lastName}
+                </Text>
+                <Text style={{ color: brand.inkMuted, fontSize: 13, marginTop: 2 }} numberOfLines={1}>
+                  {item.role} · {STATUS_LABEL[item.status] ?? item.status}
+                </Text>
               </View>
-            )}
-          </Pressable>
-        );
-      }}
-    />
+              {fit && (
+                <View style={{ backgroundColor: fit.bg, borderRadius: 9999, paddingHorizontal: 12, paddingVertical: 5 }}>
+                  <Text style={{ color: fit.fg, fontWeight: "700", fontSize: 12 }}>{item.fit}</Text>
+                </View>
+              )}
+            </Pressable>
+          );
+        }}
+      />
+    </View>
   );
 }
