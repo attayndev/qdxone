@@ -112,12 +112,12 @@ async function handleCallback(request: NextRequest) {
     organizations: { slug: string } | { slug: string }[] | null;
   };
   const list = (memberships ?? []) as Memb[];
-  const first = list[0];
-  const slugFromMembership = first
-    ? Array.isArray(first.organizations)
-      ? first.organizations[0]?.slug
-      : first.organizations?.slug
-    : null;
+  const slugOf = (m: Memb) =>
+    Array.isArray(m.organizations) ? m.organizations[0]?.slug : m.organizations?.slug;
+  // Prefer a real org over the shared "demo" org, so a platform admin who was
+  // added to the demo still lands on their own org on a normal login.
+  const preferred = list.find((m) => slugOf(m) && slugOf(m) !== "demo") ?? list[0];
+  const slugFromMembership = preferred ? slugOf(preferred) : null;
 
   if (!slugFromMembership) {
     // A platform admin need not belong to any org — send them to the console.

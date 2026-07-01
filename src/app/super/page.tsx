@@ -7,6 +7,7 @@ import { orgActivityMap } from "@/lib/super/metrics";
 import { SuperNav } from "@/components/super/SuperNav";
 import { SuperFilters } from "@/components/super/SuperFilters";
 import { SuperLogin } from "@/components/super/SuperLogin";
+import { SeedDemoButton } from "@/components/super/SeedDemoButton";
 import type { OrganizationRow } from "@/lib/supabase/types";
 
 interface PageProps {
@@ -54,6 +55,10 @@ export default async function SuperAdminPage({ searchParams }: PageProps) {
           <Stat label="Trial" value={totals.trial} />
           <Stat label="Past due" value={totals.pastDue} />
           <Stat label="MRR (rough)" value={`$${mrr}`} />
+        </div>
+
+        <div className="mt-4 mb-1">
+          <SeedDemoButton />
         </div>
 
         <SuperFilters />
