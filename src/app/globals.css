@@ -123,3 +123,9 @@ body {
   font-size: 0.8rem;
   font-weight: 600;
 }
+
+/* The demo bar (components/demo/DemoBar) floats at the very top on demo pages;
+   offset any page-level sticky header below it so they don't overlap. */
+body:has(.demo-bar) header {
+  top: 2.5rem;
+}

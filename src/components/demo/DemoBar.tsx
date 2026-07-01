@@ -15,10 +15,13 @@ const LINKS = [
 
 export function DemoBar() {
   return (
-    <div className="bg-[color:var(--brand-ink)] text-white text-sm">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-x-4 gap-y-1 flex-wrap">
-        <span className="font-semibold">🔍 Live demo — explore the operator dashboard:</span>
-        <nav className="flex items-center gap-4 flex-wrap">
+    // `demo-bar` marker + sticky: floats at the top; globals.css offsets the
+    // page's own sticky header below it. Fixed height so that offset is exact;
+    // scrolls horizontally on narrow screens instead of wrapping.
+    <div className="demo-bar sticky top-0 z-50 bg-[color:var(--brand-ink)] text-white text-sm">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-10 flex items-center gap-4 overflow-x-auto whitespace-nowrap">
+        <span className="font-semibold shrink-0">🔍 Live demo:</span>
+        <nav className="flex items-center gap-4 shrink-0">
           {LINKS.map((l) => (
             <a
               key={l.to}
