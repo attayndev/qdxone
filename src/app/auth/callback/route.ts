@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { adminClient } from "@/lib/supabase/admin";
 import { extractSlugFromHost, orgUrl } from "@/lib/tenancy";
 import { apexUrl } from "@/lib/host";
+import { isPlatformAdmin } from "@/lib/super/admin";
 
 /**
  * Auth callback. Primary path is the `token_hash` OTP flow (verifyOtp) — it
@@ -94,6 +95,12 @@ async function handleCallback(request: NextRequest) {
   // On a subdomain callback, just go to `next`.
   if (slug) return NextResponse.redirect(orgUrl(slug, next));
 
+  // Platform-admin sign-in: an explicit /super intent wins over org routing, so
+  // an admin who also owns an org still lands on the console.
+  if (next.startsWith("/super") && (await isPlatformAdmin(user))) {
+    return NextResponse.redirect(apexUrl("/super"));
+  }
+
   // On the apex, resolve the user's primary org → its subdomain admin.
   const admin = adminClient();
   const { data: memberships } = await admin
@@ -113,6 +120,10 @@ async function handleCallback(request: NextRequest) {
     : null;
 
   if (!slugFromMembership) {
+    // A platform admin need not belong to any org — send them to the console.
+    if (await isPlatformAdmin(user)) {
+      return NextResponse.redirect(apexUrl("/super"));
+    }
     return NextResponse.redirect(apexUrl("/login?error=no_org"));
   }
   return NextResponse.redirect(orgUrl(slugFromMembership, "/admin"));

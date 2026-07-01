@@ -2,10 +2,11 @@ import Link from "next/link";
 import { adminClient } from "@/lib/supabase/admin";
 import { ROOT_DOMAIN } from "@/lib/host";
 import { effectiveTier, monthlyBasePrice } from "@/lib/plan";
-import { requirePlatformOwner } from "@/lib/super/guard";
+import { platformContext } from "@/lib/super/guard";
 import { orgActivityMap } from "@/lib/super/metrics";
 import { SuperNav } from "@/components/super/SuperNav";
 import { SuperFilters } from "@/components/super/SuperFilters";
+import { SuperLogin } from "@/components/super/SuperLogin";
 import type { OrganizationRow } from "@/lib/supabase/types";
 
 interface PageProps {
@@ -13,7 +14,8 @@ interface PageProps {
 }
 
 export default async function SuperAdminPage({ searchParams }: PageProps) {
-  await requirePlatformOwner();
+  const { user, isAdmin } = await platformContext();
+  if (!isAdmin) return <SuperLogin signedInEmail={user?.email ?? null} />;
   const sp = await searchParams;
   const q = (sp.q ?? "").trim().toLowerCase();
   const statusFilter = sp.status ?? "";
