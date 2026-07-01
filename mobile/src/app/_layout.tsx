@@ -45,6 +45,7 @@ function RootNav() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="sign-in" />
+      <Stack.Screen name="auth-callback" />
       <Stack.Screen
         name="candidate/[id]"
         options={{

@@ -50,6 +50,21 @@ async function requireOperator() {
   }
 }
 
+/**
+ * Complete a Google OAuth sign-in from the redirect's `code`, then verify the
+ * account is an operator. Idempotent — skips the exchange if a session already
+ * exists, so the iOS in-app return and the Android deep-link route (see
+ * app/auth-callback.tsx) can't both spend the one-time PKCE code.
+ */
+export async function completeOAuthCode(code: string): Promise<void> {
+  const { data: existing } = await supabase.auth.getSession();
+  if (!existing.session) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) throw error;
+  }
+  await requireOperator();
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -77,14 +92,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     if (error) throw error;
 
+    // iOS returns the redirect here (ASWebAuthenticationSession captures the
+    // custom scheme). Android instead fires it as a deep link that the
+    // app/auth-callback route completes — there openAuthSessionAsync just
+    // resolves "dismiss", so we no-op and let the route finish the exchange.
     const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-    if (result.type !== "success") return; // user dismissed the browser
+    if (result.type !== "success") return;
 
     const code = Linking.parse(result.url).queryParams?.code;
-    if (typeof code !== "string") throw new Error("Sign-in was cancelled.");
-    const { error: xErr } = await supabase.auth.exchangeCodeForSession(code);
-    if (xErr) throw xErr;
-    await requireOperator();
+    if (typeof code === "string") await completeOAuthCode(code);
   }
 
   async function signInWithApple() {
