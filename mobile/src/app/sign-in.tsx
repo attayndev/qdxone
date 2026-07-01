@@ -13,7 +13,8 @@ import * as AppleAuthentication from "expo-apple-authentication";
 import { Redirect } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
-import { brand } from "@/theme";
+import { QdxWordmark } from "@/components/QdxLogo";
+import { brand, feedback } from "@/theme";
 
 export default function SignIn() {
   const { session, appleAvailable, signInWithGoogle, signInWithApple } = useAuth();
@@ -75,12 +76,10 @@ export default function SignIn() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1, justifyContent: "center", padding: 24 }}
       >
-        <Text style={{ fontSize: 34, fontWeight: "900", color: brand.ink, letterSpacing: -0.5 }}>
-          <Text style={{ color: brand.pink }}>qdx</Text> One
-        </Text>
-        <Text style={{ marginTop: 8, fontSize: 16, color: brand.inkMuted }}>
+        <QdxWordmark size={34} />
+        <Text style={{ marginTop: 10, fontSize: 16, color: brand.inkMuted }}>
           {stage === "email"
-            ? "Sign in with your work email — we'll text you a code."
+            ? "Sign in with your work email — we'll email you a code."
             : `Enter the code we emailed to ${email}.`}
         </Text>
 
@@ -107,7 +106,7 @@ export default function SignIn() {
           />
         )}
 
-        {error && <Text style={{ color: "#dc2626", marginTop: 10 }}>{error}</Text>}
+        {error && <Text style={{ color: feedback.dangerSolid, marginTop: 10 }}>{error}</Text>}
 
         <Pressable
           onPress={stage === "email" ? sendCode : verify}
@@ -115,7 +114,7 @@ export default function SignIn() {
           style={({ pressed }) => [
             {
               marginTop: 20,
-              backgroundColor: brand.pink,
+              backgroundColor: brand.blue,
               borderRadius: 9999,
               paddingVertical: 16,
               alignItems: "center",
@@ -125,9 +124,9 @@ export default function SignIn() {
           ]}
         >
           {busy ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={brand.white} />
           ) : (
-            <Text style={{ color: "#fff", fontWeight: "700", fontSize: 16 }}>
+            <Text style={{ color: brand.white, fontWeight: "700", fontSize: 16 }}>
               {stage === "email" ? "Send code" : "Sign in"}
             </Text>
           )}

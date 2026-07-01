@@ -13,7 +13,7 @@ import {
 import { useFocusEffect } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { apiGet, apiSend } from "@/lib/api";
-import { brand } from "@/theme";
+import { brand, tone, feedback } from "@/theme";
 
 type PayPeriod = "hour" | "year";
 
@@ -38,9 +38,9 @@ interface Screen {
 }
 
 const STATUS_TONE: Record<string, { bg: string; fg: string }> = {
-  open: { bg: "#dcfce7", fg: "#166534" },
-  closed: { bg: "#f1f5f9", fg: brand.inkMuted },
-  draft: { bg: brand.pink50, fg: brand.pink600 },
+  open: tone.success,
+  closed: tone.neutral,
+  draft: tone.info,
 };
 
 /** Mirror of web src/lib/pay.formatPay — "$16–$18 / hour + tips". */
@@ -77,7 +77,7 @@ export default function PostJob() {
         {error ? (
           <Text style={{ color: brand.inkMuted, padding: 24, textAlign: "center" }}>{error}</Text>
         ) : (
-          <ActivityIndicator color={brand.pink} size="large" />
+          <ActivityIndicator color={brand.blue} size="large" />
         )}
       </View>
     );
@@ -145,7 +145,7 @@ function CreateForm({ screen, onCreated }: { screen: Screen; onCreated: () => vo
     return (
       <Card>
         <Text style={{ fontWeight: "800", fontSize: 16, color: brand.ink }}>New posting</Text>
-        <Text style={{ color: brand.pink600, marginTop: 8, fontSize: 14 }}>
+        <Text style={{ color: brand.blueDeep, marginTop: 8, fontSize: 14 }}>
           Set up your store profile on the web first, then come back to post.
         </Text>
       </Card>
@@ -197,20 +197,20 @@ function CreateForm({ screen, onCreated }: { screen: Screen; onCreated: () => vo
         <Switch
           value={tips}
           onValueChange={setTips}
-          trackColor={{ true: brand.pink, false: brand.line }}
+          trackColor={{ true: brand.blue, false: brand.line }}
           thumbColor={brand.white}
         />
         <Text style={{ color: brand.ink, fontSize: 14 }}>This role earns tips (shows “+ tips”)</Text>
       </View>
 
-      {err && <Text style={{ color: "#b91c1c", marginTop: 10, fontSize: 13 }}>{err}</Text>}
+      {err && <Text style={{ color: feedback.dangerText, marginTop: 10, fontSize: 13 }}>{err}</Text>}
 
       <Pressable
         disabled={saving}
         onPress={submit}
         style={{
           marginTop: 16,
-          backgroundColor: brand.pink,
+          backgroundColor: brand.blue,
           borderRadius: 12,
           paddingVertical: 14,
           alignItems: "center",
@@ -352,14 +352,14 @@ function ChipRow({
             onPress={() => onChange(o.key)}
             style={{
               borderWidth: 1.5,
-              borderColor: active ? brand.pink : brand.line,
-              backgroundColor: active ? brand.pink50 : brand.white,
+              borderColor: active ? brand.blue : brand.line,
+              backgroundColor: active ? brand.soft : brand.white,
               borderRadius: 9999,
               paddingHorizontal: 14,
               paddingVertical: 8,
             }}
           >
-            <Text style={{ color: active ? brand.pink600 : brand.ink, fontWeight: active ? "700" : "500", fontSize: 13 }}>
+            <Text style={{ color: active ? brand.blueDeep : brand.ink, fontWeight: active ? "700" : "500", fontSize: 13 }}>
               {o.label}
             </Text>
           </Pressable>
@@ -404,7 +404,7 @@ function LinkBtn({
 }) {
   return (
     <Pressable onPress={onPress} disabled={disabled} style={{ opacity: disabled ? 0.4 : 1 }}>
-      <Text style={{ color: danger ? "#dc2626" : brand.pink600, fontWeight: "700", fontSize: 14 }}>{label}</Text>
+      <Text style={{ color: danger ? feedback.dangerSolid : brand.blueDeep, fontWeight: "700", fontSize: 14 }}>{label}</Text>
     </Pressable>
   );
 }

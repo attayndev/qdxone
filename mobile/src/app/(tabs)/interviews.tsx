@@ -12,7 +12,7 @@ import {
 import { router, useFocusEffect } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { apiGet, apiSend } from "@/lib/api";
-import { brand } from "@/theme";
+import { brand, feedback } from "@/theme";
 
 type MeetingType = "in_person" | "phone" | "google_meet" | "teams";
 
@@ -84,7 +84,7 @@ export default function Interviews() {
   if (interviews === null) {
     return (
       <View style={{ flex: 1, backgroundColor: brand.cream, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator color={brand.pink} size="large" />
+        <ActivityIndicator color={brand.blue} size="large" />
       </View>
     );
   }
@@ -95,7 +95,7 @@ export default function Interviews() {
       contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
       data={interviews}
       keyExtractor={(i) => i.id}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand.pink} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand.blue} />}
       ListEmptyComponent={
         <View style={{ padding: 24, alignItems: "center" }}>
           <Text style={{ fontSize: 40 }}>📅</Text>
@@ -155,7 +155,7 @@ function InterviewCard({ interview, onChanged }: { interview: Interview; onChang
         {formatWhen(interview.startAt, interview.timezone)}
       </Text>
       <Pressable onPress={() => router.push(`/candidate/${interview.applicationId}`)} style={{ marginTop: 4 }}>
-        <Text style={{ fontSize: 15, color: brand.pink600, fontWeight: "700" }}>
+        <Text style={{ fontSize: 15, color: brand.blueDeep, fontWeight: "700" }}>
           {interview.candidateName}
         </Text>
       </Pressable>
@@ -169,16 +169,16 @@ function InterviewCard({ interview, onChanged }: { interview: Interview; onChang
       <View style={{ flexDirection: "row", gap: 18, marginTop: 12, alignItems: "center", flexWrap: "wrap" }}>
         {join ? (
           <Pressable onPress={() => WebBrowser.openBrowserAsync(join)}>
-            <Text style={{ color: brand.pink600, fontWeight: "700", fontSize: 14 }}>Join</Text>
+            <Text style={{ color: brand.blueDeep, fontWeight: "700", fontSize: 14 }}>Join</Text>
           </Pressable>
         ) : null}
         {join ? (
           <Pressable onPress={() => Share.share({ message: join, url: join, title: "Interview link" })}>
-            <Text style={{ color: brand.pink600, fontWeight: "700", fontSize: 14 }}>Share link</Text>
+            <Text style={{ color: brand.blueDeep, fontWeight: "700", fontSize: 14 }}>Share link</Text>
           </Pressable>
         ) : null}
         <Pressable onPress={cancel} disabled={busy} style={{ opacity: busy ? 0.4 : 1 }}>
-          <Text style={{ color: "#dc2626", fontWeight: "700", fontSize: 14 }}>Cancel</Text>
+          <Text style={{ color: feedback.dangerSolid, fontWeight: "700", fontSize: 14 }}>Cancel</Text>
         </Pressable>
       </View>
     </View>

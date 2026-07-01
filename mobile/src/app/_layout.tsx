@@ -36,7 +36,7 @@ function RootNav() {
   if (loading) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: brand.cream }}>
-        <ActivityIndicator color={brand.pink} size="large" />
+        <ActivityIndicator color={brand.blue} size="large" />
       </View>
     );
   }
@@ -52,7 +52,7 @@ function RootNav() {
           headerTitle: "Candidate",
           headerStyle: { backgroundColor: brand.white },
           headerTitleStyle: { color: brand.ink, fontWeight: "800" },
-          headerTintColor: brand.pink600,
+          headerTintColor: brand.blueDeep,
           headerBackTitle: "Back",
         }}
       />

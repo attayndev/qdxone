@@ -38,7 +38,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#16223d",
           "android": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
@@ -54,6 +54,12 @@
       "eas": {
         "projectId": "27fba61e-5af3-44f2-858b-d2515f63f42d"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/27fba61e-5af3-44f2-858b-d2515f63f42d"
     }
   }
 }

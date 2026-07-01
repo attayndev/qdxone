@@ -10,7 +10,7 @@ import {
 import { router, useFocusEffect } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { apiGet } from "@/lib/api";
-import { brand } from "@/theme";
+import { brand, tone } from "@/theme";
 
 interface Candidate {
   id: string;
@@ -25,11 +25,11 @@ interface Candidate {
 }
 
 const FIT_COLOR: Record<string, { bg: string; fg: string }> = {
-  "Strong fit": { bg: "#dcfce7", fg: "#166534" },
-  Consider: { bg: brand.pink50, fg: brand.pink600 },
-  Caution: { bg: "#fef3c7", fg: brand.amber },
-  "Not recommended": { bg: "#fee2e2", fg: "#b91c1c" },
-  Incomplete: { bg: "#f1f5f9", fg: brand.inkMuted },
+  "Strong fit": tone.success,
+  Consider: tone.info,
+  Caution: tone.warning,
+  "Not recommended": tone.danger,
+  Incomplete: tone.neutral,
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -72,7 +72,7 @@ export default function Candidates() {
   if (candidates === null) {
     return (
       <View style={{ flex: 1, backgroundColor: brand.cream, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator color={brand.pink} size="large" />
+        <ActivityIndicator color={brand.blue} size="large" />
       </View>
     );
   }
@@ -83,14 +83,14 @@ export default function Candidates() {
       contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
       data={candidates}
       keyExtractor={(c) => c.id}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand.pink} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={brand.blue} />}
       ListHeaderComponent={
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <Text style={{ color: brand.inkMuted, fontSize: 13 }} numberOfLines={1}>
             {session?.user.email}
           </Text>
           <Pressable onPress={signOut}>
-            <Text style={{ color: brand.pink600, fontWeight: "600", fontSize: 13 }}>Sign out</Text>
+            <Text style={{ color: brand.blueDeep, fontWeight: "600", fontSize: 13 }}>Sign out</Text>
           </Pressable>
         </View>
       }

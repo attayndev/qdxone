@@ -12,7 +12,7 @@ import {
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { apiGet, apiSend } from "@/lib/api";
-import { brand } from "@/theme";
+import { brand, tone, feedback } from "@/theme";
 
 type Band = "Low" | "Mid" | "High";
 
@@ -55,15 +55,15 @@ interface Detail {
 }
 
 const BAND_TONE: Record<Band, { bg: string; fg: string }> = {
-  High: { bg: "#dcfce7", fg: "#166534" },
-  Mid: { bg: "#fef3c7", fg: brand.amber },
-  Low: { bg: "#fee2e2", fg: "#b91c1c" },
+  High: tone.success,
+  Mid: tone.warning,
+  Low: tone.danger,
 };
 const OVERALL_TONE: Record<string, { bg: string; fg: string }> = {
-  "Strong fit": { bg: brand.green, fg: brand.white },
-  Consider: { bg: "#dcfce7", fg: "#14532d" },
-  Caution: { bg: "#fef3c7", fg: "#78350f" },
-  "Not recommended": { bg: "#dc2626", fg: brand.white },
+  "Strong fit": tone.successSolid,
+  Consider: tone.success,
+  Caution: tone.warning,
+  "Not recommended": tone.dangerSolid,
 };
 
 const DECISIONS = [
@@ -127,7 +127,7 @@ export default function CandidateDetail() {
         {error ? (
           <Text style={{ color: brand.inkMuted, padding: 24, textAlign: "center" }}>{error}</Text>
         ) : (
-          <ActivityIndicator color={brand.pink} size="large" />
+          <ActivityIndicator color={brand.blue} size="large" />
         )}
       </View>
     );
@@ -152,9 +152,9 @@ export default function CandidateDetail() {
 
       {/* Reliability warning */}
       {r?.unreliable && (
-        <Card style={{ borderColor: "#f59e0b", borderWidth: 2, backgroundColor: "#fffbeb" }}>
-          <Text style={{ fontWeight: "800", color: "#78350f" }}>⚠️ Score unreliable</Text>
-          <Text style={{ color: "#78350f", fontSize: 13, marginTop: 4 }}>
+        <Card style={{ borderColor: feedback.warnBorder, borderWidth: 2, backgroundColor: feedback.warnSurface }}>
+          <Text style={{ fontWeight: "800", color: feedback.warnText }}>⚠️ Score unreliable</Text>
+          <Text style={{ color: feedback.warnText, fontSize: 13, marginTop: 4 }}>
             Answers weren&apos;t careful — don&apos;t reject on the fit below. Consider an interview or a retake.
           </Text>
         </Card>
@@ -215,7 +215,7 @@ export default function CandidateDetail() {
                     style={{
                       fontSize: 13,
                       color:
-                        f.tone === "positive" ? "#15803d" : f.tone === "concern" ? "#b91c1c" : brand.inkMuted,
+                        f.tone === "positive" ? feedback.positiveText : f.tone === "concern" ? feedback.dangerText : brand.inkMuted,
                     }}
                   >
                     {f.tone === "positive" ? "✓ " : f.tone === "concern" ? "⚠ " : "• "}
@@ -261,8 +261,8 @@ export default function CandidateDetail() {
                 onPress={() => save(d.value)}
                 style={{
                   borderWidth: 1.5,
-                  borderColor: active ? brand.pink : brand.line,
-                  backgroundColor: active ? brand.pink50 : brand.white,
+                  borderColor: active ? brand.blue : brand.line,
+                  backgroundColor: active ? brand.soft : brand.white,
                   borderRadius: 12,
                   paddingVertical: 12,
                   paddingHorizontal: 14,
@@ -271,8 +271,8 @@ export default function CandidateDetail() {
                   justifyContent: "space-between",
                 }}
               >
-                <Text style={{ fontWeight: "700", color: active ? brand.pink600 : brand.ink }}>{d.label}</Text>
-                {active && <Text style={{ color: brand.pink600, fontWeight: "800" }}>✓</Text>}
+                <Text style={{ fontWeight: "700", color: active ? brand.blueDeep : brand.ink }}>{d.label}</Text>
+                {active && <Text style={{ color: brand.blueDeep, fontWeight: "800" }}>✓</Text>}
               </Pressable>
             );
           })}
@@ -301,12 +301,12 @@ export default function CandidateDetail() {
 
         {decision && (
           <Pressable disabled={saving} onPress={() => save(null)} style={{ marginTop: 12, alignSelf: "flex-start" }}>
-            <Text style={{ color: brand.pink600, fontWeight: "600" }}>Clear decision</Text>
+            <Text style={{ color: brand.blueDeep, fontWeight: "600" }}>Clear decision</Text>
           </Pressable>
         )}
         {saving && (
           <View style={{ marginTop: 10, flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <ActivityIndicator color={brand.pink} />
+            <ActivityIndicator color={brand.blue} />
             <Text style={{ color: brand.inkMuted, fontSize: 13 }}>Saving…</Text>
           </View>
         )}
@@ -437,14 +437,14 @@ function InviteSection({
               onPress={() => setTypeId(t.id)}
               style={{
                 borderWidth: 1.5,
-                borderColor: active ? brand.pink : brand.line,
-                backgroundColor: active ? brand.pink50 : brand.white,
+                borderColor: active ? brand.blue : brand.line,
+                backgroundColor: active ? brand.soft : brand.white,
                 borderRadius: 9999,
                 paddingHorizontal: 14,
                 paddingVertical: 8,
               }}
             >
-              <Text style={{ color: active ? brand.pink600 : brand.ink, fontWeight: active ? "700" : "500", fontSize: 13 }}>
+              <Text style={{ color: active ? brand.blueDeep : brand.ink, fontWeight: active ? "700" : "500", fontSize: 13 }}>
                 {t.name} · {t.durationMinutes} min
               </Text>
             </Pressable>
@@ -457,7 +457,7 @@ function InviteSection({
         onPress={() => invite(true)}
         style={{
           marginTop: 14,
-          backgroundColor: brand.pink,
+          backgroundColor: brand.blue,
           borderRadius: 12,
           paddingVertical: 13,
           alignItems: "center",
@@ -475,14 +475,14 @@ function InviteSection({
       )}
 
       <Pressable disabled={busy} onPress={() => invite(false)} style={{ marginTop: 12, alignItems: "center" }}>
-        <Text style={{ color: brand.pink600, fontWeight: "700", fontSize: 14 }}>
+        <Text style={{ color: brand.blueDeep, fontWeight: "700", fontSize: 14 }}>
           {url ? "New link" : "Get a link to share instead"}
         </Text>
       </Pressable>
 
-      {err && <Text style={{ color: "#b91c1c", fontSize: 13, marginTop: 10 }}>{err}</Text>}
+      {err && <Text style={{ color: feedback.dangerText, fontSize: 13, marginTop: 10 }}>{err}</Text>}
       {sentTo && (
-        <Text style={{ color: "#15803d", fontSize: 13, marginTop: 10 }}>
+        <Text style={{ color: feedback.positiveText, fontSize: 13, marginTop: 10 }}>
           ✓ Emailed to {sentTo} (from your store).
         </Text>
       )}
@@ -494,10 +494,10 @@ function InviteSection({
           </Text>
           <View style={{ flexDirection: "row", gap: 18, marginTop: 8 }}>
             <Pressable onPress={() => Share.share({ message: url, url, title: "Interview booking link" })}>
-              <Text style={{ color: brand.pink600, fontWeight: "700", fontSize: 14 }}>Share</Text>
+              <Text style={{ color: brand.blueDeep, fontWeight: "700", fontSize: 14 }}>Share</Text>
             </Pressable>
             <Pressable onPress={() => WebBrowser.openBrowserAsync(url)}>
-              <Text style={{ color: brand.pink600, fontWeight: "700", fontSize: 14 }}>Open</Text>
+              <Text style={{ color: brand.blueDeep, fontWeight: "700", fontSize: 14 }}>Open</Text>
             </Pressable>
           </View>
           <Text style={{ color: brand.inkMuted, fontSize: 11, marginTop: 6 }}>
