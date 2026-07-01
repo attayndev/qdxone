@@ -17,6 +17,7 @@ import { adminClient } from "@/lib/supabase/admin";
 import { generateToken } from "@/lib/tokens";
 
 export const DEMO_SLUG = "demo";
+export const DEMO_USER_EMAIL = "demo@qdx.one";
 const DEMO_NAME = "Broadway Scoops (Demo)";
 const SOURCE_NAME_MATCH = "%16 handles%"; // resolve the source org by name
 
@@ -209,6 +210,22 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
         .from("org_members")
         .upsert({ org_id: orgId, user_id: row.user_id, role: "owner" } as never, { onConflict: "org_id,user_id" });
     }
+  }
+
+  // Ensure the shared demo user (powers the public "Enter demo" one-click).
+  const { data: userList } = await supa.auth.admin.listUsers();
+  let demoUserId = (userList?.users ?? []).find((u) => u.email === DEMO_USER_EMAIL)?.id;
+  if (!demoUserId) {
+    const { data: created } = await supa.auth.admin.createUser({
+      email: DEMO_USER_EMAIL,
+      email_confirm: true,
+    });
+    demoUserId = created.user?.id;
+  }
+  if (demoUserId) {
+    await supa
+      .from("org_members")
+      .upsert({ org_id: orgId, user_id: demoUserId, role: "admin" } as never, { onConflict: "org_id,user_id" });
   }
 
   return { orgId, candidates: apps.length };
