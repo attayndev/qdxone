@@ -76,6 +76,8 @@ export default function SignIn() {
     // On success the auth listener flips session → Redirect above takes over.
   }
 
+  const busyAny = busy || ssoBusy !== null;
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: brand.cream }}>
       <KeyboardAvoidingView
@@ -83,80 +85,20 @@ export default function SignIn() {
         style={{ flex: 1, justifyContent: "center", padding: 24 }}
       >
         <QdxWordmark size={34} />
-        <Text style={{ marginTop: 10, fontSize: 16, color: brand.inkMuted }}>
-          {stage === "email"
-            ? "Sign in with your work email — we'll email you a code."
-            : `Enter the code we emailed to ${email}.`}
-        </Text>
 
         {stage === "email" ? (
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="you@restaurant.com"
-            placeholderTextColor={brand.inkMuted}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            autoComplete="email"
-            style={inputStyle}
-          />
-        ) : (
-          <TextInput
-            value={code}
-            onChangeText={setCode}
-            placeholder="6-digit code"
-            placeholderTextColor={brand.inkMuted}
-            keyboardType="number-pad"
-            autoComplete="one-time-code"
-            style={inputStyle}
-          />
-        )}
-
-        {error && <Text style={{ color: feedback.dangerSolid, marginTop: 10 }}>{error}</Text>}
-
-        <Pressable
-          onPress={stage === "email" ? sendCode : verify}
-          disabled={busy || (stage === "email" ? email.length < 4 : code.length < 4)}
-          style={({ pressed }) => [
-            {
-              marginTop: 20,
-              backgroundColor: brand.blue,
-              borderRadius: 9999,
-              paddingVertical: 16,
-              alignItems: "center",
-              opacity: pressed ? 0.85 : 1,
-            },
-            (busy || (stage === "email" ? email.length < 4 : code.length < 4)) && { opacity: 0.4 },
-          ]}
-        >
-          {busy ? (
-            <ActivityIndicator color={brand.white} />
-          ) : (
-            <Text style={{ color: brand.white, fontWeight: "700", fontSize: 16 }}>
-              {stage === "email" ? "Send code" : "Sign in"}
+          <>
+            <Text style={{ marginTop: 10, fontSize: 16, color: brand.inkMuted }}>
+              Sign in to manage your hiring.
             </Text>
-          )}
-        </Pressable>
 
-        {stage === "code" && (
-          <Pressable onPress={() => setStage("email")} style={{ marginTop: 16, alignItems: "center" }}>
-            <Text style={{ color: brand.inkMuted }}>Use a different email</Text>
-          </Pressable>
-        )}
-
-        {stage === "email" && (
-          <View style={{ marginTop: 28 }}>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 18 }}>
-              <View style={{ flex: 1, height: 1, backgroundColor: brand.line }} />
-              <Text style={{ color: brand.inkMuted, fontSize: 13 }}>or</Text>
-              <View style={{ flex: 1, height: 1, backgroundColor: brand.line }} />
-            </View>
-
+            {/* The easiest path first — one tap, no typing. */}
             <Pressable
               onPress={() => runSso("google")}
-              disabled={ssoBusy !== null || busy}
+              disabled={busyAny}
               style={({ pressed }) => [
                 {
+                  marginTop: 24,
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "center",
@@ -165,10 +107,10 @@ export default function SignIn() {
                   borderColor: brand.line,
                   borderWidth: 1,
                   borderRadius: 9999,
-                  paddingVertical: 14,
+                  paddingVertical: 15,
                   opacity: pressed ? 0.85 : 1,
                 },
-                (ssoBusy !== null || busy) && { opacity: 0.5 },
+                busyAny && { opacity: 0.5 },
               ]}
             >
               {ssoBusy === "google" ? (
@@ -192,7 +134,89 @@ export default function SignIn() {
                 onPress={() => runSso("apple")}
               />
             )}
-          </View>
+
+            {/* Or email a one-time code. */}
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginVertical: 22 }}>
+              <View style={{ flex: 1, height: 1, backgroundColor: brand.line }} />
+              <Text style={{ color: brand.inkMuted, fontSize: 13 }}>or use your email</Text>
+              <View style={{ flex: 1, height: 1, backgroundColor: brand.line }} />
+            </View>
+
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              placeholder="you@restaurant.com"
+              placeholderTextColor={brand.inkMuted}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoComplete="email"
+              style={inputStyle}
+            />
+            {error && <Text style={{ color: feedback.dangerSolid, marginTop: 10 }}>{error}</Text>}
+            <Pressable
+              onPress={sendCode}
+              disabled={busyAny || email.length < 4}
+              style={({ pressed }) => [
+                {
+                  marginTop: 14,
+                  backgroundColor: brand.blue,
+                  borderRadius: 9999,
+                  paddingVertical: 16,
+                  alignItems: "center",
+                  opacity: pressed ? 0.85 : 1,
+                },
+                (busyAny || email.length < 4) && { opacity: 0.4 },
+              ]}
+            >
+              {busy ? (
+                <ActivityIndicator color={brand.white} />
+              ) : (
+                <Text style={{ color: brand.white, fontWeight: "700", fontSize: 16 }}>
+                  Email me a code
+                </Text>
+              )}
+            </Pressable>
+          </>
+        ) : (
+          <>
+            <Text style={{ marginTop: 10, fontSize: 16, color: brand.inkMuted }}>
+              Enter the code we emailed to {email}.
+            </Text>
+            <TextInput
+              value={code}
+              onChangeText={setCode}
+              placeholder="6-digit code"
+              placeholderTextColor={brand.inkMuted}
+              keyboardType="number-pad"
+              autoComplete="one-time-code"
+              style={[inputStyle, { marginTop: 20 }]}
+            />
+            {error && <Text style={{ color: feedback.dangerSolid, marginTop: 10 }}>{error}</Text>}
+            <Pressable
+              onPress={verify}
+              disabled={busy || code.length < 4}
+              style={({ pressed }) => [
+                {
+                  marginTop: 20,
+                  backgroundColor: brand.blue,
+                  borderRadius: 9999,
+                  paddingVertical: 16,
+                  alignItems: "center",
+                  opacity: pressed ? 0.85 : 1,
+                },
+                (busy || code.length < 4) && { opacity: 0.4 },
+              ]}
+            >
+              {busy ? (
+                <ActivityIndicator color={brand.white} />
+              ) : (
+                <Text style={{ color: brand.white, fontWeight: "700", fontSize: 16 }}>Sign in</Text>
+              )}
+            </Pressable>
+            <Pressable onPress={() => setStage("email")} style={{ marginTop: 16, alignItems: "center" }}>
+              <Text style={{ color: brand.inkMuted }}>Use a different email</Text>
+            </Pressable>
+          </>
         )}
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -200,7 +224,6 @@ export default function SignIn() {
 }
 
 const inputStyle = {
-  marginTop: 24,
   backgroundColor: brand.white,
   borderColor: brand.line,
   borderWidth: 1,

@@ -72,6 +72,14 @@ const DECISIONS = [
   { value: "declined", label: "Declined to interview" },
 ] as const;
 
+/** Plain-language takeaway per overall fit — the one thing a busy operator reads. */
+const VERDICT: Record<string, string> = {
+  "Strong fit": "Strong fit — a promising candidate. Worth an interview.",
+  Consider: "Worth a look — some real strengths, a few gaps.",
+  Caution: "Some concerns — review carefully before you interview.",
+  "Not recommended": "Weak fit on this assessment.",
+};
+
 const DAY_LABEL: Record<string, string> = {
   mon: "Mon", tue: "Tue", wed: "Wed", thu: "Thu", fri: "Fri", sat: "Sat", sun: "Sun",
 };
@@ -86,6 +94,7 @@ export default function CandidateDetail() {
   const [decision, setDecision] = useState<string | null>(null);
   const [reason, setReason] = useState("");
   const [saving, setSaving] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -163,72 +172,83 @@ export default function CandidateDetail() {
       {/* Report card */}
       {r ? (
         <Card>
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-              <Pill bg={(OVERALL_TONE[r.overall] ?? BAND_TONE.Mid).bg} fg={(OVERALL_TONE[r.overall] ?? BAND_TONE.Mid).fg}>
-                {r.overall}
-              </Pill>
-              <Text style={{ fontSize: 16, color: brand.amber }}>
-                {"★".repeat(r.stars)}
-                <Text style={{ color: brand.line }}>{"★".repeat(5 - r.stars)}</Text>
-              </Text>
-            </View>
+          {/* The takeaway, front and center */}
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <Pill bg={(OVERALL_TONE[r.overall] ?? BAND_TONE.Mid).bg} fg={(OVERALL_TONE[r.overall] ?? BAND_TONE.Mid).fg}>
+              {r.overall}
+            </Pill>
+            <Text style={{ fontSize: 16, color: brand.amber }}>
+              {"★".repeat(r.stars)}
+              <Text style={{ color: brand.line }}>{"★".repeat(5 - r.stars)}</Text>
+            </Text>
           </View>
+          <Text style={{ fontSize: 16, fontWeight: "700", color: brand.ink, marginTop: 10, lineHeight: 22 }}>
+            {VERDICT[r.overall] ?? r.overall}
+          </Text>
 
-          <View style={{ marginTop: 14, gap: 10 }}>
-            {r.categories.map((c) => (
-              <View key={c.categoryUi} style={{ borderWidth: 1, borderColor: brand.line, borderRadius: 12, padding: 12 }}>
-                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                  <Text style={{ fontWeight: "800", color: brand.ink }}>{c.categoryUi}</Text>
-                  <Pill bg={BAND_TONE[c.band].bg} fg={BAND_TONE[c.band].fg}>{c.band}</Pill>
-                </View>
-                {c.crew && (
-                  <Text style={{ fontSize: 12, color: brand.inkMuted, marginTop: 3 }}>{c.crew}</Text>
-                )}
-                <View style={{ marginTop: 8, gap: 4 }}>
-                  {c.facets.map((f) => (
-                    <View key={f.facet} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                      <Text style={{ fontSize: 13, color: brand.inkMuted }}>{f.facet}</Text>
-                      <Pill bg={BAND_TONE[f.band].bg} fg={BAND_TONE[f.band].fg}>{f.band}</Pill>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            ))}
-          </View>
-
-          {r.attitude && (
-            <View style={{ marginTop: 12, flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <Text style={{ fontWeight: "800", color: brand.ink }}>Attitude</Text>
-              <Pill bg={BAND_TONE[r.attitude.band].bg} fg={BAND_TONE[r.attitude.band].fg}>{r.attitude.band}</Pill>
-              <Text style={{ fontSize: 11, color: brand.inkMuted }}>coachability + warmth + cooperation</Text>
+          {/* Plain-language signals worth seeing at a glance */}
+          {r.screener.length > 0 && (
+            <View style={{ marginTop: 12, gap: 3 }}>
+              {r.screener.map((f, i) => (
+                <Text
+                  key={i}
+                  style={{
+                    fontSize: 13,
+                    color:
+                      f.tone === "positive" ? feedback.positiveText : f.tone === "concern" ? feedback.dangerText : brand.inkMuted,
+                  }}
+                >
+                  {f.tone === "positive" ? "✓ " : f.tone === "concern" ? "⚠ " : "• "}
+                  {f.label}
+                </Text>
+              ))}
             </View>
           )}
 
-          {r.screener.length > 0 && (
-            <View style={{ marginTop: 14 }}>
-              <Text style={{ fontWeight: "800", color: brand.ink, fontSize: 13 }}>Screener</Text>
-              <View style={{ marginTop: 4, gap: 3 }}>
-                {r.screener.map((f, i) => (
-                  <Text
-                    key={i}
-                    style={{
-                      fontSize: 13,
-                      color:
-                        f.tone === "positive" ? feedback.positiveText : f.tone === "concern" ? feedback.dangerText : brand.inkMuted,
-                    }}
-                  >
-                    {f.tone === "positive" ? "✓ " : f.tone === "concern" ? "⚠ " : "• "}
-                    {f.label}
-                  </Text>
+          {/* The detailed band-by-band breakdown, hidden until asked for */}
+          <Pressable onPress={() => setShowDetails((v) => !v)} style={{ marginTop: 14 }}>
+            <Text style={{ color: brand.blueDeep, fontWeight: "700", fontSize: 14 }}>
+              {showDetails ? "Hide the full breakdown ▲" : "Show the full breakdown ▾"}
+            </Text>
+          </Pressable>
+
+          {showDetails && (
+            <>
+              <View style={{ marginTop: 12, gap: 10 }}>
+                {r.categories.map((c) => (
+                  <View key={c.categoryUi} style={{ borderWidth: 1, borderColor: brand.line, borderRadius: 12, padding: 12 }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                      <Text style={{ fontWeight: "800", color: brand.ink }}>{c.categoryUi}</Text>
+                      <Pill bg={BAND_TONE[c.band].bg} fg={BAND_TONE[c.band].fg}>{c.band}</Pill>
+                    </View>
+                    {c.crew && (
+                      <Text style={{ fontSize: 12, color: brand.inkMuted, marginTop: 3 }}>{c.crew}</Text>
+                    )}
+                    <View style={{ marginTop: 8, gap: 4 }}>
+                      {c.facets.map((f) => (
+                        <View key={f.facet} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                          <Text style={{ fontSize: 13, color: brand.inkMuted }}>{f.facet}</Text>
+                          <Pill bg={BAND_TONE[f.band].bg} fg={BAND_TONE[f.band].fg}>{f.band}</Pill>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
                 ))}
               </View>
-            </View>
-          )}
 
-          <Text style={{ marginTop: 14, fontSize: 11, color: brand.inkMuted }}>
-            Bands use raw anchors (pre-pilot). Recommendations are decision support — you make the call.
-          </Text>
+              {r.attitude && (
+                <View style={{ marginTop: 12, flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <Text style={{ fontWeight: "800", color: brand.ink }}>Attitude</Text>
+                  <Pill bg={BAND_TONE[r.attitude.band].bg} fg={BAND_TONE[r.attitude.band].fg}>{r.attitude.band}</Pill>
+                  <Text style={{ fontSize: 11, color: brand.inkMuted }}>coachability + warmth + cooperation</Text>
+                </View>
+              )}
+
+              <Text style={{ marginTop: 14, fontSize: 11, color: brand.inkMuted }}>
+                Bands use raw anchors (pre-pilot). Recommendations are decision support — you make the call.
+              </Text>
+            </>
+          )}
         </Card>
       ) : (
         <Card>
