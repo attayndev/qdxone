@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lightbox } from "@/components/admin/Lightbox";
 import BrandStudio from "@/components/admin/BrandFromUrl";
+import CustomQuestionsEditor from "@/components/admin/CustomQuestionsEditor";
+import { applicationConfig } from "@/lib/application-config";
 import {
   saveLocation,
   saveAssessmentMode,
@@ -17,7 +19,16 @@ import { ShareStep } from "./ShareStep";
 import type { OnboardingStatus, OnboardingLocation } from "@/lib/onboarding";
 import type { OrgBranding } from "@/lib/supabase/types";
 
-type StepId = "store" | "roles" | "job" | "style" | "team" | "assessment" | "calendar" | "share";
+type StepId =
+  | "store"
+  | "roles"
+  | "job"
+  | "style"
+  | "team"
+  | "assessment"
+  | "calendar"
+  | "questions"
+  | "share";
 
 const STEPS: {
   id: Exclude<StepId, "share">;
@@ -163,6 +174,15 @@ export default function OnboardingGuide({
         })}
       </ul>
 
+      {/* optional extra — kept off the numbered checklist so it stays short */}
+      <button
+        type="button"
+        onClick={() => setOpen("questions")}
+        className="mt-1 ml-3 text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline"
+      >
+        + Add your own application questions (optional)
+      </button>
+
       {/* the payoff */}
       <button
         type="button"
@@ -245,6 +265,21 @@ export default function OnboardingGuide({
         subtitle="Create an interview type + your weekly availability, then candidates can book a time from a link you send — no back-and-forth."
       >
         <CalendarStep onGo={() => router.push("/admin/scheduling")} />
+      </Lightbox>
+
+      <Lightbox
+        open={open === "questions"}
+        onClose={close}
+        title="Custom application questions"
+        subtitle="Ask applicants anything specific to your restaurant — availability notes, transportation, certifications. Optional; you can change these any time."
+        expanded={expanded}
+        onToggleExpand={() => setExpanded((v) => !v)}
+      >
+        <CustomQuestionsEditor
+          embedded
+          initial={applicationConfig(branding).custom_questions}
+          roles={roles}
+        />
       </Lightbox>
 
       <Lightbox

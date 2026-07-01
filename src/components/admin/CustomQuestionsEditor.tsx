@@ -13,9 +13,12 @@ const TYPE_LABELS: Record<CustomQuestionType, string> = {
 export default function CustomQuestionsEditor({
   initial,
   roles,
+  embedded = false,
 }: {
   initial: CustomQuestion[];
   roles: string[];
+  /** When true, drop the card + heading chrome (e.g. inside a lightbox). */
+  embedded?: boolean;
 }) {
   const [qs, setQs] = useState<CustomQuestion[]>(initial);
   const [pending, startTransition] = useTransition();
@@ -46,14 +49,18 @@ export default function CustomQuestionsEditor({
   }
 
   return (
-    <div className="card mt-6 max-w-xl">
-      <h2 className="font-extrabold text-lg">Custom questions</h2>
-      <p className="text-sm text-[color:var(--brand-ink-muted)] mt-1">
-        Extra questions on your application — anything specific to your
-        restaurant (availability notes, transportation, certifications…).
-      </p>
+    <div className={embedded ? "" : "card mt-6 max-w-xl"}>
+      {!embedded && (
+        <>
+          <h2 className="font-extrabold text-lg">Custom questions</h2>
+          <p className="text-sm text-[color:var(--brand-ink-muted)] mt-1">
+            Extra questions on your application — anything specific to your
+            restaurant (availability notes, transportation, certifications…).
+          </p>
+        </>
+      )}
 
-      <ul className="mt-4 space-y-3">
+      <ul className={embedded ? "space-y-3" : "mt-4 space-y-3"}>
         {qs.length === 0 && (
           <li className="text-sm text-[color:var(--brand-ink-muted)]">
             No custom questions yet.
