@@ -74,3 +74,18 @@ export async function submitDemoRequest(
 
   return { ok: true };
 }
+
+/**
+ * Capture an email from the demo lead gate (the pre-demo pop-up). Stored as a
+ * platform lead so it shows in the /super leads inbox. Best-effort; the gate
+ * lets visitors skip without one.
+ */
+export async function captureDemoLead(email: string): Promise<{ ok: boolean }> {
+  const clean = email.trim().toLowerCase();
+  if (!clean || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(clean)) return { ok: false };
+  await adminClient().from("audit_events").insert({
+    kind: "lead.demo_requested",
+    meta: { email: clean, source: "demo-gate" },
+  });
+  return { ok: true };
+}

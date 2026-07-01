@@ -54,7 +54,9 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
     plan: "operator",
     status: "active",
     location_count: 1,
-    branding: source.branding, // reuse roles/branding so postings/roles line up
+    // Reuse roles/colors, but drop the source's logo — the demo shows a plain
+    // "BS" initials mark instead of the real store's logo.
+    branding: { ...(source.branding as Record<string, unknown>), logo_url: null },
   };
   if (orgId) {
     await supa.from("organizations").update(orgFields as never).eq("id", orgId);

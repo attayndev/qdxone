@@ -57,7 +57,6 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
   return (
     <>
       <BrandTheme branding={b} />
-      {org.slug === "demo" && <DemoBar />}
       <BrandHeader org={org} />
       <main className="flex-1">
         {/* Hero — compact; the jobs are the next thing the eye hits. */}
@@ -191,31 +190,3 @@ function PostingCard({ p }: { p: Posting }) {
   );
 }
 
-/** Demo-only top bar: one-click entry into the operator dashboard sections. */
-function DemoBar() {
-  const links = [
-    { to: "/admin", label: "Dashboard" },
-    { to: "/admin/candidates", label: "Candidates" },
-    { to: "/admin/postings", label: "Jobs" },
-    { to: "/admin/roles", label: "Roles" },
-    { to: "/admin/scheduling", label: "Interviews" },
-  ];
-  return (
-    <div className="bg-[color:var(--brand-ink)] text-white text-sm">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-x-4 gap-y-1 flex-wrap">
-        <span className="font-semibold">🔍 Live demo — explore the operator dashboard:</span>
-        <nav className="flex items-center gap-4 flex-wrap">
-          {links.map((l) => (
-            <a
-              key={l.to}
-              href={`/api/demo/enter?to=${encodeURIComponent(l.to)}`}
-              className="font-semibold underline decoration-white/40 hover:decoration-white"
-            >
-              {l.label}
-            </a>
-          ))}
-        </nav>
-      </div>
-    </div>
-  );
-}

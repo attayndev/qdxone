@@ -53,15 +53,34 @@ export function BrandMark({
     );
   }
 
+  // No logo → a mark: the numeric prefix if there is one, else an initials
+  // square from the first two words (e.g. "Broadway Scoops" → "BS").
+  const initials = word
+    .split(/\s+/)
+    .filter((w) => /[a-z0-9]/i.test(w))
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+
   return (
     <div className="flex items-center gap-3">
-      {numeric && (
+      {numeric ? (
         <span
           className="text-3xl font-black tracking-tight leading-none"
           style={{ color }}
         >
           {numeric}
         </span>
+      ) : (
+        initials && (
+          <span
+            className="grid place-items-center h-10 w-10 rounded-lg font-black text-lg text-white flex-shrink-0"
+            style={{ backgroundColor: color }}
+          >
+            {initials}
+          </span>
+        )
       )}
       <div className="leading-tight">
         <div className="font-extrabold tracking-tight text-[color:var(--brand-ink)]">

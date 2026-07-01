@@ -9,6 +9,7 @@ interface Lead {
   concept?: string | null;
   units?: string | null;
   note?: string | null;
+  source?: string | null;
 }
 
 export default async function LeadsPage() {
@@ -43,7 +44,14 @@ export default async function LeadsPage() {
               return (
                 <li key={i} className="p-4 sm:p-5">
                   <div className="flex items-center justify-between gap-3 flex-wrap">
-                    <span className="font-bold">{m.name || "—"}</span>
+                    <span className="font-bold flex items-center gap-2">
+                      {m.name || (m.source === "demo-gate" ? "Demo visitor" : "—")}
+                      {m.source === "demo-gate" && (
+                        <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] text-xs">
+                          viewed demo
+                        </span>
+                      )}
+                    </span>
                     <span className="text-xs text-[color:var(--brand-ink-muted)]">
                       {new Date(l.created_at).toLocaleString()}
                     </span>
