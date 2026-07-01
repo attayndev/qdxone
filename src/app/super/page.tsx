@@ -1,52 +1,36 @@
-import { notFound } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
 import { adminClient } from "@/lib/supabase/admin";
-import { extractSlugFromHost, orgUrl } from "@/lib/tenancy";
 import { ROOT_DOMAIN } from "@/lib/host";
-import { headers } from "next/headers";
-import type { OrganizationRow } from "@/lib/supabase/types";
 import { effectiveTier, monthlyBasePrice } from "@/lib/plan";
+import { requirePlatformOwner } from "@/lib/super/guard";
+import { orgActivityMap } from "@/lib/super/metrics";
+import { SuperNav } from "@/components/super/SuperNav";
+import { SuperFilters } from "@/components/super/SuperFilters";
+import type { OrganizationRow } from "@/lib/supabase/types";
 
-/**
- * Cross-org operator view. Lives at the apex (`qdx.one/super`) and is
- * gated to the email(s) listed in PLATFORM_OWNER_EMAILS (comma-sep).
- */
-export default async function SuperAdminPage() {
-  // Apex only.
-  const h = await headers();
-  const slug = extractSlugFromHost(h.get("host"));
-  if (slug) notFound();
+interface PageProps {
+  searchParams: Promise<{ q?: string; status?: string }>;
+}
 
-  const allowed = (process.env.PLATFORM_OWNER_EMAILS ?? "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-
-  const supa = await createClient();
-  const {
-    data: { user },
-  } = await supa.auth.getUser();
-  if (!user || !allowed.includes((user.email ?? "").toLowerCase())) {
-    notFound();
-  }
+export default async function SuperAdminPage({ searchParams }: PageProps) {
+  await requirePlatformOwner();
+  const sp = await searchParams;
+  const q = (sp.q ?? "").trim().toLowerCase();
+  const statusFilter = sp.status ?? "";
 
   const admin = adminClient();
-  const { data: orgs } = await admin
-    .from("organizations")
-    .select("*")
-    .order("created_at", { ascending: false });
-  const list = (orgs ?? []) as OrganizationRow[];
+  const [{ data: orgs }, activity] = await Promise.all([
+    admin.from("organizations").select("*").order("created_at", { ascending: false }),
+    orgActivityMap(),
+  ]);
+  let list = (orgs ?? []) as OrganizationRow[];
 
   const totals = {
     active: list.filter((o) => o.status === "active").length,
     trial: list.filter((o) => o.status === "trialing").length,
     pastDue: list.filter((o) => o.status === "past_due").length,
-    canceled: list.filter((o) => o.status === "canceled").length,
   };
-
-  // Rough MRR — only actively-paying self-serve orgs (trialing not counted;
-  // Enterprise is custom-contracted, excluded). Flat per-location pricing.
+  // Rough MRR — actively-paying self-serve orgs only (Enterprise is custom).
   const mrr = list.reduce((sum, o) => {
     if (o.status !== "active") return sum;
     const tier = effectiveTier(o);
@@ -54,61 +38,60 @@ export default async function SuperAdminPage() {
     return sum + monthlyBasePrice(tier, o.location_count);
   }, 0);
 
+  if (statusFilter) list = list.filter((o) => o.status === statusFilter);
+  if (q) list = list.filter((o) => o.name.toLowerCase().includes(q) || o.slug.toLowerCase().includes(q));
+
   return (
     <main className="min-h-screen px-4 sm:px-6 py-8 bg-[color:var(--brand-cream)]">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-black tracking-tight">
-            Operator dashboard
-          </h1>
-          <Link href="/" className="text-sm font-semibold underline">
-            Back to apex
-          </Link>
-        </div>
+        <SuperNav active="orgs" />
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <Stat label="Orgs" value={list.length} />
+          <Stat label="Orgs" value={(orgs ?? []).length} />
           <Stat label="Active" value={totals.active} />
           <Stat label="Trial" value={totals.trial} />
           <Stat label="Past due" value={totals.pastDue} />
           <Stat label="MRR (rough)" value={`$${mrr}`} />
         </div>
 
-        <div className="card mt-6 p-0 overflow-hidden">
+        <SuperFilters />
+
+        <div className="card p-0 overflow-hidden">
           <ul className="divide-y divide-[color:var(--brand-line)]">
             {list.length === 0 && (
               <li className="p-6 text-sm text-[color:var(--brand-ink-muted)]">
-                No organizations yet.
+                No organizations match.
               </li>
             )}
-            {list.map((o) => (
-              <li
-                key={o.id}
-                className="p-4 sm:p-5 flex items-center justify-between gap-3 flex-wrap"
-              >
-                <div>
-                  <a
-                    href={orgUrl(o.slug)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-bold hover:text-[color:var(--brand-blue-600)]"
-                  >
-                    {o.name}
-                  </a>
-                  <div className="text-xs text-[color:var(--brand-ink-muted)] flex flex-wrap gap-2 mt-0.5">
-                    <span>{o.slug}.{ROOT_DOMAIN}</span>
-                    <span>·</span>
-                    <span>{o.plan}</span>
-                    <span>·</span>
-                    <span>{o.billing_cycle ?? "—"}</span>
-                    <span>·</span>
-                    <span>{o.status}</span>
-                    <span>·</span>
-                    <span>created {new Date(o.created_at).toLocaleDateString()}</span>
+            {list.map((o) => {
+              const a = activity.get(o.id);
+              return (
+                <li key={o.id} className="p-4 sm:p-5 flex items-center justify-between gap-3 flex-wrap">
+                  <div className="min-w-0">
+                    <Link
+                      href={`/super/${o.id}`}
+                      className="font-bold hover:text-[color:var(--brand-blue-600)]"
+                    >
+                      {o.name}
+                    </Link>
+                    <div className="text-xs text-[color:var(--brand-ink-muted)] flex flex-wrap gap-2 mt-0.5">
+                      <span>{o.slug}.{ROOT_DOMAIN}</span>
+                      <span>·</span>
+                      <span>{o.plan}</span>
+                      <span>·</span>
+                      <span>{o.status}</span>
+                      <span>·</span>
+                      <span>created {new Date(o.created_at).toLocaleDateString()}</span>
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))}
+                  <div className="text-xs text-[color:var(--brand-ink-muted)] flex gap-4 shrink-0">
+                    <Metric n={a?.postings ?? 0} label="posts" />
+                    <Metric n={a?.applicants ?? 0} label="applied" />
+                    <Metric n={a?.assessments ?? 0} label="assessed" />
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
@@ -119,10 +102,17 @@ export default async function SuperAdminPage() {
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="card">
-      <div className="text-xs uppercase tracking-wider text-[color:var(--brand-ink-muted)]">
-        {label}
-      </div>
+      <div className="text-xs uppercase tracking-wider text-[color:var(--brand-ink-muted)]">{label}</div>
       <div className="text-3xl font-black mt-1">{value}</div>
     </div>
+  );
+}
+
+function Metric({ n, label }: { n: number; label: string }) {
+  return (
+    <span className="text-center">
+      <span className="block text-lg font-black text-[color:var(--brand-ink)] leading-none">{n}</span>
+      <span className="block">{label}</span>
+    </span>
   );
 }
