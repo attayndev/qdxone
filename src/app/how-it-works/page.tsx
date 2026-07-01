@@ -93,7 +93,7 @@ export default function HowItWorksPage() {
                 href="/assessments"
                 className="btn-ghost !text-white !border-white hover:!bg-white hover:!text-[color:var(--brand-ink)]"
               >
-                See sample questions
+                Sample Questions
               </Link>
             </div>
           </div>
