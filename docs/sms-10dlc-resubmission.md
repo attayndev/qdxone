@@ -21,41 +21,52 @@ frequency, "msg & data rates may apply", and a privacy-policy link.
   → https://qdx.one/privacy
 - Deploy these before resubmitting so reviewers see them live.
 
-## Paste these into the Telnyx/TCR campaign
+## Final answers — conformed to the Telnyx/TCR campaign form
 
-**Call-to-action / message flow (how end users opt in):**
-> End users opt in on the online job application hosted by QDX. On the
-> application form (an employer's page, e.g. `https://{employer}.qdx.one/apply/…`),
-> the applicant checks an **unchecked-by-default** box labeled "Text me about this
-> application (optional)." The inline disclosure at the box reads: "{Employer}
-> (via QDX) may text you about this application — your assessment link and status
-> updates. Message frequency varies. Msg & data rates may apply. Reply STOP to opt
-> out, HELP for help." and links to the Terms (https://qdx.one/terms) and Privacy
-> Policy (https://qdx.one/privacy). Consent is optional and not required to apply
-> or to be hired. Only applicants who check the box are texted.
+### Content details (one field, two paragraphs)
+```
+QDXone is a hiring platform for restaurants. With the applicant's explicit opt-in, employers send transactional text messages to job applicants about their own application — for example, a link to a short assessment and status updates. Texts are only sent to applicants who check the SMS opt-in box on the job application. This is not a marketing campaign.
 
-**Sample messages** (these are the actual templates we send):
-> 1. "Sam, finish your Joe's Pizza application (via QDX) with a quick 5-minute
->    assessment: https://qdx.one/a/abc123 (valid 72h). Reply STOP to opt out, HELP
->    for help."
-> 2. "Joe's Pizza (via QDX): you've moved forward on your application — we'll be in
->    touch about next steps. Reply STOP to opt out."
+Applicants opt in by entering their mobile number and checking an unchecked consent checkbox on the restaurant's online job-application form (e.g. https://16handlesnewcity.qdx.one/apply/...). The checkbox reads: "[Restaurant] (via QDX) may text you about this application — your assessment link and status updates. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out, HELP for help." and links to our Terms and Privacy Policy. Consent is optional, is not required to apply, and is stored with a timestamp. Hiring managers opt in separately by entering their mobile number and enabling text alerts in their account's notification settings. No message is sent without opt-in. The exact opt-in box and full program terms are published publicly at https://qdx.one/messaging.
+```
+The quoted checkbox text MUST match the live disclosure (`smsConsentDisclosure`
+in `src/lib/consent.ts`, version tcpa-v2) — update both together if it changes.
 
-**Message frequency:** Varies — typically 1–5 messages per application.
+### Keywords
+- Uses keywords: `Yes`
+- Opt-out: `STOP,STOPALL,UNSUBSCRIBE,CANCEL,END,QUIT`
+- Help: `HELP,INFO`
 
-**Opt-in type:** Web form, single opt-in. Not shared with third parties.
+### Auto-responses
+- Opt-in: `You're opted in to QDXone hiring texts. Msg & data rates may apply. Reply STOP to opt out, HELP for help.`
+- Opt-out: `You're unsubscribed and won't receive more messages. Reply HELP for help.`
+- Help: `QDXone hiring texts. Help: qdxone@attayn.com. Reply STOP to unsubscribe. Msg & data rates may apply.`
 
-**HELP reply:**
-> "QDX (for {Employer}): for help email help@qdx.one. Msg & data rates may apply.
-> Reply STOP to unsubscribe."
+### Sample messages
+```
+Cameron, finish your 16 Handles New City application (via QDX) with a quick 5-minute assessment: https://16handlesnewcity.qdx.one/a/AbC123 (valid 72h). Reply STOP to opt out, HELP for help.
+```
+```
+Cameron, 16 Handles New City would like to interview you — pick a time: https://16handlesnewcity.qdx.one/interview/AbC123 Reply STOP to opt out, HELP for help.
+```
+```
+16 Handles New City: Cameron Bennett finished the assessment — Strong fit. https://16handlesnewcity.qdx.one/admin/candidates/abc123
+```
 
-**STOP reply:**
-> "You're unsubscribed and won't receive more texts from {Employer}/QDX. Reply
-> HELP for help."
+### Compliance links
+- `https://qdx.one/privacy`
+- `https://qdx.one/terms`
+- `https://qdx.one/messaging`  (public opt-in/CTA page — NOT a one-time interview link)
 
-**Privacy policy URL:** https://qdx.one/privacy  (see §5 "Text messages (SMS)")
-**Terms URL:** https://qdx.one/terms
-**Message & data rates disclosure:** "Msg & data rates may apply." (in the CTA and every message)
+### Campaign & content attributes
+- Embedded Link: `Yes` (every sample has a link)
+- Embedded Phone Number: `No`
+- Number Pooling: `No` (single number, not a pool)
+- Age-Gated Content: `No`
+- Direct Lending or Loan Arrangement: `No`
+
+### Webhook
+- `https://qdx.one/api/telnyx/webhook`  (verified 200; route at `src/app/api/telnyx/webhook/route.ts`)
 
 ## Attach to the resubmission
 A **screenshot of the application form** showing the opt-in checkbox with the full
