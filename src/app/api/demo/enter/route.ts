@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
   const callback = orgUrl(
     DEMO_SLUG,
-    `/auth/callback?token_hash=${tokenHash}&type=magiclink&next=${encodeURIComponent(next)}`
+    `/auth/callback?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink&next=${encodeURIComponent(next)}`
   );
   return NextResponse.redirect(callback);
 }
