@@ -50,10 +50,12 @@ export default async function LocationsPage() {
       </div>
 
       <ApplicationFormSettings config={applicationConfig(org.branding)} />
-      <CustomQuestionsEditor
-        initial={applicationConfig(org.branding).custom_questions}
-        roles={orgRoles(org.branding)}
-      />
+      <div id="questions" className="scroll-mt-24">
+        <CustomQuestionsEditor
+          initial={applicationConfig(org.branding).custom_questions}
+          roles={orgRoles(org.branding)}
+        />
+      </div>
       <AssessmentModeToggle
         autoSend={org.branding?.auto_send_assessment !== false}
       />

@@ -77,6 +77,19 @@ export default async function PostingsPage() {
         )}
       </div>
 
+      <Link
+        href="/admin/locations#questions"
+        className="mt-5 flex items-center justify-between gap-3 rounded-xl border border-[color:var(--brand-line)] bg-[color:var(--brand-soft)] px-4 py-3 hover:border-[color:var(--brand-blue)]"
+      >
+        <span className="text-sm">
+          <span className="font-semibold">Want to ask applicants your own questions?</span>{" "}
+          <span className="text-[color:var(--brand-ink-muted)]">
+            Add custom questions (availability, certifications, anything) — they show on every job&apos;s application.
+          </span>
+        </span>
+        <span className="font-semibold text-[color:var(--brand-blue-600)] whitespace-nowrap">Set up →</span>
+      </Link>
+
       <PostingsClient
         postings={postings}
         hasLocation={locations.length > 0}
