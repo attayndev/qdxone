@@ -6,13 +6,7 @@
  */
 
 import "server-only";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { adminClient } from "@/lib/supabase/admin";
-
-// platform_admins isn't in the generated types until regenerated post-0017.
-function db(): SupabaseClient {
-  return adminClient() as unknown as SupabaseClient;
-}
 
 function envAllows(email: string): boolean {
   if (!email) return false;
@@ -26,13 +20,13 @@ function envAllows(email: string): boolean {
 export async function isPlatformAdmin(user: { id: string; email?: string | null }): Promise<boolean> {
   const email = (user.email ?? "").toLowerCase();
 
-  const { data, error } = await db().from("platform_admins").select("id, user_id, email");
+  const supa = adminClient();
+  const { data, error } = await supa.from("platform_admins").select("id, user_id, email");
   if (!error && data) {
-    const rows = data as { id: string; user_id: string | null; email: string }[];
-    const match = rows.find((r) => r.user_id === user.id || r.email.toLowerCase() === email);
+    const match = data.find((r) => r.user_id === user.id || r.email.toLowerCase() === email);
     if (match) {
       if (!match.user_id) {
-        await db().from("platform_admins").update({ user_id: user.id }).eq("id", match.id);
+        await supa.from("platform_admins").update({ user_id: user.id }).eq("id", match.id);
       }
       return true;
     }
