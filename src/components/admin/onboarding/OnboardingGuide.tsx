@@ -17,7 +17,7 @@ import { ShareStep } from "./ShareStep";
 import type { OnboardingStatus, OnboardingLocation } from "@/lib/onboarding";
 import type { OrgBranding } from "@/lib/supabase/types";
 
-type StepId = "store" | "roles" | "job" | "style" | "team" | "assessment" | "share";
+type StepId = "store" | "roles" | "job" | "style" | "team" | "assessment" | "calendar" | "share";
 
 const STEPS: {
   id: Exclude<StepId, "share">;
@@ -31,6 +31,7 @@ const STEPS: {
   { id: "style", title: "Style your page", blurb: "Paste your website; we match your brand.", done: (s) => s.hasBranding },
   { id: "team", title: "Invite a manager", blurb: "Optional — add someone to help review.", done: (s) => s.hasTeam },
   { id: "assessment", title: "Choose how assessments send", blurb: "Auto-send, or review first.", done: (s) => s.assessmentSet },
+  { id: "calendar", title: "Set up interviews", blurb: "Optional — let candidates book a time with you.", done: (s) => s.hasCalendar },
 ];
 
 export default function OnboardingGuide({
@@ -235,6 +236,15 @@ export default function OnboardingGuide({
         subtitle="You can change this any time in Settings."
       >
         <AssessmentStep onDone={close} />
+      </Lightbox>
+
+      <Lightbox
+        open={open === "calendar"}
+        onClose={close}
+        title="Set up interviews"
+        subtitle="Create an interview type + your weekly availability, then candidates can book a time from a link you send — no back-and-forth."
+      >
+        <CalendarStep onGo={() => router.push("/admin/scheduling")} />
       </Lightbox>
 
       <Lightbox
@@ -512,6 +522,22 @@ function TeamStep({ onDone }: { onDone: () => void }) {
         </button>
       </div>
     </form>
+  );
+}
+
+function CalendarStep({ onGo }: { onGo: () => void }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-[color:var(--brand-ink-muted)]">
+        On the Calendar page you&apos;ll pick your interview types (like a
+        &ldquo;15-min phone screen&rdquo;), set the days and times you&apos;re
+        free, and — if you like — connect Google Calendar. After that, any
+        candidate can self-book an open slot.
+      </p>
+      <button type="button" onClick={onGo} className="btn-primary w-full">
+        Open calendar setup →
+      </button>
+    </div>
   );
 }
 

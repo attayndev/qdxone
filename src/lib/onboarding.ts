@@ -14,6 +14,7 @@ export type OnboardingStatus = {
   hasBranding: boolean;
   hasTeam: boolean;
   assessmentSet: boolean;
+  hasCalendar: boolean;
   doneCount: number;
   total: number;
   complete: boolean;
@@ -36,7 +37,7 @@ export async function getOnboarding(
   org: OrganizationRow
 ): Promise<{ status: OnboardingStatus; locations: OnboardingLocation[] }> {
   const supa = adminClient();
-  const [openPostings, members, locs] = await Promise.all([
+  const [openPostings, members, interviewTypes, locs] = await Promise.all([
     supa
       .from("job_postings")
       .select("*", { count: "exact", head: true })
@@ -44,6 +45,10 @@ export async function getOnboarding(
       .eq("status", "open"),
     supa
       .from("org_members")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", org.id),
+    supa
+      .from("interview_templates")
       .select("*", { count: "exact", head: true })
       .eq("org_id", org.id),
     getOrgLocations(org.id),
@@ -56,8 +61,9 @@ export async function getOnboarding(
   const hasBranding = brandingTouched(b);
   const hasTeam = (members.count ?? 0) > 1;
   const assessmentSet = typeof b?.auto_send_assessment === "boolean";
+  const hasCalendar = (interviewTypes.count ?? 0) > 0;
 
-  const steps = [hasStore, hasRoles, hasJob, hasBranding, hasTeam, assessmentSet];
+  const steps = [hasStore, hasRoles, hasJob, hasBranding, hasTeam, assessmentSet, hasCalendar];
   const doneCount = steps.filter(Boolean).length;
 
   return {
@@ -68,6 +74,7 @@ export async function getOnboarding(
       hasBranding,
       hasTeam,
       assessmentSet,
+      hasCalendar,
       doneCount,
       total: steps.length,
       complete: doneCount === steps.length,
