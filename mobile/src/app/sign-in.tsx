@@ -50,7 +50,13 @@ export default function SignIn() {
     setBusy(true);
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim().toLowerCase(),
-      options: { shouldCreateUser: false }, // operators are created on the web
+      options: {
+        shouldCreateUser: false, // operators are created on the web
+        // Marks this as an app request so the Supabase email template shows the
+        // 6-digit code (mobile) instead of the magic link (web). The template
+        // branches on {{ .RedirectTo }} === this value. Allow-listed already.
+        emailRedirectTo: "qdxoperator://auth-callback",
+      },
     });
     setBusy(false);
     if (error) setError(error.message);
