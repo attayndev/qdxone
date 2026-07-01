@@ -49,6 +49,12 @@ export default function HowItWorksPage() {
               body="Each candidate comes back with verbal bands across four categories — Reliability & Drive, People Skills, Ownership, Composure — an overall fit recommendation (Strong fit, Consider, Caution, Not recommended), and screener flags like past attendance and tenure expectation."
               detail="Bands, not black-box numbers. Recommendations are decision support — you make every call."
             />
+            <Step
+              n="4"
+              title="Invite your top pick to interview"
+              body="Send a booking link by text or email — the candidate picks an open time straight from your calendar, no phone tag. Confirmations and reminders go out on their own, and it can sync with your Google Calendar."
+              detail="Optional. Set your interview types and availability once; candidates self-book from there."
+            />
           </div>
         </section>
 

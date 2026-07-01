@@ -76,6 +76,7 @@ const SOLO_FEATURES = [
   "Benchmark against your own crew",
   "Basic fairness checks",
   "Ranked applicant list & review",
+  "Interview scheduling — candidates self-book",
   "Email notifications",
 ];
 
