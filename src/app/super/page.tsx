@@ -8,6 +8,7 @@ import { SuperNav } from "@/components/super/SuperNav";
 import { SuperFilters } from "@/components/super/SuperFilters";
 import { SuperLogin } from "@/components/super/SuperLogin";
 import { SeedDemoButton } from "@/components/super/SeedDemoButton";
+import { DEMO_SLUG } from "@/lib/demo/seed";
 import type { OrganizationRow } from "@/lib/supabase/types";
 
 interface PageProps {
@@ -28,13 +29,16 @@ export default async function SuperAdminPage({ searchParams }: PageProps) {
   ]);
   let list = (orgs ?? []) as OrganizationRow[];
 
+  // The demo org is not a customer — exclude it from every count/MRR so the
+  // "Orgs" stat IS the real customer count (it still shows in the list below).
+  const customers = list.filter((o) => o.slug !== DEMO_SLUG);
   const totals = {
-    active: list.filter((o) => o.status === "active").length,
-    trial: list.filter((o) => o.status === "trialing").length,
-    pastDue: list.filter((o) => o.status === "past_due").length,
+    active: customers.filter((o) => o.status === "active").length,
+    trial: customers.filter((o) => o.status === "trialing").length,
+    pastDue: customers.filter((o) => o.status === "past_due").length,
   };
   // Rough MRR — actively-paying self-serve orgs only (Enterprise is custom).
-  const mrr = list.reduce((sum, o) => {
+  const mrr = customers.reduce((sum, o) => {
     if (o.status !== "active") return sum;
     const tier = effectiveTier(o);
     if (tier === "enterprise") return sum;
@@ -50,7 +54,7 @@ export default async function SuperAdminPage({ searchParams }: PageProps) {
         <SuperNav active="orgs" />
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <Stat label="Orgs" value={(orgs ?? []).length} />
+          <Stat label="Customers" value={customers.length} />
           <Stat label="Active" value={totals.active} />
           <Stat label="Trial" value={totals.trial} />
           <Stat label="Past due" value={totals.pastDue} />
