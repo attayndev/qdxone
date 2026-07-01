@@ -127,6 +127,7 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
       .insert({
         org_id: orgId,
         location_id: locationId,
+        resume_token: generateToken(), // NOT NULL; fresh per clone
         first_name: first,
         last_name: last + suffix,
         email: `${first}.${last}${suffix}@example.com`.toLowerCase(),
