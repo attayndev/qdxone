@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { QdxWordmark } from "@/components/QdxLogo";
+import { ROOT_DOMAIN } from "@/lib/host";
 
 const NAV = [
   { href: "/how-it-works", label: "How it works" },
@@ -7,6 +8,7 @@ const NAV = [
   { href: "/for-qsr", label: "Multi-location" },
   { href: "/for-independents", label: "Independents" },
   { href: "/pricing", label: "Pricing" },
+  { href: `https://demo.${ROOT_DOMAIN}`, label: "Demo" },
   { href: "/about", label: "About" },
 ];
 

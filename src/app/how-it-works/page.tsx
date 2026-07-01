@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
+import { ROOT_DOMAIN } from "@/lib/host";
 
 export const metadata = {
   title: "How QDX works — restaurant hiring, end to end",
@@ -82,11 +83,17 @@ export default function HowItWorksPage() {
               <Link href="/signup" className="btn-primary">
                 Start free
               </Link>
+              <a
+                href={`https://demo.${ROOT_DOMAIN}`}
+                className="btn-ghost !text-white !border-white hover:!bg-white hover:!text-[color:var(--brand-ink)]"
+              >
+                See the live demo
+              </a>
               <Link
                 href="/assessments"
                 className="btn-ghost !text-white !border-white hover:!bg-white hover:!text-[color:var(--brand-ink)]"
               >
-                See sample items
+                See sample questions
               </Link>
             </div>
           </div>
