@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { adminClient } from "@/lib/supabase/admin";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
-import { effectiveTier, hasFeature } from "@/lib/plan";
+import { effectiveTier, hasFeature, billingLapsed } from "@/lib/plan";
 import { isDecision } from "@/lib/candidate-decision";
 
 /**
@@ -61,9 +61,11 @@ export async function sendAssessmentToCandidate(
     firstName: app.first_name,
     email: app.email,
     phone: app.phone,
-    // Send SMS only if the candidate consented AND the plan includes SMS.
+    // Send SMS only if the candidate consented, the plan includes SMS, AND
+    // billing is current.
     smsConsent:
       (app.sms_consent ?? false) &&
+      !billingLapsed(org) &&
       hasFeature(effectiveTier(org), "sms", org.location_count),
   });
 

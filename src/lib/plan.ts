@@ -100,6 +100,23 @@ export type Feature =
   | "sso" //                      single sign-on
   | "api"; //                     developer API
 
+/**
+ * Whether the org's billing has lapsed — same rule the proxy uses to gate the
+ * admin. A lapsed org must not use paid/outbound features (e.g. sending SMS at
+ * our cost), so callers outside the proxy's reach (public apply funnel) check
+ * this too.
+ */
+export function billingLapsed(org: {
+  status: string;
+  trial_ends_at?: string | null;
+}): boolean {
+  const trialExpired =
+    org.status === "trialing" &&
+    !!org.trial_ends_at &&
+    new Date(org.trial_ends_at).getTime() < Date.now();
+  return org.status === "past_due" || org.status === "canceled" || trialExpired;
+}
+
 export function hasFeature(
   tier: PlanTier,
   feature: Feature,

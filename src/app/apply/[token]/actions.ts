@@ -8,7 +8,7 @@ import { currentOrgOrThrow } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
 import { applicationConfig } from "@/lib/application-config";
 import { smsConsentDisclosure } from "@/lib/consent";
-import { effectiveTier, hasFeature } from "@/lib/plan";
+import { effectiveTier, hasFeature, billingLapsed } from "@/lib/plan";
 
 const WorkHistory = z.object({
   employer: z.string().max(120),
@@ -195,9 +195,12 @@ export async function submitApplication(
         firstName: v.first_name,
         email: v.email,
         phone,
-        // Send SMS only if the candidate consented AND the plan includes SMS.
+        // Send SMS only if the candidate consented, the plan includes SMS, AND
+        // billing is current (a lapsed org must not send SMS at our cost).
         smsConsent:
-          smsConsent && hasFeature(effectiveTier(org), "sms", org.location_count),
+          smsConsent &&
+          !billingLapsed(org) &&
+          hasFeature(effectiveTier(org), "sms", org.location_count),
       });
     }
   } catch (e) {

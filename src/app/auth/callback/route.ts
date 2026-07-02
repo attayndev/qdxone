@@ -34,7 +34,10 @@ async function handleCallback(request: NextRequest) {
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/admin";
+  // Only accept same-site relative paths — reject "//evil.com", "/\evil.com",
+  // and "/@evil.com" (which orgUrl would turn into an off-site redirect).
+  const nextParam = searchParams.get("next") ?? "/admin";
+  const next = /^\/[^/\\@]/.test(nextParam) ? nextParam : "/admin";
   const slug = extractSlugFromHost(request.headers.get("host"));
   // Surface the reason in the URL so it's visible without the terminal.
   const fail = (reason: string) => {

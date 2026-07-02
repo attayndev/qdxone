@@ -11,7 +11,8 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function openBillingPortal() {
   const org = await currentOrgOrThrow();
-  await requireMembership(org.id);
+  const m = await requireMembership(org.id);
+  if (m?.role !== "owner") throw new Error("Only the account owner can manage billing.");
   const url = await createBillingPortalUrlForOrg({
     orgId: org.id,
     orgSlug: org.slug,
@@ -21,7 +22,8 @@ export async function openBillingPortal() {
 
 export async function startCheckoutForCurrentOrg() {
   const org = await currentOrgOrThrow();
-  await requireMembership(org.id);
+  const m = await requireMembership(org.id);
+  if (m?.role !== "owner") throw new Error("Only the account owner can manage billing.");
 
   // Tier + cycle derive from the org (location count → Solo/Operator). Enterprise
   // is sales-led and never self-checks-out.
