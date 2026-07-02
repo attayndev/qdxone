@@ -3,12 +3,22 @@ import Link from "next/link";
 import { currentOrg, orgUrl } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
 import { getOnboarding } from "@/lib/onboarding";
+import { fitByApplication } from "@/lib/assessment/fit";
+import { asView, matchesView, matchesSearch, CANDIDATE_VIEWS } from "@/lib/candidate-filter";
 import OnboardingGuide from "@/components/admin/onboarding/OnboardingGuide";
+import CandidateFilters from "@/components/admin/CandidateFilters";
 import type { Database } from "@/lib/supabase/database.types";
 
 type AppRow = Database["public"]["Tables"]["applications"]["Row"];
 
-export default async function AdminDashboard() {
+interface PageProps {
+  searchParams: Promise<{ view?: string; q?: string }>;
+}
+
+export default async function AdminDashboard({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const view = asView(sp.view); // defaults to "active" — decided candidates are hidden
+  const q = sp.q ?? "";
   const org = await currentOrg();
   if (!org) notFound();
   const supa = adminClient();
@@ -16,7 +26,7 @@ export default async function AdminDashboard() {
   const { status: onboarding, locations: onboardingLocations } =
     await getOnboarding(org);
 
-  const [{ data: apps }, { count: openPostings }] = await Promise.all([
+  const [{ data: apps }, { count: openPostings }, fit] = await Promise.all([
     supa
       .from("applications")
       .select("*")
@@ -28,6 +38,7 @@ export default async function AdminDashboard() {
       .select("*", { count: "exact", head: true })
       .eq("org_id", org.id)
       .eq("status", "open"),
+    fitByApplication(org.id),
   ]);
 
   const applications = (apps as AppRow[] | null) ?? [];
@@ -36,6 +47,20 @@ export default async function AdminDashboard() {
     (a) => a.status === "assessment_complete" || a.status === "decision_made"
   ).length;
   const awaiting = applications.filter((a) => a.status === "assessment_sent").length;
+
+  // The dashboard list defaults to Active (decided candidates hidden) and is
+  // filterable with the same view chips as the full Candidates page.
+  const visible = applications
+    .filter((a) =>
+      matchesView({ status: a.status, decision: a.decision, fit: fit.get(a.id) ?? null }, view)
+    )
+    .filter((a) =>
+      matchesSearch(
+        { firstName: a.first_name, lastName: a.last_name, email: a.email, role: a.positions?.[0] ?? "" },
+        q
+      )
+    );
+  const viewLabel = CANDIDATE_VIEWS.find((v) => v.key === view)?.label ?? "Active";
 
   return (
     <div>
@@ -69,35 +94,47 @@ export default async function AdminDashboard() {
         <Stat label="Open postings" value={openPostings ?? 0} />
       </div>
 
-      <div className="card mt-8">
-        <div className="flex items-center justify-between">
-          <h2 className="font-extrabold text-lg">Recent candidates</h2>
-          <Link
-            href="/admin/candidates"
-            className="text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline"
-          >
-            View all
-          </Link>
-        </div>
-        {applications.length === 0 ? (
-          <p className="text-[color:var(--brand-ink-muted)] mt-3 text-sm">
-            No applications yet. Share a posting to start collecting candidates.
+      <div className="mt-8 flex items-center justify-between gap-3 flex-wrap">
+        <h2 className="font-extrabold text-lg">Candidates</h2>
+        <Link
+          href="/admin/candidates"
+          className="text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline"
+        >
+          View all
+        </Link>
+      </div>
+      <CandidateFilters basePath="/admin" />
+
+      <div className="card mt-4">
+        {visible.length === 0 ? (
+          <p className="text-[color:var(--brand-ink-muted)] text-sm">
+            {applications.length === 0
+              ? "No applications yet. Share a posting to start collecting candidates."
+              : `No candidates in "${viewLabel}"${q.trim() ? " matching your search" : ""}.`}
           </p>
         ) : (
-          <ul className="mt-3 divide-y divide-[color:var(--brand-line)]">
-            {applications.slice(0, 10).map((a) => (
-              <li key={a.id} className="py-3 flex items-center justify-between gap-3">
-                <Link
-                  href={`/admin/candidates/${a.id}`}
-                  className="font-semibold hover:text-[color:var(--brand-blue-600)]"
-                >
-                  {a.first_name} {a.last_name}
-                </Link>
-                <span className="text-xs text-[color:var(--brand-ink-muted)]">
-                  {a.positions?.[0] ?? "—"} · {a.status.replace(/_/g, " ")}
-                </span>
-              </li>
-            ))}
+          <ul className="divide-y divide-[color:var(--brand-line)]">
+            {visible.slice(0, 10).map((a) => {
+              const f = fit.get(a.id);
+              return (
+                <li key={a.id} className="py-3 flex items-center justify-between gap-3">
+                  <Link
+                    href={`/admin/candidates/${a.id}`}
+                    className="font-semibold hover:text-[color:var(--brand-blue-600)] min-w-0 truncate"
+                  >
+                    {a.first_name} {a.last_name}
+                  </Link>
+                  <span className="text-xs text-[color:var(--brand-ink-muted)] flex items-center gap-2 shrink-0">
+                    <span>{a.positions?.[0] ?? "—"}</span>
+                    {f && (
+                      <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] whitespace-nowrap">
+                        {f}
+                      </span>
+                    )}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

@@ -9,7 +9,11 @@ import { CANDIDATE_VIEWS, asView } from "@/lib/candidate-filter";
  * Replaces the old three-dropdowns-plus-checkbox. State lives in the URL
  * (`view`, `q`); the page renders the matching list server-side.
  */
-export default function CandidateFilters() {
+export default function CandidateFilters({
+  basePath = "/admin/candidates",
+}: {
+  basePath?: string;
+}) {
   const router = useRouter();
   const sp = useSearchParams();
   const [q, setQ] = useState(sp.get("q") ?? "");
@@ -22,7 +26,7 @@ export default function CandidateFilters() {
       if (v) params.set(k, v);
       else params.delete(k);
     }
-    router.push(`/admin/candidates?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   }
 
   // Debounce the free-text search.

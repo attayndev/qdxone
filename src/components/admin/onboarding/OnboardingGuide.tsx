@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lightbox } from "@/components/admin/Lightbox";
 import BrandStudio from "@/components/admin/BrandFromUrl";
@@ -64,6 +64,27 @@ export default function OnboardingGuide({
   const [open, setOpen] = useState<StepId | null>(null);
   const [expanded, setExpanded] = useState(false);
 
+  // Collapsible guide. Default: expanded for a brand-new store, collapsed once
+  // they've made any progress (i.e. after signup + first use). Their explicit
+  // toggle is remembered per store (localStorage is per-subdomain = per org).
+  const [collapsed, setCollapsed] = useState(status.complete || status.doneCount > 0);
+  useEffect(() => {
+    const stored = localStorage.getItem("qdx_onboarding_collapsed");
+    if (stored === "1") setCollapsed(true);
+    else if (stored === "0") setCollapsed(false);
+  }, []);
+  function toggleCollapsed() {
+    setCollapsed((c) => {
+      const next = !c;
+      try {
+        localStorage.setItem("qdx_onboarding_collapsed", next ? "1" : "0");
+      } catch {
+        /* private mode — just don't persist */
+      }
+      return next;
+    });
+  }
+
   const refresh = () => router.refresh();
   const close = () => {
     setOpen(null);
@@ -103,26 +124,40 @@ export default function OnboardingGuide({
   return (
     <div className="card mb-8 border-2 border-[color:var(--brand-soft)]">
       <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div>
+        <div className="min-w-0">
           <h2 className="text-xl font-black tracking-tight">
             {status.complete ? "🎉 You're all set up!" : `Welcome — let's get ${orgName} hiring`}
           </h2>
-          <p className="text-sm text-[color:var(--brand-ink-muted)] mt-1">
-            {status.complete
-              ? "Your careers page is live. Share it to start collecting applicants."
-              : "About 5 minutes. Do these in any order — you can stop and come back."}
-          </p>
+          {!collapsed && (
+            <p className="text-sm text-[color:var(--brand-ink-muted)] mt-1">
+              {status.complete
+                ? "Your careers page is live. Share it to start collecting applicants."
+                : "About 5 minutes. Do these in any order — you can stop and come back."}
+            </p>
+          )}
         </div>
-        <button
-          type="button"
-          onClick={dismiss}
-          className="text-xs text-[color:var(--brand-ink-muted)] underline whitespace-nowrap"
-        >
-          {status.complete ? "Hide this" : "I'll finish later"}
-        </button>
+        <div className="flex items-center gap-3 shrink-0">
+          {!collapsed && (
+            <button
+              type="button"
+              onClick={dismiss}
+              className="text-xs text-[color:var(--brand-ink-muted)] underline whitespace-nowrap"
+            >
+              {status.complete ? "Hide this" : "I'll finish later"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            aria-label={collapsed ? "Expand setup guide" : "Collapse setup guide"}
+            className="text-[color:var(--brand-ink-muted)] hover:text-[color:var(--brand-ink)] text-lg leading-none w-6 h-6 grid place-items-center"
+          >
+            {collapsed ? "▸" : "▾"}
+          </button>
+        </div>
       </div>
 
-      {/* progress */}
+      {/* progress — always visible, even collapsed */}
       <div className="mt-4 flex items-center gap-3">
         <div className="flex-1 h-2 rounded-full bg-[color:var(--brand-cream)] overflow-hidden">
           <div
@@ -135,6 +170,18 @@ export default function OnboardingGuide({
         </span>
       </div>
 
+      {collapsed && !status.complete && (
+        <button
+          type="button"
+          onClick={toggleCollapsed}
+          className="mt-3 text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline"
+        >
+          Resume setup →
+        </button>
+      )}
+
+      {!collapsed && (
+        <>
       {/* steps */}
       <ul className="mt-5 space-y-2">
         {STEPS.map((step) => {
@@ -290,6 +337,8 @@ export default function OnboardingGuide({
       >
         <ShareStep careersUrl={careersUrl} orgName={orgName} />
       </Lightbox>
+        </>
+      )}
     </div>
   );
 }
