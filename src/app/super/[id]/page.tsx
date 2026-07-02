@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { adminClient } from "@/lib/supabase/admin";
 import { userDisplay } from "@/lib/user-name";
+import { DEMO_SLUG } from "@/lib/demo/seed";
+import SuperOrgControls from "@/components/super/SuperOrgControls";
 import { ROOT_DOMAIN } from "@/lib/host";
 import { orgUrl } from "@/lib/tenancy";
 import { getOrgLocations } from "@/lib/locations";
@@ -56,7 +58,12 @@ export default async function OrgDetailPage({ params }: PageProps) {
         </Link>
 
         <div className="mt-3 flex items-center justify-between gap-3 flex-wrap">
-          <h1 className="text-3xl font-black tracking-tight">{org.name}</h1>
+          <h1 className="text-3xl font-black tracking-tight flex items-center gap-2 flex-wrap">
+            {org.name}
+            {org.suspended_at && (
+              <span className="chip bg-rose-100 text-rose-700 text-sm">Suspended</span>
+            )}
+          </h1>
           <a
             href={orgUrl(org.slug)}
             target="_blank"
@@ -133,9 +140,14 @@ export default async function OrgDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        <p className="mt-6 text-xs text-[color:var(--brand-ink-muted)]">
-          Support actions (view-as, suspend, delete) are coming in a later phase.
-        </p>
+        <div className="mt-6">
+          <SuperOrgControls
+            orgId={org.id}
+            slug={org.slug}
+            suspended={!!org.suspended_at}
+            isDemo={org.slug === DEMO_SLUG}
+          />
+        </div>
       </div>
     </main>
   );

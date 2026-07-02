@@ -88,6 +88,11 @@ export interface OrganizationRow {
   // Denormalized count of locations; drives tier, quota, seats, caps, and the
   // Stripe subscription quantity. Kept in sync by a DB trigger on `locations`.
   location_count: number;
+  // Platform-staff suspension (super-admin); null = active. Separate from billing
+  // status so unsuspending restores the real state.
+  suspended_at: string | null;
+  // Email allowed to be promoted to owner on the signup auth callback.
+  pending_owner_email: string | null;
   created_at: string;
   updated_at: string;
 }

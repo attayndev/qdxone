@@ -40,7 +40,12 @@ export default async function BillingPage({ searchParams }: PageProps) {
         </p>
       </div>
 
-      {sp.reason && (
+      {sp.reason === "suspended" ? (
+        <p className="card bg-rose-50 text-rose-800 font-semibold">
+          Your account has been suspended. Please contact support at
+          support@qdx.one to restore access.
+        </p>
+      ) : sp.reason ? (
         <p className="card bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] font-semibold">
           {sp.reason === "trial_expired"
             ? "Your free trial has ended. Add a plan to keep reviewing candidates."
@@ -48,7 +53,7 @@ export default async function BillingPage({ searchParams }: PageProps) {
               ? "Your last payment failed. Update your card to restore access."
               : "Your subscription was canceled. Resubscribe to continue."}
         </p>
-      )}
+      ) : null}
       {sp.success && (
         <p className="card text-emerald-700 bg-emerald-50">
           You&apos;re all set — trial started. Welcome aboard.

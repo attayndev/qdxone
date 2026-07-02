@@ -124,7 +124,7 @@ export async function proxy(request: NextRequest) {
     // Confirm the user is a member of THIS org.
     const { data: org } = await supabase
       .from("organizations")
-      .select("id, status, trial_ends_at")
+      .select("id, status, trial_ends_at, suspended_at")
       .eq("slug", slug!)
       .maybeSingle();
     if (!org) {
@@ -153,18 +153,24 @@ export async function proxy(request: NextRequest) {
       org.status === "trialing" &&
       !!org.trial_ends_at &&
       new Date(org.trial_ends_at).getTime() < Date.now();
+    const suspended = !!org.suspended_at;
     const lapsed =
-      org.status === "past_due" || org.status === "canceled" || trialExpired;
+      suspended ||
+      org.status === "past_due" ||
+      org.status === "canceled" ||
+      trialExpired;
     if (lapsed && !path.startsWith("/admin/billing")) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/billing";
       url.searchParams.set(
         "reason",
-        org.status === "past_due"
-          ? "past_due"
-          : org.status === "canceled"
-            ? "canceled"
-            : "trial_expired"
+        suspended
+          ? "suspended"
+          : org.status === "past_due"
+            ? "past_due"
+            : org.status === "canceled"
+              ? "canceled"
+              : "trial_expired"
       );
       return NextResponse.redirect(url);
     }
