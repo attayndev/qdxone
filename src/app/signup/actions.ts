@@ -13,6 +13,8 @@ const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$/;
 
 const SignupSchema = z.object({
   name: z.string().min(1).max(120),
+  firstName: z.string().min(1, "Your first name").max(80),
+  lastName: z.string().max(80).optional().or(z.literal("")),
   email: z.string().email().max(200),
   slug: z
     .string()
@@ -46,6 +48,8 @@ export async function signup(
 ): Promise<SignupResult> {
   const parsed = SignupSchema.safeParse({
     name: formData.get("name"),
+    firstName: formData.get("firstName"),
+    lastName: formData.get("lastName") ?? "",
     email: formData.get("email"),
     slug: (formData.get("slug") ?? "").toString().toLowerCase().trim(),
     cycle: formData.get("cycle") ?? "monthly",
@@ -134,7 +138,12 @@ export async function signup(
     );
     if (existing) {
       await supa.auth.admin.updateUserById(existing.id, {
-        user_metadata: { ...existing.user_metadata, signup_org_id: org.id },
+        user_metadata: {
+          ...existing.user_metadata,
+          signup_org_id: org.id,
+          first_name: v.firstName,
+          last_name: v.lastName || "",
+        },
       });
     }
   } catch (e) {
@@ -161,7 +170,7 @@ export async function signup(
     options: {
       emailRedirectTo: callbackUrl,
       shouldCreateUser: true,
-      data: { signup_org_id: org.id },
+      data: { signup_org_id: org.id, first_name: v.firstName, last_name: v.lastName || "" },
     },
   });
   if (linkErr) {

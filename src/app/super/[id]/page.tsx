@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { adminClient } from "@/lib/supabase/admin";
+import { userDisplay } from "@/lib/user-name";
 import { ROOT_DOMAIN } from "@/lib/host";
 import { orgUrl } from "@/lib/tenancy";
 import { getOrgLocations } from "@/lib/locations";
@@ -41,7 +42,7 @@ export default async function OrgDetailPage({ params }: PageProps) {
   const roster = await Promise.all(
     members.map(async (m) => {
       const { data } = await admin.auth.admin.getUserById(m.user_id);
-      return { role: m.role, email: data.user?.email ?? m.user_id };
+      return { role: m.role, email: userDisplay(data.user ?? { email: m.user_id }) };
     })
   );
 

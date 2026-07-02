@@ -10,6 +10,7 @@
 import "server-only";
 import { createHash } from "node:crypto";
 import { adminClient } from "@/lib/supabase/admin";
+import { userDisplay } from "@/lib/user-name";
 import { getWeeklySchedule } from "./availability-rules";
 import { getAvailableSlots } from "./slots";
 import { markInvitationBooked, type ResolvedInvitation } from "./invitations";
@@ -152,11 +153,11 @@ export async function listUpcomingBookings(orgId: string): Promise<UpcomingBooki
     (invs as { id: string; created_by: string | null }[] | null ?? []).map((i) => [i.id, i.created_by])
   );
   const creatorIds = [...new Set([...invCreator.values()].filter(Boolean) as string[])];
-  const emailById = new Map<string, string>();
+  const creatorNameById = new Map<string, string>();
   await Promise.all(
     creatorIds.map(async (uid) => {
       const { data: u } = await supa.auth.admin.getUserById(uid);
-      if (u.user?.email) emailById.set(uid, u.user.email);
+      if (u.user) creatorNameById.set(uid, userDisplay(u.user));
     })
   );
 
@@ -173,7 +174,7 @@ export async function listUpcomingBookings(orgId: string): Promise<UpcomingBooki
       meetingLocation: r.meeting_location,
       conferenceUrl: r.conference_url,
       status: r.status,
-      scheduledBy: creatorId ? emailById.get(creatorId) ?? null : null,
+      scheduledBy: creatorId ? creatorNameById.get(creatorId) ?? null : null,
     };
   });
 }

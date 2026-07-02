@@ -60,6 +60,16 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
           required
         />
       </div>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <div>
+          <label className="label">Your first name</label>
+          <input name="firstName" className="input" placeholder="Jane" autoComplete="given-name" required />
+        </div>
+        <div>
+          <label className="label">Last name</label>
+          <input name="lastName" className="input" placeholder="Doe" autoComplete="family-name" />
+        </div>
+      </div>
       <div>
         <label className="label">Your email</label>
         <input

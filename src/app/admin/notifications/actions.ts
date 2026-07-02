@@ -20,3 +20,22 @@ export async function saveNotifyPrefs(prefs: NotifyPrefs, phone: string) {
   revalidatePath("/admin/notifications");
   return { ok: true as const };
 }
+
+/** Save the CURRENT user's name (person-level, on their auth user_metadata). */
+export async function saveProfile(firstName: string, lastName: string) {
+  const org = await currentOrgOrThrow();
+  const m = await requireMembership(org.id);
+  if (!m) return { ok: false as const, error: "Not a member of this org." };
+  const supa = adminClient();
+  // Merge so we don't clobber other metadata (e.g. signup_org_id).
+  const { data: existing } = await supa.auth.admin.getUserById(m.user_id);
+  await supa.auth.admin.updateUserById(m.user_id, {
+    user_metadata: {
+      ...(existing.user?.user_metadata ?? {}),
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
+    },
+  });
+  revalidatePath("/admin/notifications");
+  return { ok: true as const };
+}

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { currentOrg, getMembership } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
 import { effectiveTier, planLimits, TIER_LABEL } from "@/lib/plan";
+import { userFullName } from "@/lib/user-name";
 import InviteMemberForm from "./InviteMemberForm";
 import RemoveMemberButton from "./RemoveMemberButton";
 
@@ -18,11 +19,15 @@ export default async function TeamPage() {
     .order("created_at", { ascending: true });
   const members = rows ?? [];
 
-  // Resolve each member's email (small list — one lookup each).
+  // Resolve each member's name + email (small list — one lookup each).
   const withEmail = await Promise.all(
     members.map(async (mem) => {
       const { data } = await supa.auth.admin.getUserById(mem.user_id);
-      return { ...mem, email: data?.user?.email ?? "(unknown)" };
+      return {
+        ...mem,
+        email: data?.user?.email ?? "(unknown)",
+        name: userFullName(data?.user),
+      };
     })
   );
 
@@ -70,7 +75,7 @@ export default async function TeamPage() {
             >
               <div className="min-w-0">
                 <div className="font-semibold truncate">
-                  {mem.email}
+                  {mem.name ?? mem.email}
                   {me?.user_id === mem.user_id && (
                     <span className="text-[color:var(--brand-ink-muted)] font-normal">
                       {" "}
@@ -79,6 +84,7 @@ export default async function TeamPage() {
                   )}
                 </div>
                 <div className="text-xs text-[color:var(--brand-ink-muted)]">
+                  {mem.name ? `${mem.email} · ` : ""}
                   {mem.role === "owner" ? "Owner" : "Manager"} · joined{" "}
                   {new Date(mem.created_at).toLocaleDateString()}
                 </div>
