@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import LoginForm from "@/components/LoginForm";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
+import { createClient } from "@/lib/supabase/server";
+import { resolveHomeUrl } from "@/lib/auth/home-route";
 
 interface PageProps {
   searchParams: Promise<{ next?: string; error?: string }>;
@@ -9,10 +12,21 @@ interface PageProps {
 
 /**
  * Apex sign-in. Sends a magic link; the auth callback then routes the
- * signed-in user to their org's subdomain admin.
+ * signed-in user to their org's subdomain admin. If already signed in, route
+ * straight to their home (so /admin on the apex doesn't dead-end on this form).
  */
 export default async function ApexLoginPage({ searchParams }: PageProps) {
   const sp = await searchParams;
+
+  const supa = await createClient();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
+  if (user) {
+    const home = await resolveHomeUrl(user);
+    if (!home.includes("/login")) redirect(home); // guard the no-org loop
+  }
+
   return (
     <>
       <ApexHeader />

@@ -119,30 +119,8 @@ async function handleCallback(request: NextRequest) {
     return NextResponse.redirect(apexUrl("/super"));
   }
 
-  // On the apex, resolve the user's primary org → its subdomain admin.
-  const admin = adminClient();
-  const { data: memberships } = await admin
-    .from("org_members")
-    .select("org_id, organizations:org_id ( slug )")
-    .eq("user_id", userId);
-  type Memb = {
-    org_id: string;
-    organizations: { slug: string } | { slug: string }[] | null;
-  };
-  const list = (memberships ?? []) as Memb[];
-  const slugOf = (m: Memb) =>
-    Array.isArray(m.organizations) ? m.organizations[0]?.slug : m.organizations?.slug;
-  // Prefer a real org over the shared "demo" org, so a platform admin who was
-  // added to the demo still lands on their own org on a normal login.
-  const preferred = list.find((m) => slugOf(m) && slugOf(m) !== "demo") ?? list[0];
-  const slugFromMembership = preferred ? slugOf(preferred) : null;
-
-  if (!slugFromMembership) {
-    // A platform admin need not belong to any org — send them to the console.
-    if (await isPlatformAdmin(user)) {
-      return NextResponse.redirect(apexUrl("/super"));
-    }
-    return NextResponse.redirect(apexUrl("/login?error=no_org"));
-  }
-  return NextResponse.redirect(orgUrl(slugFromMembership, "/admin"));
+  // On the apex, route the user to their home (real org admin / staff console /
+  // no-org error) — the shared demo org is never treated as a home.
+  const { resolveHomeUrl } = await import("@/lib/auth/home-route");
+  return NextResponse.redirect(await resolveHomeUrl(user));
 }
