@@ -10,9 +10,7 @@
 async function isOptedOut(phone: string): Promise<boolean> {
   try {
     const { adminClient } = await import("@/lib/supabase/admin");
-    // sms_opt_outs isn't in generated types until migration 0018 is applied.
-    const supa = adminClient() as unknown as import("@supabase/supabase-js").SupabaseClient;
-    const { data, error } = await supa
+    const { data, error } = await adminClient()
       .from("sms_opt_outs")
       .select("phone")
       .eq("phone", phone)

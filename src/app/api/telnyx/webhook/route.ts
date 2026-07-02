@@ -7,12 +7,10 @@
  */
 
 import { NextResponse, type NextRequest } from "next/server";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { adminClient } from "@/lib/supabase/admin";
 import { verifyTelnyxSignature } from "@/lib/telnyx-verify";
 
-// sms_opt_outs isn't in generated types until migration 0018 is applied.
-const optOuts = () => (adminClient() as unknown as SupabaseClient).from("sms_opt_outs");
+const optOuts = () => adminClient().from("sms_opt_outs");
 
 export const runtime = "nodejs";
 

@@ -1297,6 +1297,50 @@ export type Database = {
           },
         ]
       }
+      sms_opt_outs: {
+        Row: {
+          opted_out_at: string
+          org_id: string | null
+          phone: string
+        }
+        Insert: {
+          opted_out_at?: string
+          org_id?: string | null
+          phone: string
+        }
+        Update: {
+          opted_out_at?: string
+          org_id?: string | null
+          phone?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_opt_outs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_events: {
+        Row: {
+          id: string
+          processed_at: string
+          type: string | null
+        }
+        Insert: {
+          id: string
+          processed_at?: string
+          type?: string | null
+        }
+        Update: {
+          id?: string
+          processed_at?: string
+          type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
