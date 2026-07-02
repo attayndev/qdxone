@@ -71,6 +71,11 @@ function BookingRow({ b }: { b: UpcomingBooking }) {
             <> · {b.meetingLocation}</>
           ) : null}
         </div>
+        {b.scheduledBy && (
+          <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
+            Scheduled by {b.scheduledBy}
+          </div>
+        )}
       </div>
       <button
         disabled={pending}

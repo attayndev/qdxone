@@ -164,15 +164,10 @@ export async function mintInterviewInvite(
 ): Promise<MintedInterviewInvite> {
   const supa = adminClient();
 
-  // The interviewer is the template's roster entry (v1: a single one).
-  const { data: roster } = await supa
-    .from("interview_template_interviewers")
-    .select("user_id, is_active")
-    .eq("template_id", templateId)
-    .eq("is_active", true)
-    .limit(1)
-    .maybeSingle();
-  const interviewerId = (roster as { user_id: string } | null)?.user_id ?? userId;
+  // The interview type is just a label (name/duration/format) — it isn't tied to
+  // anyone. The interviewer is whoever SENDS the invite, so the candidate books
+  // against that person's own availability + calendar.
+  const interviewerId = userId;
 
   const { data: appRow } = await supa
     .from("applications")

@@ -27,6 +27,7 @@ interface Interview {
   meetingLocation: string | null;
   conferenceUrl: string | null;
   status: string;
+  scheduledBy: string | null;
 }
 
 const MEETING_LABEL: Record<MeetingType, string> = {
@@ -164,6 +165,9 @@ function InterviewCard({ interview, onChanged }: { interview: Interview; onChang
       </Text>
       {interview.meetingType === "in_person" && interview.meetingLocation ? (
         <Text style={{ color: brand.inkMuted, fontSize: 13, marginTop: 2 }}>📍 {interview.meetingLocation}</Text>
+      ) : null}
+      {interview.scheduledBy ? (
+        <Text style={{ color: brand.inkMuted, fontSize: 12, marginTop: 2 }}>Scheduled by {interview.scheduledBy}</Text>
       ) : null}
 
       <View style={{ flexDirection: "row", gap: 18, marginTop: 12, alignItems: "center", flexWrap: "wrap" }}>

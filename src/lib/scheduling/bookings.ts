@@ -105,6 +105,8 @@ export interface UpcomingBooking {
   meetingLocation: string | null;
   conferenceUrl: string | null;
   status: string;
+  /** Email of the operator who set up (invited) this interview. */
+  scheduledBy: string | null;
 }
 
 const ACTIVE_STATUSES = ["confirmed", "calendar_pending", "calendar_failed"];
@@ -116,7 +118,7 @@ export async function listUpcomingBookings(orgId: string): Promise<UpcomingBooki
   const { data } = await supa
     .from("interview_bookings")
     .select(
-      "id, application_id, template_id, start_at, timezone, meeting_type, meeting_location, conference_url, status"
+      "id, application_id, template_id, invitation_id, start_at, timezone, meeting_type, meeting_location, conference_url, status"
     )
     .eq("org_id", orgId)
     .in("status", ACTIVE_STATUSES)
@@ -124,35 +126,56 @@ export async function listUpcomingBookings(orgId: string): Promise<UpcomingBooki
     .order("start_at", { ascending: true })
     .limit(100);
   const rows = (data as Array<{
-    id: string; application_id: string; template_id: string | null; start_at: string;
-    timezone: string; meeting_type: MeetingType; meeting_location: string | null;
+    id: string; application_id: string; template_id: string | null; invitation_id: string | null;
+    start_at: string; timezone: string; meeting_type: MeetingType; meeting_location: string | null;
     conference_url: string | null; status: string;
   }> | null) ?? [];
   if (rows.length === 0) return [];
 
   const appIds = [...new Set(rows.map((r) => r.application_id))];
   const tmplIds = [...new Set(rows.map((r) => r.template_id).filter(Boolean) as string[])];
-  const [{ data: apps }, { data: tmpls }] = await Promise.all([
+  const invIds = [...new Set(rows.map((r) => r.invitation_id).filter(Boolean) as string[])];
+  const [{ data: apps }, { data: tmpls }, { data: invs }] = await Promise.all([
     supa.from("applications").select("id, first_name, last_name").in("id", appIds),
     tmplIds.length
       ? supa.from("interview_templates").select("id, name").in("id", tmplIds)
+      : Promise.resolve({ data: [] }),
+    invIds.length
+      ? supa.from("scheduling_invitations").select("id, created_by").in("id", invIds)
       : Promise.resolve({ data: [] }),
   ]);
   const nameById = new Map((apps as { id: string; first_name: string; last_name: string }[] | null ?? []).map((a) => [a.id, `${a.first_name} ${a.last_name}`.trim()]));
   const tmplById = new Map((tmpls as { id: string; name: string }[] | null ?? []).map((t) => [t.id, t.name]));
 
-  return rows.map((r) => ({
-    id: r.id,
-    applicationId: r.application_id,
-    candidateName: nameById.get(r.application_id) ?? "Candidate",
-    interviewName: (r.template_id && tmplById.get(r.template_id)) || "Interview",
-    startAt: r.start_at,
-    timezone: r.timezone,
-    meetingType: r.meeting_type,
-    meetingLocation: r.meeting_location,
-    conferenceUrl: r.conference_url,
-    status: r.status,
-  }));
+  // Resolve "scheduled by" = the invitation's creator, to an email.
+  const invCreator = new Map(
+    (invs as { id: string; created_by: string | null }[] | null ?? []).map((i) => [i.id, i.created_by])
+  );
+  const creatorIds = [...new Set([...invCreator.values()].filter(Boolean) as string[])];
+  const emailById = new Map<string, string>();
+  await Promise.all(
+    creatorIds.map(async (uid) => {
+      const { data: u } = await supa.auth.admin.getUserById(uid);
+      if (u.user?.email) emailById.set(uid, u.user.email);
+    })
+  );
+
+  return rows.map((r) => {
+    const creatorId = r.invitation_id ? invCreator.get(r.invitation_id) ?? null : null;
+    return {
+      id: r.id,
+      applicationId: r.application_id,
+      candidateName: nameById.get(r.application_id) ?? "Candidate",
+      interviewName: (r.template_id && tmplById.get(r.template_id)) || "Interview",
+      startAt: r.start_at,
+      timezone: r.timezone,
+      meetingType: r.meeting_type,
+      meetingLocation: r.meeting_location,
+      conferenceUrl: r.conference_url,
+      status: r.status,
+      scheduledBy: creatorId ? emailById.get(creatorId) ?? null : null,
+    };
+  });
 }
 
 /** Cancel a booking: free the slot, delete the calendar event, notify candidate. */
