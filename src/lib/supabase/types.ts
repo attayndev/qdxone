@@ -11,6 +11,15 @@ export type OrgRole = "owner" | "admin";
 
 export type FieldMode = "hidden" | "optional" | "required";
 export type CustomQuestionType = "short_text" | "long_text" | "yes_no";
+/**
+ * How a mismatch between the applicant's answer and `expected` is treated:
+ * - "flag":     surface a concern on the report; no effect on fit.
+ * - "knockout": a hard requirement they missed → caps fit at Caution.
+ * - "legal":    a legal requirement (age etc.) → caps fit at Not recommended,
+ *               with a prominent "legal requirement not met" flag.
+ * Undefined/absent = informational only (no gate).
+ */
+export type CustomQuestionGate = "flag" | "knockout" | "legal";
 export type CustomQuestion = {
   id: string;
   label: string;
@@ -18,6 +27,10 @@ export type CustomQuestion = {
   required: boolean;
   // Role names this question applies to. Empty/undefined = all roles.
   roles?: string[];
+  // Gating (optional). `expected` is the passing answer — for yes_no it's
+  // "yes"/"no"; for text it's a case-insensitive exact match.
+  gate?: CustomQuestionGate;
+  expected?: string;
 };
 
 export interface OrgBranding {

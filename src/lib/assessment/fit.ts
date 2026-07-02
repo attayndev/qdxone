@@ -9,6 +9,7 @@ import "server-only";
 import { adminClient } from "@/lib/supabase/admin";
 import { scoreAssessment, assessValidity, type ScoredItem, type OverallFit } from "@/lib/assessment/scoring";
 import { validitySignals, gateFitByValidity } from "@/lib/assessment/session";
+import { applyGatesToFits } from "@/lib/assessment/fit-gates";
 
 export async function fitByApplication(orgId: string): Promise<Map<string, OverallFit>> {
   const supa = adminClient();
@@ -73,5 +74,6 @@ export async function fitByApplication(orgId: string): Promise<Map<string, Overa
     const { valid } = assessValidity({ scored, ...validitySignals(rowsBySession.get(s.id) ?? []) });
     fit.set(s.application_id as string, gateFitByValidity(scoreAssessment(scored).overall, valid));
   }
-  return fit;
+  // Cap by custom-question gates (underage / knockout can't show as Strong).
+  return applyGatesToFits(orgId, fit);
 }

@@ -290,7 +290,9 @@ export async function orgCandidateTiers(
     const { valid } = assessValidity({ scored: sc, ...validitySignals(rowsBySession.get(s.id) ?? []) });
     out.set(s.application_id as string, gateFitByValidity(result.overall, valid));
   }
-  return out;
+  // Cap by custom-question gates (underage / knockout can't show as Strong).
+  const { applyGatesToFits } = await import("@/lib/assessment/fit-gates");
+  return applyGatesToFits(orgId, out);
 }
 
 /**
