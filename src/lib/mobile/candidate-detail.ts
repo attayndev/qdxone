@@ -21,6 +21,22 @@ import {
 import { isDecision } from "@/lib/candidate-decision";
 import { listInterviewTypes } from "@/lib/scheduling/templates";
 import { getWeeklySchedule } from "@/lib/scheduling/availability-rules";
+import { applicationConfig } from "@/lib/application-config";
+import {
+  evaluateCustomGates,
+  fitCapFromGates,
+  applyFitCap,
+  type GateFinding,
+} from "@/lib/custom-question-gates";
+import type { OrgBranding } from "@/lib/supabase/types";
+
+const GATE_STARS: Record<OverallFit, number> = {
+  "Strong fit": 5,
+  Consider: 4,
+  Caution: 2,
+  "Not recommended": 1,
+  Incomplete: 0,
+};
 
 export interface MobileCandidateDetail {
   id: string;
@@ -36,6 +52,7 @@ export interface MobileCandidateDetail {
   decisionAt: string | null;
   interviewTypes: { id: string; name: string; durationMinutes: number }[];
   senderHasAvailability: boolean;
+  gateFindings: { label: string; gate: GateFinding["gate"]; expected: string; answer: string }[];
   report: {
     overall: OverallFit;
     stars: number;
@@ -231,6 +248,24 @@ export async function getCandidateDetail(
     .filter((c) => c.value)
     .map((c) => ({ label: c.label, value: c.value }));
 
+  // Custom-question gates: cap the report fit + surface findings (same as web).
+  const { data: orgRow } = await supa
+    .from("organizations")
+    .select("branding")
+    .eq("id", orgId)
+    .maybeSingle();
+  const gateFindings = evaluateCustomGates(
+    applicationConfig((orgRow?.branding ?? null) as OrgBranding | null).custom_questions,
+    (a.custom_answers ?? []) as { id: string; value: string }[]
+  );
+  if (report && report.overall !== "Incomplete") {
+    const capped = applyFitCap(report.overall, fitCapFromGates(gateFindings));
+    if (capped !== report.overall) {
+      report.overall = capped;
+      report.stars = GATE_STARS[capped];
+    }
+  }
+
   return {
     id: a.id,
     firstName: a.first_name,
@@ -245,6 +280,12 @@ export async function getCandidateDetail(
     decisionAt: a.decision_at,
     interviewTypes,
     senderHasAvailability,
+    gateFindings: gateFindings.map((f) => ({
+      label: f.label,
+      gate: f.gate,
+      expected: f.expected,
+      answer: f.answer,
+    })),
     report,
     application: {
       eligibleToWork: (a.eligible_to_work as boolean | null) ?? null,

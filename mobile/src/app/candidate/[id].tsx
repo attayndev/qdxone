@@ -30,6 +30,7 @@ interface Detail {
   decisionAt: string | null;
   interviewTypes: { id: string; name: string; durationMinutes: number }[];
   senderHasAvailability: boolean;
+  gateFindings: { label: string; gate: "flag" | "knockout" | "legal"; expected: string; answer: string }[];
   report: {
     overall: string;
     stars: number;
@@ -169,6 +170,28 @@ export default function CandidateDetail() {
           </Text>
         </Card>
       )}
+
+      {/* Custom-question gate findings */}
+      {detail.gateFindings.map((f, i) => {
+        const legal = f.gate === "legal";
+        const knockout = f.gate === "knockout";
+        const border = legal ? feedback.dangerSolid : knockout ? feedback.warnBorder : brand.line;
+        const bg = legal ? "#fef2f2" : knockout ? feedback.warnSurface : brand.cream;
+        const fg = legal ? feedback.dangerText : knockout ? feedback.warnText : brand.ink;
+        const heading = legal
+          ? "⚠️ Legal requirement not met"
+          : knockout
+            ? "Requirement not met"
+            : "Flagged for review";
+        return (
+          <Card key={i} style={{ borderColor: border, borderWidth: 2, backgroundColor: bg }}>
+            <Text style={{ fontWeight: "800", color: fg }}>{heading}</Text>
+            <Text style={{ color: fg, fontSize: 13, marginTop: 4 }}>
+              {f.label} — answered &ldquo;{f.answer}&rdquo; (needs &ldquo;{f.expected}&rdquo;)
+            </Text>
+          </Card>
+        );
+      })}
 
       {/* Report card */}
       {r ? (
