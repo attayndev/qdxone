@@ -116,6 +116,57 @@ async function shareLink(url: string, title: string) {
 const LINK_BTN =
   "text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline";
 
+/** Open Facebook's share dialog for a URL (FB scrapes the page's preview). */
+function fbShare(url: string) {
+  window.open(
+    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    "_blank",
+    "noopener,noreferrer,width=680,height=640"
+  );
+}
+
+function postingBlurb(p: PostingView, orgName: string): string {
+  const pay = formatPay({
+    min: p.payMin,
+    max: p.payMax,
+    period: p.payPeriod ?? "hour",
+    tips: p.tips ?? false,
+  });
+  const where = p.location || orgName;
+  return `We're hiring: ${p.title}${where ? ` at ${where}` : ""}${pay ? ` — ${pay}` : ""}. Apply in 2 minutes, no login needed: ${p.url}`;
+}
+
+/**
+ * Facebook one-click + a ready-to-paste job blurb — for the boards that have no
+ * clean prefill URL (Craigslist, Nextdoor, Facebook groups, free Indeed posts).
+ */
+function ShareExtras({ url, blurb }: { url: string; blurb: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => fbShare(url)} className={LINK_BTN}>
+        Facebook
+      </button>
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(blurb);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+          } catch {
+            /* clipboard blocked */
+          }
+        }}
+        className={LINK_BTN}
+        title="Copy a ready-to-paste post for Craigslist, Nextdoor, Facebook groups, etc."
+      >
+        {copied ? "Copied post!" : "Copy post"}
+      </button>
+    </>
+  );
+}
+
 type StoreOption = { id: string; name: string };
 
 export default function PostingsClient({
@@ -124,16 +175,18 @@ export default function PostingsClient({
   roles,
   locations,
   careers,
+  orgName,
 }: {
   postings: PostingView[];
   hasLocation: boolean;
   roles: string[];
   locations: StoreOption[];
   careers: { url: string; qrSvg: string };
+  orgName: string;
 }) {
   return (
     <div className="mt-6 space-y-6">
-      <CareersShareCard careers={careers} />
+      <CareersShareCard careers={careers} orgName={orgName} />
       <div className="grid lg:grid-cols-[1fr_2fr] gap-6">
         <CreateForm hasLocation={hasLocation} roles={roles} locations={locations} />
         <div className="card">
@@ -145,7 +198,7 @@ export default function PostingsClient({
             </li>
           )}
           {postings.map((p) => (
-            <PostingItem key={p.id} posting={p} roles={roles} locations={locations} />
+            <PostingItem key={p.id} posting={p} roles={roles} locations={locations} orgName={orgName} />
           ))}
         </ul>
         </div>
@@ -154,7 +207,13 @@ export default function PostingsClient({
   );
 }
 
-function CareersShareCard({ careers }: { careers: { url: string; qrSvg: string } }) {
+function CareersShareCard({
+  careers,
+  orgName,
+}: {
+  careers: { url: string; qrSvg: string };
+  orgName: string;
+}) {
   const [copied, setCopied] = useState(false);
   return (
     <div className="card">
@@ -189,6 +248,10 @@ function CareersShareCard({ careers }: { careers: { url: string; qrSvg: string }
             <button type="button" onClick={() => shareLink(careers.url, "Careers")} className={LINK_BTN}>
               Share
             </button>
+            <ShareExtras
+              url={careers.url}
+              blurb={`${orgName} is hiring! See our open roles and apply in 2 minutes: ${careers.url}`}
+            />
             <button type="button" onClick={() => downloadQr(careers.qrSvg, "careers")} className={LINK_BTN}>
               Download QR
             </button>
@@ -278,10 +341,12 @@ function PostingItem({
   posting,
   roles,
   locations,
+  orgName,
 }: {
   posting: PostingView;
   roles: string[];
   locations: StoreOption[];
+  orgName: string;
 }) {
   const [pending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
@@ -470,6 +535,7 @@ function PostingItem({
             >
               Share
             </button>
+            <ShareExtras url={posting.url} blurb={postingBlurb(posting, orgName)} />
             <button
               type="button"
               onClick={() => downloadQr(posting.qrSvg, posting.title)}

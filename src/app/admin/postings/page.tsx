@@ -96,6 +96,7 @@ export default async function PostingsPage() {
         roles={orgRoles(org.branding)}
         locations={locations.map((l) => ({ id: l.id, name: l.name }))}
         careers={{ url: careersUrl, qrSvg: careersQr }}
+        orgName={org.name}
       />
     </div>
   );
