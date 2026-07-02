@@ -10,6 +10,21 @@ const TYPE_LABELS: Record<CustomQuestionType, string> = {
   yes_no: "Yes / No",
 };
 
+const GATE_LABELS: Record<string, string> = {
+  none: "Optional — just collect it",
+  flag: "Flag for review if wrong",
+  knockout: "Must-have (lowers their fit)",
+  legal: "Legal requirement (age, etc.)",
+};
+
+// One-click legal age gates. Each is a Yes/No question that must be answered
+// "Yes" — a "No" makes the candidate ineligible for that role.
+const LEGAL_PRESETS: { label: string; button: string }[] = [
+  { button: "16+ to work", label: "Are you 16 years or older?" },
+  { button: "18+ to serve alcohol", label: "Are you 18 years or older? (required to serve alcohol)" },
+  { button: "21+ to bartend", label: "Are you 21 years or older? (required to bartend)" },
+];
+
 export default function CustomQuestionsEditor({
   initial,
   roles,
@@ -28,6 +43,19 @@ export default function CustomQuestionsEditor({
     setQs((p) => [
       ...p,
       { id: crypto.randomUUID(), label: "", type: "short_text", required: false, roles: [] },
+    ]);
+  const addLegalPreset = (label: string) =>
+    setQs((p) => [
+      ...p,
+      {
+        id: crypto.randomUUID(),
+        label,
+        type: "yes_no",
+        required: true,
+        roles: [],
+        gate: "legal",
+        expected: "yes",
+      },
     ]);
   const update = (id: string, patch: Partial<CustomQuestion>) =>
     setQs((p) => p.map((q) => (q.id === id ? { ...q, ...patch } : q)));
@@ -107,6 +135,60 @@ export default function CustomQuestionsEditor({
                 Remove
               </button>
             </div>
+
+            {/* Answer requirement / gate */}
+            <div className="rounded-lg bg-[color:var(--brand-cream)] p-2 flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-semibold text-[color:var(--brand-ink-muted)]">
+                If answered wrong:
+              </span>
+              <select
+                className="input max-w-[230px] py-1.5 text-sm"
+                value={q.gate ?? "none"}
+                onChange={(e) => {
+                  const g = e.target.value;
+                  update(
+                    q.id,
+                    g === "none"
+                      ? { gate: undefined, expected: undefined }
+                      : {
+                          gate: g as CustomQuestion["gate"],
+                          expected: q.expected ?? (q.type === "yes_no" ? "yes" : ""),
+                        }
+                  );
+                }}
+              >
+                {Object.entries(GATE_LABELS).map(([v, l]) => (
+                  <option key={v} value={v}>
+                    {l}
+                  </option>
+                ))}
+              </select>
+              {q.gate && (
+                <label className="flex items-center gap-1.5 text-sm">
+                  <span className="text-xs font-semibold text-[color:var(--brand-ink-muted)]">
+                    Correct answer:
+                  </span>
+                  {q.type === "yes_no" ? (
+                    <select
+                      className="input py-1.5 text-sm max-w-[90px]"
+                      value={q.expected ?? "yes"}
+                      onChange={(e) => update(q.id, { expected: e.target.value })}
+                    >
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  ) : (
+                    <input
+                      className="input py-1.5 text-sm max-w-[140px]"
+                      value={q.expected ?? ""}
+                      onChange={(e) => update(q.id, { expected: e.target.value })}
+                      placeholder="e.g. Yes"
+                    />
+                  )}
+                </label>
+              )}
+            </div>
+
             <div>
               <div className="text-xs uppercase tracking-wide text-[color:var(--brand-ink-muted)] mb-1">
                 Applies to
@@ -136,6 +218,23 @@ export default function CustomQuestionsEditor({
           </li>
         ))}
       </ul>
+
+      {/* One-click legal age gates */}
+      <div className="mt-3 flex items-center gap-2 flex-wrap">
+        <span className="text-xs font-semibold text-[color:var(--brand-ink-muted)]">
+          Add a legal age check:
+        </span>
+        {LEGAL_PRESETS.map((p) => (
+          <button
+            key={p.button}
+            type="button"
+            onClick={() => addLegalPreset(p.label)}
+            className="chip cursor-pointer border border-[color:var(--brand-line)] bg-transparent hover:border-[color:var(--brand-blue)]"
+          >
+            + {p.button}
+          </button>
+        ))}
+      </div>
 
       <div className="mt-3 flex items-center gap-3">
         <button type="button" onClick={add} className="btn-ghost">

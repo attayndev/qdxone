@@ -241,16 +241,22 @@ export async function saveCustomQuestions(
   const org = await currentOrgOrThrow();
   await requireMembership(org.id);
   const clean = questions
-    .map((q) => ({
-      id: q.id,
-      label: q.label.trim(),
-      type: q.type,
-      required: !!q.required,
-      // Empty list = applies to all roles.
-      roles: Array.isArray(q.roles)
-        ? q.roles.map((r) => r.trim()).filter(Boolean)
-        : [],
-    }))
+    .map((q) => {
+      const base = {
+        id: q.id,
+        label: q.label.trim(),
+        type: q.type,
+        required: !!q.required,
+        // Empty list = applies to all roles.
+        roles: Array.isArray(q.roles)
+          ? q.roles.map((r) => r.trim()).filter(Boolean)
+          : [],
+      };
+      // A gate only counts with both a level and a (non-empty) expected answer.
+      const validGate = q.gate === "flag" || q.gate === "knockout" || q.gate === "legal";
+      const expected = (q.expected ?? "").trim();
+      return validGate && expected ? { ...base, gate: q.gate, expected } : base;
+    })
     .filter((q) => q.label)
     .slice(0, 15);
   const supa = adminClient();

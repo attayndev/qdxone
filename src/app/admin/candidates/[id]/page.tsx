@@ -19,10 +19,25 @@ import DecisionControl from "@/components/admin/DecisionControl";
 import InviteToInterview from "@/components/admin/InviteToInterview";
 import { listInterviewTypes } from "@/lib/scheduling/templates";
 import { isDecision, type Decision } from "@/lib/candidate-decision";
+import { applicationConfig } from "@/lib/application-config";
+import {
+  evaluateCustomGates,
+  fitCapFromGates,
+  applyFitCap,
+} from "@/lib/custom-question-gates";
+import type { OverallFit } from "@/lib/assessment/scoring";
 import type { Database } from "@/lib/supabase/database.types";
 
 type AppRow = Database["public"]["Tables"]["applications"]["Row"];
 type RespRow = Database["public"]["Tables"]["assessment_responses"]["Row"];
+
+const GATE_STARS: Record<OverallFit, number> = {
+  "Strong fit": 5,
+  Consider: 4,
+  Caution: 2,
+  "Not recommended": 1,
+  Incomplete: 0,
+};
 
 const DAY_LABEL: Record<string, string> = {
   mon: "Mon", tue: "Tue", wed: "Wed", thu: "Thu", fri: "Fri", sat: "Sat", sun: "Sun",
@@ -181,6 +196,20 @@ export default async function CandidateDetail({ params }: PageProps) {
     value: string;
   }[];
 
+  // Custom-question gates: surface failed requirements + cap the shown fit so it
+  // matches the list (an underage/knockout candidate can't read as Strong here).
+  const gateFindings = evaluateCustomGates(
+    applicationConfig(org.branding).custom_questions,
+    customAnswers
+  );
+  if (score && score.overall !== "Incomplete") {
+    const capped = applyFitCap(score.overall, fitCapFromGates(gateFindings));
+    if (capped !== score.overall) {
+      score.overall = capped;
+      score.stars = GATE_STARS[capped];
+    }
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between gap-3">
@@ -213,6 +242,33 @@ export default async function CandidateDetail({ params }: PageProps) {
             This candidate {flags.join("; ").toLowerCase()}. The fit below can&apos;t be
             trusted — don&apos;t reject them on it; consider an interview or a retake.
           </p>
+        </div>
+      )}
+
+      {gateFindings.length > 0 && (
+        <div className="mt-4 space-y-2">
+          {gateFindings.map((f) => {
+            const legal = f.gate === "legal";
+            const knockout = f.gate === "knockout";
+            const tone = legal
+              ? "border-rose-400 bg-rose-50 text-rose-900"
+              : knockout
+                ? "border-amber-400 bg-amber-50 text-amber-900"
+                : "border-[color:var(--brand-line)] bg-[color:var(--brand-cream)] text-[color:var(--brand-ink)]";
+            const heading = legal
+              ? "⚠️ Legal requirement not met"
+              : knockout
+                ? "Requirement not met"
+                : "Flagged for review";
+            return (
+              <div key={f.id} className={`rounded-xl border-2 p-3 ${tone}`}>
+                <div className="font-bold">{heading}</div>
+                <div className="text-sm mt-0.5">
+                  {f.label} — answered &ldquo;{f.answer}&rdquo; (needs &ldquo;{f.expected}&rdquo;)
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 

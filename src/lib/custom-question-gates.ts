@@ -24,24 +24,27 @@ export function gatedQuestions(questions: CustomQuestion[]): CustomQuestion[] {
 }
 
 /**
- * Findings for every gated question the applicant did NOT pass (answer != expected,
- * case-insensitive). A missing answer counts as a fail.
+ * Findings for every gated question the applicant answered but did NOT pass
+ * (a present answer != expected, case-insensitive). A MISSING answer is not a
+ * fail — a role-scoped question the candidate was never asked must not flag
+ * them; and required gated questions are always answered at apply time.
  */
 export function evaluateCustomGates(
   questions: CustomQuestion[],
   answers: { id: string; value: string }[]
 ): GateFinding[] {
-  const byId = new Map(answers.map((a) => [a.id, norm(a.value)]));
+  const byId = new Map(answers.map((a) => [a.id, (a.value ?? "").trim()]));
   const findings: GateFinding[] = [];
   for (const q of gatedQuestions(questions)) {
-    const answer = byId.get(q.id) ?? "";
-    if (answer !== norm(q.expected)) {
+    const answer = byId.get(q.id);
+    if (answer == null || answer === "") continue; // not asked / not answered
+    if (norm(answer) !== norm(q.expected)) {
       findings.push({
         id: q.id,
         label: q.label,
         gate: q.gate as CustomQuestionGate,
         expected: q.expected as string,
-        answer: byId.get(q.id) ?? "",
+        answer,
       });
     }
   }
