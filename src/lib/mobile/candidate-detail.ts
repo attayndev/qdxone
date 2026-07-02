@@ -148,7 +148,7 @@ export async function getCandidateDetail(
       const score = scoreAssessment(scoredItems, categoryUi);
 
       if (score.overall !== "Incomplete") {
-        const benchmark = await orgCategoryAverages(orgId);
+        const benchmark = await orgCategoryAverages(orgId, session.id);
         const showBench = benchmark.n >= 3;
 
         // Screener flags.

@@ -166,6 +166,37 @@ export async function loadAssessment(accessToken: string): Promise<LoadResult> {
 }
 
 /** Score a completed candidate session (used for the strong-candidate alert). */
+/**
+ * Careless-response validity signals from raw response rows. Shared by the
+ * single-session report path AND the org-wide list/benchmark paths so an invalid
+ * (straight-lined / attention-failed) session is treated the same everywhere.
+ * Skips attention rows whose item_id has no known expected answer (a stale check
+ * id must not count as a phantom failure).
+ */
+export function validitySignals(
+  rows: { item_id: string; item_kind: string; value_int: number | null; response_ms?: number | null }[]
+): { attnFail: number; attnTotal: number; fastCount: number; straightLine: boolean } {
+  const likert = rows.filter((r) => r.item_kind === "personality" && r.value_int != null);
+  const attn = rows.filter((r) => r.item_kind === "attention_check");
+  const attnFail = attn.filter((r) => {
+    const expected = ATTENTION_CHECKS.find((c) => c.itemId === r.item_id)?.expected;
+    return expected !== undefined && r.value_int !== expected;
+  }).length;
+  const fastCount = rows.filter((r) => r.response_ms != null && r.response_ms < 1500).length;
+  const straightLine = likert.length > 3 && new Set(likert.map((r) => r.value_int)).size === 1;
+  return { attnFail, attnTotal: attn.length, fastCount, straightLine };
+}
+
+/**
+ * An invalid session must never surface as a positive tier in the list/mobile
+ * (where there's no room for the detail page's "Unreliable" banner) — cap it so
+ * operators don't triage gamed data as a top candidate.
+ */
+export function gateFitByValidity(overall: OverallFit, valid: boolean): OverallFit {
+  if (valid) return overall;
+  return overall === "Strong fit" || overall === "Consider" ? "Caution" : overall;
+}
+
 export async function scoreCandidateSession(
   sessionId: string
 ): Promise<ScoreResult | null> {
@@ -202,23 +233,8 @@ export async function scoreCandidateSession(
 
   // Validity signals (same definitions as the candidate report) so the
   // notification path can suppress alerts on untrustworthy results.
-  const rows = resp ?? [];
-  const likert = rows.filter((r) => r.item_kind === "personality" && r.value_int != null);
-  const attn = rows.filter((r) => r.item_kind === "attention_check");
-  const attnFail = attn.filter(
-    (r) => r.value_int !== ATTENTION_CHECKS.find((c) => c.itemId === r.item_id)?.expected
-  ).length;
-  const fastCount = rows.filter((r) => r.response_ms != null && r.response_ms < 1500).length;
-  const straightLine = likert.length > 3 && new Set(likert.map((r) => r.value_int)).size === 1;
-
   const result = scoreAssessment(scored);
-  result.validity = assessValidity({
-    scored,
-    attnFail,
-    attnTotal: attn.length,
-    fastCount,
-    straightLine,
-  });
+  result.validity = assessValidity({ scored, ...validitySignals(resp ?? []) });
   return result;
 }
 
@@ -239,7 +255,7 @@ export async function orgCandidateTiers(
   const sessionIds = sess.map((s) => s.id);
   const { data: resp } = await supa
     .from("assessment_responses")
-    .select("session_id, item_id, item_kind, value_int")
+    .select("session_id, item_id, item_kind, value_int, response_ms")
     .in("session_id", sessionIds);
   const versions = [...new Set(sess.map((s) => s.methodology_version))];
   const { data: items } = await supa
@@ -249,7 +265,10 @@ export async function orgCandidateTiers(
   const meta = new Map((items ?? []).map((i) => [i.item_id, i]));
 
   const bySession = new Map<string, ScoredItem[]>();
+  const rowsBySession = new Map<string, typeof resp>();
   for (const r of resp ?? []) {
+    if (!rowsBySession.has(r.session_id)) rowsBySession.set(r.session_id, []);
+    rowsBySession.get(r.session_id)!.push(r);
     if (r.item_kind !== "personality" || r.value_int == null) continue;
     const m = meta.get(r.item_id);
     if (!m) continue;
@@ -267,7 +286,9 @@ export async function orgCandidateTiers(
     const sc = bySession.get(s.id);
     if (!sc || sc.length === 0) continue;
     const result = scoreAssessment(sc);
-    if (result.overall !== "Incomplete") out.set(s.application_id as string, result.overall);
+    if (result.overall === "Incomplete") continue;
+    const { valid } = assessValidity({ scored: sc, ...validitySignals(rowsBySession.get(s.id) ?? []) });
+    out.set(s.application_id as string, gateFitByValidity(result.overall, valid));
   }
   return out;
 }
@@ -279,7 +300,8 @@ export async function orgCandidateTiers(
  * number of scored assessments behind them.
  */
 export async function orgCategoryAverages(
-  orgId: string
+  orgId: string,
+  excludeSessionId?: string
 ): Promise<{ averages: Map<string, number>; n: number }> {
   const supa = adminClient();
   const { data: sessions } = await supa
@@ -288,13 +310,14 @@ export async function orgCategoryAverages(
     .eq("org_id", orgId)
     .eq("subject_type", "candidate")
     .eq("status", "complete");
-  const sess = sessions ?? [];
+  // Exclude the candidate being viewed so they aren't compared against themselves.
+  const sess = (sessions ?? []).filter((s) => s.id !== excludeSessionId);
   if (sess.length === 0) return { averages: new Map(), n: 0 };
 
   const sessionIds = sess.map((s) => s.id);
   const { data: resp } = await supa
     .from("assessment_responses")
-    .select("session_id, item_id, item_kind, value_int")
+    .select("session_id, item_id, item_kind, value_int, response_ms")
     .in("session_id", sessionIds);
   const versions = [...new Set(sess.map((s) => s.methodology_version))];
   const { data: items } = await supa
@@ -304,7 +327,10 @@ export async function orgCategoryAverages(
   const meta = new Map((items ?? []).map((i) => [i.item_id, i]));
 
   const bySession = new Map<string, ScoredItem[]>();
+  const rowsBySession = new Map<string, typeof resp>();
   for (const r of resp ?? []) {
+    if (!rowsBySession.has(r.session_id)) rowsBySession.set(r.session_id, []);
+    rowsBySession.get(r.session_id)!.push(r);
     if (r.item_kind !== "personality" || r.value_int == null) continue;
     const m = meta.get(r.item_id);
     if (!m) continue;
@@ -319,10 +345,13 @@ export async function orgCategoryAverages(
 
   const sums = new Map<string, { total: number; count: number }>();
   let scored = 0;
-  for (const sc of bySession.values()) {
+  for (const [sid, sc] of bySession) {
     if (sc.length === 0) continue;
     const result = scoreAssessment(sc);
     if (result.overall === "Incomplete") continue;
+    // Untrustworthy sessions must not pollute the local benchmark.
+    const { valid } = assessValidity({ scored: sc, ...validitySignals(rowsBySession.get(sid) ?? []) });
+    if (!valid) continue;
     scored += 1;
     for (const c of result.categories) {
       const cur = sums.get(c.category) ?? { total: 0, count: 0 };

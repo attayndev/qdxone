@@ -127,7 +127,7 @@ export default async function CandidateDetail({ params }: PageProps) {
     const categoryUi: Record<string, string> = {};
     for (const m of meta.values()) categoryUi[m.category_academic] = m.category_ui;
     if (scoredItems.length) score = scoreAssessment(scoredItems, categoryUi);
-    if (score) benchmark = await orgCategoryAverages(org.id);
+    if (score) benchmark = await orgCategoryAverages(org.id, session.id);
 
     const sIds = responses.filter((r) => r.item_kind === "screener").map((r) => r.item_id);
     const { data: scr } = await supa

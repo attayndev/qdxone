@@ -7,7 +7,8 @@
 
 import "server-only";
 import { adminClient } from "@/lib/supabase/admin";
-import { scoreAssessment, type ScoredItem, type OverallFit } from "@/lib/assessment/scoring";
+import { scoreAssessment, assessValidity, type ScoredItem, type OverallFit } from "@/lib/assessment/scoring";
+import { validitySignals, gateFitByValidity } from "@/lib/assessment/session";
 
 export async function fitByApplication(orgId: string): Promise<Map<string, OverallFit>> {
   const supa = adminClient();
@@ -24,10 +25,16 @@ export async function fitByApplication(orgId: string): Promise<Map<string, Overa
 
   const { data: resp } = await supa
     .from("assessment_responses")
-    .select("session_id, item_id, item_kind, value_int")
+    .select("session_id, item_id, item_kind, value_int, response_ms")
     .in("session_id", sess.map((s) => s.id));
   const responses =
-    (resp as { session_id: string; item_id: string; item_kind: string; value_int: number | null }[] | null) ?? [];
+    (resp as {
+      session_id: string;
+      item_id: string;
+      item_kind: string;
+      value_int: number | null;
+      response_ms: number | null;
+    }[] | null) ?? [];
 
   const versions = [...new Set(sess.map((s) => s.methodology_version))];
   const { data: items } = await supa
@@ -41,7 +48,10 @@ export async function fitByApplication(orgId: string): Promise<Map<string, Overa
   );
 
   const bySession = new Map<string, ScoredItem[]>();
+  const rowsBySession = new Map<string, typeof responses>();
   for (const r of responses) {
+    if (!rowsBySession.has(r.session_id)) rowsBySession.set(r.session_id, []);
+    rowsBySession.get(r.session_id)!.push(r);
     if (r.item_kind !== "personality" || r.value_int == null) continue;
     const m = meta.get(r.item_id);
     if (!m) continue;
@@ -58,7 +68,10 @@ export async function fitByApplication(orgId: string): Promise<Map<string, Overa
   for (const s of sess) {
     const scored = bySession.get(s.id);
     if (!scored || scored.length === 0) continue;
-    fit.set(s.application_id as string, scoreAssessment(scored).overall);
+    // Same validity gating as the detail page: an invalid session can't show as a
+    // positive fit in the list/mobile.
+    const { valid } = assessValidity({ scored, ...validitySignals(rowsBySession.get(s.id) ?? []) });
+    fit.set(s.application_id as string, gateFitByValidity(scoreAssessment(scored).overall, valid));
   }
   return fit;
 }

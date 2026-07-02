@@ -2,8 +2,13 @@
 
 import { after } from "next/server";
 import { adminClient } from "@/lib/supabase/admin";
+import { ATTENTION_CHECKS } from "@/lib/assessment/session";
 
 type ItemKind = "personality" | "screener" | "attention_check";
+const ITEM_KINDS: ItemKind[] = ["personality", "screener", "attention_check"];
+
+const isExpired = (expiresAt: string | null): boolean =>
+  expiresAt != null && new Date(expiresAt).getTime() < Date.now();
 
 /**
  * Save one assessment answer (incremental, so the 72h resume works). Records
@@ -23,12 +28,13 @@ export async function saveResponse(
   const supa = adminClient();
   const { data: session } = await supa
     .from("assessment_sessions")
-    .select("id, status")
+    .select("id, status, expires_at")
     .eq("access_token", token)
     .maybeSingle();
   if (!session || session.status === "complete" || session.status === "expired") {
     return { ok: false };
   }
+  if (isExpired(session.expires_at)) return { ok: false };
 
   if (session.status === "sent") {
     await supa
@@ -37,14 +43,29 @@ export async function saveResponse(
       .eq("id", session.id);
   }
 
+  // Never trust the client's item classification / value range: a known
+  // attention-check id is always recorded as such (so it can't be relabeled to
+  // dodge the validity gate), unknown kinds fall back to personality, Likert
+  // values are clamped to 1–5, and free text / latency are bounded.
+  const isKnownAttn = ATTENTION_CHECKS.some((c) => c.itemId === r.item_id);
+  const item_kind: ItemKind = isKnownAttn
+    ? "attention_check"
+    : ITEM_KINDS.includes(r.item_kind)
+      ? r.item_kind
+      : "personality";
+  const value_int = r.value_int == null ? null : Math.max(1, Math.min(5, Math.round(r.value_int)));
+  const value_text = r.value_text == null ? null : String(r.value_text).slice(0, 4000);
+  const response_ms =
+    r.response_ms == null ? null : Math.max(0, Math.min(600_000, Math.round(r.response_ms)));
+
   await supa.from("assessment_responses").upsert(
     {
       session_id: session.id,
       item_id: r.item_id,
-      item_kind: r.item_kind,
-      value_int: r.value_int ?? null,
-      value_text: r.value_text ?? null,
-      response_ms: r.response_ms ?? null,
+      item_kind,
+      value_int,
+      value_text,
+      response_ms,
       sequence: r.sequence,
     },
     { onConflict: "session_id,item_id" }
@@ -59,15 +80,23 @@ export async function completeAssessment(
   const supa = adminClient();
   const { data: session } = await supa
     .from("assessment_sessions")
-    .select("id, org_id, application_id, status")
+    .select("id, org_id, application_id, status, expires_at")
     .eq("access_token", token)
     .maybeSingle();
   if (!session) return { ok: false };
+  if (session.status === "complete") return { ok: true }; // already done — idempotent
+  if (isExpired(session.expires_at)) return { ok: false };
 
-  await supa
+  // Atomic transition: only the caller that actually flips in_progress→complete
+  // proceeds to audit + notify, so a double-submit can't re-fire the operator
+  // alert or write duplicate audit rows.
+  const { data: flipped } = await supa
     .from("assessment_sessions")
     .update({ status: "complete", completed_at: new Date().toISOString() })
-    .eq("id", session.id);
+    .eq("id", session.id)
+    .neq("status", "complete")
+    .select("id");
+  if (!flipped || flipped.length === 0) return { ok: true };
 
   if (session.application_id) {
     await supa
