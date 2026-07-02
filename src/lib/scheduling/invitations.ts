@@ -113,6 +113,7 @@ export async function getInvitationByToken(
         "id, name, duration_minutes, meeting_type, meeting_location, min_notice_minutes, max_advance_days, buffer_before_minutes, buffer_after_minutes, candidate_instructions"
       )
       .eq("id", i.template_id)
+      .eq("org_id", i.org_id) // never resolve a template from another org
       .maybeSingle(),
   ]);
   if (!app || !tmpl) return null;
@@ -188,8 +189,12 @@ export async function mintInterviewInvite(
   const app = appRow as { job_posting_id: string | null; email: string; first_name: string } | null;
   if (!app) throw new Error("Candidate not found.");
 
+  // The template must belong to THIS org — never mint an invite against another
+  // org's interview type (which would surface its config on the booking page).
   const types = await listInterviewTypes(org.id);
-  const templateName = types.find((t) => t.id === templateId)?.name ?? "interview";
+  const template = types.find((t) => t.id === templateId);
+  if (!template) throw new Error("Interview type not found.");
+  const templateName = template.name;
 
   const token = await createInvitation({
     orgId: org.id,

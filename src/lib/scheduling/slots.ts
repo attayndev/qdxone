@@ -148,9 +148,12 @@ async function getBusy(
     .select("start_at, end_at, status")
     .eq("org_id", orgId)
     .eq("interviewer_id", interviewerId)
-    .in("status", ["reserving", "confirmed", "calendar_pending"])
-    .gte("start_at", from.toISOString())
-    .lte("start_at", to.toISOString());
+    // calendar_failed is still a REAL held interview — excluding it would reopen
+    // the slot for double-booking. Range-overlap (not start >= from) so an
+    // in-progress interview that started before the window also counts as busy.
+    .in("status", ["reserving", "confirmed", "calendar_pending", "calendar_failed"])
+    .lt("start_at", to.toISOString())
+    .gt("end_at", from.toISOString());
   for (const b of (bookings as { start_at: string; end_at: string }[] | null) ?? []) {
     busy.push({ start: new Date(b.start_at), end: new Date(b.end_at) });
   }

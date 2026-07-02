@@ -48,21 +48,23 @@ export interface SaveConnectionInput {
 
 export async function saveConnection(input: SaveConnectionInput): Promise<void> {
   const supa = adminClient();
-  const row = {
+  const row: Record<string, unknown> = {
     org_id: input.orgId,
     user_id: input.userId,
     provider: input.provider,
     external_account_id: input.externalAccountId,
     enc_access_token: encryptToken(input.accessToken),
-    enc_refresh_token: encryptToken(input.refreshToken),
     enc_key_version: KEY_VERSION,
     token_expires_at: input.expiresAt.toISOString(),
     status: "connected" as const,
     last_sync_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
-  // Upsert on the (org_id, user_id, provider) unique key. On reconnect we keep
-  // an existing refresh token if Google didn't return a new one.
+  // Google only returns a refresh token on first consent (or prompt=consent), so
+  // on a reconnect it's usually absent — only overwrite the stored one when we
+  // actually got a new one. Omitting the column from the upsert preserves the
+  // existing value (ON CONFLICT updates only the columns provided).
+  if (input.refreshToken) row.enc_refresh_token = encryptToken(input.refreshToken);
   const { error } = await supa
     .from(TABLE)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
