@@ -11,6 +11,7 @@ import { adminClient } from "@/lib/supabase/admin";
 import { generateToken } from "@/lib/tokens";
 import { orgUrl } from "@/lib/tenancy";
 import { listInterviewTypes } from "./templates";
+import { getWeeklySchedule } from "./availability-rules";
 import type { MeetingType } from "./types";
 
 export function hashToken(token: string): string {
@@ -168,6 +169,15 @@ export async function mintInterviewInvite(
   // anyone. The interviewer is whoever SENDS the invite, so the candidate books
   // against that person's own availability + calendar.
   const interviewerId = userId;
+
+  // Gate: the sender must have availability set, or the booking link would show
+  // no times. Enforced here so it holds for both the web and mobile invite flows.
+  const senderSchedule = await getWeeklySchedule(org.id, interviewerId);
+  if (senderSchedule.windows.length === 0) {
+    throw new Error(
+      "Set up your interview availability first — candidates book against your calendar, so it needs open times."
+    );
+  }
 
   const { data: appRow } = await supa
     .from("applications")

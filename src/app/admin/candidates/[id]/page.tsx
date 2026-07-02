@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { currentOrg } from "@/lib/tenancy";
+import { currentOrg, requireMembership } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
+import { getWeeklySchedule } from "@/lib/scheduling/availability-rules";
 import { ATTENTION_CHECKS, orgCategoryAverages } from "@/lib/assessment/session";
 import {
   scoreAssessment,
@@ -67,6 +68,12 @@ export default async function CandidateDetail({ params }: PageProps) {
     name: t.name,
     durationMinutes: t.durationMinutes,
   }));
+
+  // Candidates book against the SENDER's calendar, so gate the invite button
+  // until the current user has set up their own availability.
+  const me = await requireMembership(org.id);
+  const mySchedule = me ? await getWeeklySchedule(org.id, me.user_id) : null;
+  const senderHasAvailability = (mySchedule?.windows.length ?? 0) > 0;
 
   let responses: RespRow[] = [];
   const itemText = new Map<string, string>();
@@ -220,7 +227,12 @@ export default async function CandidateDetail({ params }: PageProps) {
       )}
 
       <div className="mt-6">
-        <InviteToInterview applicationId={a.id} types={interviewTypes} candidateEmail={a.email} />
+        <InviteToInterview
+          applicationId={a.id}
+          types={interviewTypes}
+          candidateEmail={a.email}
+          senderHasAvailability={senderHasAvailability}
+        />
       </div>
 
       <div className="mt-6">

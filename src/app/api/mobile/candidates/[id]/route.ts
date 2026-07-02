@@ -18,7 +18,7 @@ export async function GET(
   const ctx = await authedOrg(request);
   if (!ctx) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const { id } = await params;
-  const detail = await getCandidateDetail(ctx.orgId, id);
+  const detail = await getCandidateDetail(ctx.orgId, id, ctx.userId);
   if (!detail) return NextResponse.json({ error: "not_found" }, { status: 404 });
   return NextResponse.json({ candidate: detail });
 }

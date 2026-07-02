@@ -20,6 +20,7 @@ import {
 } from "@/lib/assessment/scoring";
 import { isDecision } from "@/lib/candidate-decision";
 import { listInterviewTypes } from "@/lib/scheduling/templates";
+import { getWeeklySchedule } from "@/lib/scheduling/availability-rules";
 
 export interface MobileCandidateDetail {
   id: string;
@@ -34,6 +35,7 @@ export interface MobileCandidateDetail {
   decisionReason: string | null;
   decisionAt: string | null;
   interviewTypes: { id: string; name: string; durationMinutes: number }[];
+  senderHasAvailability: boolean;
   report: {
     overall: OverallFit;
     stars: number;
@@ -68,7 +70,8 @@ function crewCompare(mean: number, avg: number): string {
 
 export async function getCandidateDetail(
   orgId: string,
-  applicationId: string
+  applicationId: string,
+  userId?: string
 ): Promise<MobileCandidateDetail | null> {
   const supa = adminClient();
   const { data: app } = await supa
@@ -199,6 +202,12 @@ export async function getCandidateDetail(
     durationMinutes: t.durationMinutes,
   }));
 
+  // The candidate books against the SENDER's calendar — so the invite button is
+  // only usable once the current user has set up their own availability.
+  const senderHasAvailability = userId
+    ? (await getWeeklySchedule(orgId, userId)).windows.length > 0
+    : false;
+
   const availabilityRaw = (a.availability ?? {}) as Record<string, string[]>;
   const availability = Object.entries(availabilityRaw)
     .filter(([, v]) => Array.isArray(v) && v.length)
@@ -235,6 +244,7 @@ export async function getCandidateDetail(
     decisionReason: a.decision_reason,
     decisionAt: a.decision_at,
     interviewTypes,
+    senderHasAvailability,
     report,
     application: {
       eligibleToWork: (a.eligible_to_work as boolean | null) ?? null,

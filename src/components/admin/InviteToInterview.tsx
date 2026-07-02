@@ -14,10 +14,13 @@ export default function InviteToInterview({
   applicationId,
   types,
   candidateEmail,
+  senderHasAvailability,
 }: {
   applicationId: string;
   types: TypeOption[];
   candidateEmail: string | null;
+  /** Whether the current user (the sender = interviewer) has availability set. */
+  senderHasAvailability: boolean;
 }) {
   const [typeId, setTypeId] = useState(types[0]?.id ?? "");
   const [url, setUrl] = useState<string | null>(null);
@@ -27,16 +30,20 @@ export default function InviteToInterview({
   const [pending, start] = useTransition();
   const [emailing, startEmail] = useTransition();
 
-  if (types.length === 0) {
+  // The candidate books against YOUR calendar, so you must have set it up first
+  // — otherwise the booking link would show no times.
+  if (types.length === 0 || !senderHasAvailability) {
     return (
       <div className="card">
         <div className="font-semibold">Invite to interview</div>
         <p className="text-sm text-[color:var(--brand-ink-muted)] mt-1">
-          First, create an interview type on your{" "}
-          <Link href="/admin/scheduling" className="underline">
-            Calendar page
+          {types.length === 0
+            ? "First, create an interview type on your "
+            : "Set up your interview availability first — candidates book against your calendar, so it needs open times. "}
+          <Link href="/admin/scheduling" className="underline font-semibold">
+            {types.length === 0 ? "Calendar page" : "Set up your calendar →"}
           </Link>
-          .
+          {types.length === 0 ? "." : ""}
         </p>
       </div>
     );

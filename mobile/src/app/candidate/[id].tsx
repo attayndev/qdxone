@@ -29,6 +29,7 @@ interface Detail {
   decisionReason: string | null;
   decisionAt: string | null;
   interviewTypes: { id: string; name: string; durationMinutes: number }[];
+  senderHasAvailability: boolean;
   report: {
     overall: string;
     stars: number;
@@ -261,7 +262,12 @@ export default function CandidateDetail() {
       )}
 
       {/* Invite to interview */}
-      <InviteSection id={detail.id} types={detail.interviewTypes} hasEmail={!!detail.email} />
+      <InviteSection
+        id={detail.id}
+        types={detail.interviewTypes}
+        hasEmail={!!detail.email}
+        canInvite={detail.senderHasAvailability}
+      />
 
       {/* Decision */}
       <Card>
@@ -394,10 +400,12 @@ function InviteSection({
   id,
   types,
   hasEmail,
+  canInvite,
 }: {
   id: string;
   types: { id: string; name: string; durationMinutes: number }[];
   hasEmail: boolean;
+  canInvite: boolean;
 }) {
   const [typeId, setTypeId] = useState(types[0]?.id ?? "");
   const [url, setUrl] = useState<string | null>(null);
@@ -430,12 +438,14 @@ function InviteSection({
     [id, typeId]
   );
 
-  if (types.length === 0) {
+  if (types.length === 0 || !canInvite) {
     return (
       <Card>
         <Text style={{ fontWeight: "800", color: brand.ink, fontSize: 16 }}>Invite to interview</Text>
         <Text style={{ color: brand.inkMuted, fontSize: 13, marginTop: 6 }}>
-          First, create an interview type on your Calendar page on the web, then come back to invite.
+          {types.length === 0
+            ? "First, create an interview type on your Calendar page on the web, then come back to invite."
+            : "Set up your interview availability on the Calendar page (web) first — candidates book against your calendar, so it needs open times."}
         </Text>
       </Card>
     );
