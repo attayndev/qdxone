@@ -99,9 +99,10 @@ export default function MessagingPage() {
           <H>Example messages</H>
           <ul className="list-disc pl-6 space-y-1 mt-2 text-[color:var(--brand-ink-muted)]">
             <li>
-              &ldquo;Sam, finish your Joe&apos;s Pizza application (via QDX) with a
-              quick 5-minute assessment: https://qdx.one/a/… (valid 72h). Reply STOP
-              to opt out, HELP for help.&rdquo;
+              &ldquo;Sam, finish your Joe&apos;s Pizza application (via QDX):
+              https://qdx.one/a/… (5-min assessment, valid 72h). Msg frequency
+              varies; msg &amp; data rates may apply. Reply HELP for help, STOP to
+              opt out.&rdquo;
             </li>
             <li>
               &ldquo;Joe&apos;s Pizza (via QDX): you&apos;ve moved forward on your

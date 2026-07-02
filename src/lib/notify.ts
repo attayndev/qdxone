@@ -35,11 +35,13 @@ export async function sendAssessmentLink(args: {
     }
   }
 
-  // TCPA: only text candidates who consented. Sender named + STOP/HELP inline.
+  // TCPA / A2P 10DLC: only text candidates who consented. The confirmation
+  // (first) message carries the full disclosures — brand, purpose, frequency,
+  // fees, and STOP/HELP — per carrier requirements.
   if (args.smsConsent && args.phone) {
     await sendSms(
       args.phone,
-      `${args.firstName ? args.firstName + ", " : ""}finish your ${args.orgName} application (via QDX) with a quick 5-minute assessment: ${link} (valid 72h). Reply STOP to opt out, HELP for help.`
+      `${args.firstName ? args.firstName + ", " : ""}finish your ${args.orgName} application (via QDX): ${link} (5-min assessment, valid 72h). Msg frequency varies; msg & data rates may apply. Reply HELP for help, STOP to opt out.`
     );
   }
 }
