@@ -41,6 +41,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return APEX_PATHS.map((p) => ({ url: `${origin}${p}` }));
   }
 
+  // The demo org is not a real employer — keep its (fake) postings out of
+  // search so they never surface in Google for Jobs.
+  if (slug === "demo") return [];
+
   // Org subdomain: careers home + open postings.
   const supa = adminClient();
   const { data: org } = await supa

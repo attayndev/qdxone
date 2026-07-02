@@ -34,6 +34,8 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[color:var(--brand-cream)] text-[color:var(--brand-ink)]">
+        {/* Keep the demo (fake data) out of search engines. */}
+        {isDemo && <meta name="robots" content="noindex, nofollow" />}
         {isDemo && <DemoBar />}
         {children}
         {isDemo && <DemoLeadGate />}
