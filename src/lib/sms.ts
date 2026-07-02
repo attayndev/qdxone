@@ -6,6 +6,24 @@
  * Env: TELNYX_API_KEY + TELNYX_FROM (a number on the account). Optional
  * TELNYX_MESSAGING_PROFILE_ID for number-pool / sender-pool sending.
  */
+/** Has this number sent STOP? Best-effort — never blocks a send if the check errors. */
+async function isOptedOut(phone: string): Promise<boolean> {
+  try {
+    const { adminClient } = await import("@/lib/supabase/admin");
+    // sms_opt_outs isn't in generated types until migration 0018 is applied.
+    const supa = adminClient() as unknown as import("@supabase/supabase-js").SupabaseClient;
+    const { data, error } = await supa
+      .from("sms_opt_outs")
+      .select("phone")
+      .eq("phone", phone)
+      .limit(1);
+    if (error) return false; // table missing / transient → don't block
+    return (data?.length ?? 0) > 0;
+  } catch {
+    return false;
+  }
+}
+
 export async function sendSms(
   to: string | null | undefined,
   body: string
@@ -13,6 +31,8 @@ export async function sendSms(
   const apiKey = process.env.TELNYX_API_KEY;
   const from = process.env.TELNYX_FROM;
   if (!apiKey || !from || !to) return false;
+  // Honor an in-app opt-out (a persisted STOP) before spending a send.
+  if (await isOptedOut(to)) return false;
   try {
     const res = await fetch("https://api.telnyx.com/v2/messages", {
       method: "POST",

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { stripe, PLAN_PRICES, type PaidPlan } from "@/lib/stripe";
 import { adminClient } from "@/lib/supabase/admin";
 
@@ -58,6 +59,22 @@ export async function POST(request: NextRequest) {
   }
 
   const supa = adminClient();
+
+  // Idempotency: Stripe delivers events at-least-once, so skip one we've already
+  // processed (prevents duplicate audit rows / re-applied status). Best-effort —
+  // if the stripe_events table isn't present yet (migration 0018), fall through.
+  try {
+    // stripe_events isn't in generated types until migration 0018 is applied.
+    const { error: dupErr } = await (supa as unknown as SupabaseClient)
+      .from("stripe_events")
+      .insert({ id: event.id, type: event.type });
+    if (dupErr?.code === "23505") {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+    if (dupErr) console.warn("stripe idempotency insert skipped:", dupErr.message);
+  } catch (e) {
+    console.warn("stripe idempotency check errored, processing anyway", e);
+  }
 
   try {
     switch (event.type) {
