@@ -1003,6 +1003,7 @@ export type Database = {
           id: string
           location_count: number
           name: string
+          pending_owner_email: string | null
           plan: string
           slug: string
           status: string
@@ -1018,6 +1019,7 @@ export type Database = {
           id?: string
           location_count?: number
           name: string
+          pending_owner_email?: string | null
           plan?: string
           slug: string
           status?: string
@@ -1033,6 +1035,7 @@ export type Database = {
           id?: string
           location_count?: number
           name?: string
+          pending_owner_email?: string | null
           plan?: string
           slug?: string
           status?: string

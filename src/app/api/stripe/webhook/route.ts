@@ -115,9 +115,18 @@ export async function POST(request: NextRequest) {
 
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const sub = event.data.object as Stripe.Subscription;
-        const orgId = sub.metadata?.org_id;
+        const evtSub = event.data.object as Stripe.Subscription;
+        const orgId = evtSub.metadata?.org_id;
         if (!orgId) break;
+        // Stripe delivers events out of order, so a stale subscription.updated
+        // could otherwise regress a past_due org back to active. Retrieve the
+        // LIVE subscription for the authoritative current status/plan.
+        let sub = evtSub;
+        try {
+          sub = await stripe().subscriptions.retrieve(evtSub.id);
+        } catch {
+          /* retrieve failed — fall back to the event payload */
+        }
         const status = mapStatus(sub.status);
         // Sync plan/cycle too, so portal-side plan or cycle changes land.
         const pc = planCycleFromSub(sub);

@@ -77,16 +77,31 @@ async function handleCallback(request: NextRequest) {
       : null;
   if (signupOrgId) {
     const admin = adminClient();
+    const { data: orgRow } = await admin
+      .from("organizations")
+      .select("pending_owner_email")
+      .eq("id", signupOrgId)
+      .maybeSingle();
+    const pending = (orgRow as { pending_owner_email: string | null } | null)?.pending_owner_email;
+    // Promote to owner only if THIS verified email is the one that signed the org
+    // up — not just whatever org id the (client-writable) metadata points at.
+    const emailMatches =
+      !!pending && !!user.email && pending.toLowerCase() === user.email.toLowerCase();
     const { data: existingOwner } = await admin
       .from("org_members")
       .select("user_id")
       .eq("org_id", signupOrgId)
       .eq("role", "owner")
       .maybeSingle();
-    if (!existingOwner) {
+    if (!existingOwner && emailMatches) {
       await admin
         .from("org_members")
         .upsert({ org_id: signupOrgId, user_id: userId, role: "owner" });
+      // One-time: clear it so the slot can't be re-claimed later.
+      await admin
+        .from("organizations")
+        .update({ pending_owner_email: null })
+        .eq("id", signupOrgId);
       await admin.from("audit_events").insert({
         org_id: signupOrgId,
         kind: "org.owner_added",

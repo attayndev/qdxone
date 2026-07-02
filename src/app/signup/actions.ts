@@ -96,6 +96,9 @@ export async function signup(
       billing_cycle: billingCycle,
       trial_ends_at: trialEnds,
       status: "trialing",
+      // Only this email may be promoted to owner on the auth callback — a
+      // client can't self-promote by forging user_metadata.signup_org_id.
+      pending_owner_email: v.email.toLowerCase().trim(),
     })
     .select("id, slug")
     .single();
