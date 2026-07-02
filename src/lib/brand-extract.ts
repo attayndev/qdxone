@@ -6,7 +6,7 @@ import { anthropic } from "@ai-sdk/anthropic";
  *
  * We do NOT copy the site's CSS (it's written against their DOM and won't
  * transplant). Instead we scrape brand *signals* — theme-color, logo candidates,
- * font hints, and a frequency tally of saturated colors — and ask Claude to
+ * font hints, and a frequency tally of saturated colors — and ask an AI model to
  * resolve them into a clean token set that maps onto our --brand-* variables
  * (see lib/brand-theme.ts). The result is a DRAFT for the operator to preview
  * and accept; nothing is saved here.

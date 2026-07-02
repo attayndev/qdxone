@@ -3,7 +3,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import type { CareersCopy, CareersValue } from "@/lib/careers-copy";
 
 /**
- * Draft per-org careers-page body copy with Claude, from what we know about the
+ * Draft per-org careers-page body copy with an AI model, from what we know about the
  * operator (name, industry, the roles they hire) plus an excerpt of their own
  * website when available. Returns the same shape as lib/careers-copy.ts so it
  * drops straight into the editor and the page. Draft only — the operator edits
