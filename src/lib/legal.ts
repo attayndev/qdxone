@@ -11,7 +11,7 @@
 export const LEGAL_ENTITY = "Attayn Group LLC (DBA QDXone)";
 export const LEGAL_SHORT = "QDXone";
 export const GOVERNING_STATE = "New York";
-export const LEGAL_EMAIL = "qdxone@attayn.com";
+export const LEGAL_EMAIL = "support@qdx.one";
 
 /** ISO date; also the human "Effective" date shown on the pages. */
 export const TERMS_VERSION = "2026-06-29";

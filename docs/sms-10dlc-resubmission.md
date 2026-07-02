@@ -29,7 +29,7 @@ QDXone: You're unsubscribed and will receive no more messages. No further texts 
 
 **HELP — keyword HELP** (brand + support contact):
 ```
-QDXone hiring texts. Help: qdxone@attayn.com or https://qdx.one/messaging. Msg frequency varies; msg & data rates may apply. Reply STOP to unsubscribe.
+QDXone hiring texts. Help: support@qdx.one or https://qdx.one/messaging. Msg frequency varies; msg & data rates may apply. Reply STOP to unsubscribe.
 ```
 
 ### Keywords
