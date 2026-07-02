@@ -28,8 +28,12 @@ const ApplicationSchema = z.object({
   phone: z.string().max(40).optional().nullable(),
   postal_code: z.string().max(20).optional().nullable(),
   eligible_to_work: z.boolean(),
-  // day-of-week → ["morning","afternoon","evening"]
-  availability: z.record(z.string(), z.array(z.string())).default({}),
+  // day-of-week → ["morning","afternoon","evening"] — bounded so the jsonb
+  // columns can't be stuffed with megabytes of junk from the public endpoint.
+  availability: z
+    .record(z.string().max(12), z.array(z.string().max(16)).max(3))
+    .default({})
+    .refine((o) => Object.keys(o).length <= 10, "Too many availability entries"),
   work_history: z.array(WorkHistory).max(2).default([]),
   job_references: z.array(Reference).max(3).default([]),
   earliest_start_date: z.string().max(20).optional().nullable(),
@@ -41,6 +45,7 @@ const ApplicationSchema = z.object({
         value: z.string().max(1000),
       })
     )
+    .max(50)
     .default([]),
   // TCPA: unchecked-default opt-in for transactional SMS about this application.
   sms_consent: z.boolean().default(false),
@@ -95,6 +100,12 @@ export async function submitApplication(
       return { ok: false, error: `Please answer: ${q.label}` };
     }
   }
+  // Rebuild answers from the store's OWN question config — never trust the
+  // client's labels/ids (an applicant could otherwise inject questions the
+  // store never asked, which the operator would see as legitimate).
+  const customAnswers = cfg.custom_questions
+    .map((q) => ({ id: q.id, label: q.label, value: answerById.get(q.id) ?? "" }))
+    .filter((a) => a.value);
 
   // Resolve the location: a single-store posting carries one; a brand-wide
   // posting (location_id null) falls back to the org's primary location.
@@ -125,7 +136,7 @@ export async function submitApplication(
       job_references: v.job_references,
       positions: [posting.title],
       earliest_start_date: v.earliest_start_date || null,
-      custom_answers: v.custom_answers,
+      custom_answers: customAnswers,
       sms_consent: smsConsent,
       sms_consent_at: smsConsent ? new Date().toISOString() : null,
       sms_consent_disclosure: smsConsent ? smsConsentDisclosure(org.name) : null,
