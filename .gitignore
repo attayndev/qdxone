@@ -47,3 +47,9 @@ supabase/.temp/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local agent/builder tooling — not part of the product
+CLAUDE.md
+**/CLAUDE.md
+.claude/
+**/.claude/

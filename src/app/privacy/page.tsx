@@ -39,7 +39,7 @@ export default function PrivacyPage() {
           <H n={1}>Two kinds of users</H>
           <p>
             <strong>Employers</strong> (restaurant owners and their teams) use QDXone
-            to hire. <strong>Applicants</strong> apply to those employers and take a
+            to hire. <strong>Applicants</strong>&nbsp;apply to those employers and take a
             short assessment. For applicant data, the employer is the
             &ldquo;controller&rdquo; (it decides why the data is collected) and QDXone
             acts as its service provider/&ldquo;processor.&rdquo; Applicants exercising

@@ -83,7 +83,7 @@ export default function ForIndependentsPage() {
                 into the interview with a real agenda.
               </Bullet>
               <Bullet>
-                <strong>Your brand, not ours.</strong> The applicant sees your
+                <strong>Your brand, not ours.</strong>&nbsp;The applicant sees your
                 restaurant&apos;s name and your wording. The scoring behind the
                 scenes is yours alone — and nobody gets auto-rejected.
               </Bullet>

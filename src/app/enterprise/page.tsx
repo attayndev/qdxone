@@ -121,7 +121,7 @@ export default function EnterprisePage() {
 
           <p className="mt-6 card text-sm text-[color:var(--brand-ink-muted)] bg-[color:var(--brand-cream)]">
             <strong>Not legal advice.</strong> These answers describe how QDX is
-            designed to <em>support</em> compliant hiring; QDX doesn&apos;t
+            designed to <em>support</em>&nbsp;compliant hiring; QDX doesn&apos;t
             determine compliance for your business. Hiring laws vary by state and
             city and change often — confirm specifics with your own counsel.
           </p>
