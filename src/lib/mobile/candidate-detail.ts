@@ -8,7 +8,7 @@
 
 import "server-only";
 import { adminClient } from "@/lib/supabase/admin";
-import { ATTENTION_CHECKS, orgCategoryAverages } from "@/lib/assessment/session";
+import { ATTENTION_CHECKS, orgCategoryAverages, gateFitByValidity } from "@/lib/assessment/session";
 import {
   scoreAssessment,
   assessValidity,
@@ -259,10 +259,13 @@ export async function getCandidateDetail(
     (a.custom_answers ?? []) as { id: string; value: string }[]
   );
   if (report && report.overall !== "Incomplete") {
-    const capped = applyFitCap(report.overall, fitCapFromGates(gateFindings));
-    if (capped !== report.overall) {
-      report.overall = capped;
-      report.stars = GATE_STARS[capped];
+    // Match the list: unreliable session can't headline as Strong/Consider, plus
+    // custom-question gate caps. The unreliable flag still explains it in the app.
+    let o = gateFitByValidity(report.overall, !report.unreliable);
+    o = applyFitCap(o, fitCapFromGates(gateFindings));
+    if (o !== report.overall) {
+      report.overall = o;
+      report.stars = GATE_STARS[o];
     }
   }
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { currentOrg, requireMembership } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
 import { getWeeklySchedule } from "@/lib/scheduling/availability-rules";
-import { ATTENTION_CHECKS, orgCategoryAverages } from "@/lib/assessment/session";
+import { ATTENTION_CHECKS, orgCategoryAverages, gateFitByValidity } from "@/lib/assessment/session";
 import {
   scoreAssessment,
   assessValidity,
@@ -203,10 +203,14 @@ export default async function CandidateDetail({ params }: PageProps) {
     customAnswers
   );
   if (score && score.overall !== "Incomplete") {
-    const capped = applyFitCap(score.overall, fitCapFromGates(gateFindings));
-    if (capped !== score.overall) {
-      score.overall = capped;
-      score.stars = GATE_STARS[capped];
+    // Cap the shown fit the SAME way the candidates list does, so the two never
+    // disagree: an unreliable session can't headline as Strong/Consider (the
+    // "unreliable" banner below explains why), and custom-question gates cap too.
+    let o = gateFitByValidity(score.overall, !unreliable);
+    o = applyFitCap(o, fitCapFromGates(gateFindings));
+    if (o !== score.overall) {
+      score.overall = o;
+      score.stars = GATE_STARS[o];
     }
   }
 
