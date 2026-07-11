@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { adminClient } from "@/lib/supabase/admin";
@@ -107,6 +108,33 @@ export async function setCandidateDecision(
     } as never)
     .eq("id", applicationId)
     .eq("org_id", org.id);
+
+  // Marking someone HIRED is team-wide news — alert everyone else in the org.
+  if (decision === "hired") {
+    after(async () => {
+      try {
+        const [{ data: app }, { data: u }] = await Promise.all([
+          supa.from("applications").select("first_name, last_name").eq("id", applicationId).maybeSingle(),
+          supa.auth.admin.getUserById(m.user_id),
+        ]);
+        const a = app as { first_name: string; last_name: string } | null;
+        if (a) {
+          const { notifyCandidateHired } = await import("@/lib/operator-notify");
+          const { userFullName } = await import("@/lib/user-name");
+          await notifyCandidateHired({
+            orgId: org.id,
+            candidateName: `${a.first_name} ${a.last_name}`.trim(),
+            applicationId,
+            byUserId: m.user_id,
+            byName: userFullName(u.user) ?? undefined,
+          });
+        }
+      } catch (e) {
+        console.error("hired notify failed", e);
+      }
+    });
+  }
+
   revalidatePath(`/admin/candidates/${applicationId}`);
   revalidatePath("/admin/candidates");
   return { ok: true };

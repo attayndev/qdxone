@@ -25,6 +25,11 @@ const EVENTS: { key: NotifyEvent; title: string; blurb: string }[] = [
     title: "⭐ Strong candidates",
     blurb: "Just the standouts — a strong-fit result.",
   },
+  {
+    key: "hired",
+    title: "🎉 Someone's hired",
+    blurb: "When a teammate marks a candidate hired.",
+  },
 ];
 
 type Flags = Record<NotifyEvent, boolean>;
@@ -40,11 +45,13 @@ export default function NotificationPrefs({
     new_application: initialPrefs.new_application?.email ?? DEFAULT_EMAIL.new_application,
     assessment_done: initialPrefs.assessment_done?.email ?? DEFAULT_EMAIL.assessment_done,
     strong: initialPrefs.strong?.email ?? DEFAULT_EMAIL.strong,
+    hired: initialPrefs.hired?.email ?? DEFAULT_EMAIL.hired,
   }));
   const [sms, setSms] = useState<Flags>(() => ({
     new_application: initialPrefs.new_application?.sms ?? DEFAULT_SMS.new_application,
     assessment_done: initialPrefs.assessment_done?.sms ?? DEFAULT_SMS.assessment_done,
     strong: initialPrefs.strong?.sms ?? DEFAULT_SMS.strong,
+    hired: initialPrefs.hired?.sms ?? DEFAULT_SMS.hired,
   }));
   const [phone, setPhone] = useState(initialPhone);
   const [saving, setSaving] = useState(false);
@@ -59,6 +66,7 @@ export default function NotificationPrefs({
       new_application: { email: email.new_application, sms: sms.new_application },
       assessment_done: { email: email.assessment_done, sms: sms.assessment_done },
       strong: { email: email.strong, sms: sms.strong },
+      hired: { email: email.hired, sms: sms.hired },
     };
     const res = await saveNotifyPrefs(prefs, phone);
     setSaving(false);

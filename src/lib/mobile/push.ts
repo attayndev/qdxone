@@ -61,12 +61,13 @@ export async function sendOrgPush(args: {
   title: string;
   body: string;
   data?: Record<string, unknown>;
+  /** Skip this user's own devices (e.g. don't notify the person who acted). */
+  excludeUserId?: string;
 }): Promise<void> {
   const supa = adminClient();
-  const { data: rows } = await supa
-    .from("push_tokens")
-    .select("token")
-    .eq("org_id", args.orgId);
+  let query = supa.from("push_tokens").select("token").eq("org_id", args.orgId);
+  if (args.excludeUserId) query = query.neq("user_id", args.excludeUserId);
+  const { data: rows } = await query;
   const tokens = ((rows as { token: string }[] | null) ?? []).map((r) => r.token);
   if (tokens.length === 0) return;
 

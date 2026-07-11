@@ -69,8 +69,13 @@ async function dispatch(args: {
   /** Push title/body for the operator app — sent to every registered device. */
   push: (org: { name: string }) => { title: string; body: string };
   applicationId: string;
+  /** Notify everyone EXCEPT this member (e.g. the person who made the decision). */
+  excludeUserId?: string;
 }) {
-  const all = await members(args.orgId);
+  const roster = await members(args.orgId);
+  const all = args.excludeUserId
+    ? roster.filter((m) => m.user_id !== args.excludeUserId)
+    : roster;
   const emailMembers = all.filter(args.emailMatch);
   const smsMembers = all.filter((m) => !!m.phone && args.smsMatch(m));
 
@@ -100,6 +105,7 @@ async function dispatch(args: {
     title: p.title,
     body: p.body,
     data: { applicationId: args.applicationId, url: link },
+    excludeUserId: args.excludeUserId,
   });
 }
 
@@ -159,6 +165,38 @@ export async function notifyAssessmentComplete(args: {
     push: () => ({
       title: `${star}Assessment complete`,
       body: `${args.candidateName} finished the assessment — ${args.fit}.`,
+    }),
+  });
+}
+
+/**
+ * A candidate was marked HIRED. Alerts everyone else on the team (not the person
+ * who made the call) — email + push by default, SMS if they've opted in. `byName`
+ * is who hired them, when known.
+ */
+export async function notifyCandidateHired(args: {
+  orgId: string;
+  candidateName: string;
+  applicationId: string;
+  byUserId?: string;
+  byName?: string;
+}) {
+  const who = args.byName ? ` by ${args.byName}` : "";
+  await dispatch({
+    orgId: args.orgId,
+    applicationId: args.applicationId,
+    excludeUserId: args.byUserId,
+    emailMatch: (m) => wantsEmail(m.notify_prefs, "hired"),
+    smsMatch: (m) => wantsSms(m.notify_prefs, "hired"),
+    email: (org, link) => ({
+      subject: `🎉 Hired: ${args.candidateName}`,
+      html: `<p><strong>${esc(args.candidateName)}</strong> was marked <strong>hired</strong> at ${esc(org.name)}${esc(who)}.</p><p><a href="${link}">Open their profile →</a></p>`,
+      text: `${args.candidateName} was marked hired at ${org.name}${who}.\n\nOpen: ${link}`,
+    }),
+    sms: (org, link) => `🎉 ${org.name}: ${args.candidateName} was marked hired${who}. ${link}`,
+    push: () => ({
+      title: "🎉 Candidate hired",
+      body: `${args.candidateName} was marked hired${who}.`,
     }),
   });
 }

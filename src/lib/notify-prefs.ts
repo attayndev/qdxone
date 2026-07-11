@@ -6,21 +6,23 @@
  */
 
 export type ChannelPref = { email?: boolean; sms?: boolean };
-export type NotifyEvent = "new_application" | "assessment_done" | "strong";
+export type NotifyEvent = "new_application" | "assessment_done" | "strong" | "hired";
 
 export type NotifyPrefs = {
   new_application?: ChannelPref;
   assessment_done?: ChannelPref;
   strong?: ChannelPref;
+  hired?: ChannelPref;
   digest?: boolean;
 };
 
 /** Email defaults when a member hasn't chosen: quiet on raw applications, notify
- *  on screened candidates and strong fits. */
+ *  on screened candidates, strong fits, and hires (a hire is team-wide news). */
 export const DEFAULT_EMAIL: Record<NotifyEvent, boolean> = {
   new_application: false,
   assessment_done: true,
   strong: true,
+  hired: true,
 };
 
 /** Text is more intrusive, so it's opt-in: every event defaults to off. */
@@ -28,6 +30,7 @@ export const DEFAULT_SMS: Record<NotifyEvent, boolean> = {
   new_application: false,
   assessment_done: false,
   strong: false,
+  hired: false,
 };
 
 export function wantsEmail(

@@ -331,5 +331,29 @@ export async function setMobileDecision(input: {
     .eq("id", input.applicationId)
     .eq("org_id", input.orgId);
   if (error) return { ok: false, error: error.message };
+
+  // Marking someone HIRED is team-wide news — alert everyone else in the org.
+  if (input.decision === "hired") {
+    try {
+      const [{ data: app }, { data: u }] = await Promise.all([
+        supa.from("applications").select("first_name, last_name").eq("id", input.applicationId).maybeSingle(),
+        supa.auth.admin.getUserById(input.userId),
+      ]);
+      const a = app as { first_name: string; last_name: string } | null;
+      if (a) {
+        const { notifyCandidateHired } = await import("@/lib/operator-notify");
+        const { userFullName } = await import("@/lib/user-name");
+        await notifyCandidateHired({
+          orgId: input.orgId,
+          candidateName: `${a.first_name} ${a.last_name}`.trim(),
+          applicationId: input.applicationId,
+          byUserId: input.userId,
+          byName: userFullName(u.user) ?? undefined,
+        });
+      }
+    } catch (e) {
+      console.error("hired notify failed", e);
+    }
+  }
   return { ok: true };
 }
