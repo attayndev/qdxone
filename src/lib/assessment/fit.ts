@@ -10,6 +10,7 @@ import { adminClient } from "@/lib/supabase/admin";
 import { scoreAssessment, assessValidity, type ScoredItem, type OverallFit } from "@/lib/assessment/scoring";
 import { validitySignals, gateFitByValidity } from "@/lib/assessment/session";
 import { applyGatesToFits } from "@/lib/assessment/fit-gates";
+import { fetchResponsesForSessions } from "@/lib/assessment/responses";
 
 export async function fitByApplication(orgId: string): Promise<Map<string, OverallFit>> {
   const supa = adminClient();
@@ -24,18 +25,9 @@ export async function fitByApplication(orgId: string): Promise<Map<string, Overa
   ).filter((s) => s.application_id);
   if (sess.length === 0) return new Map();
 
-  const { data: resp } = await supa
-    .from("assessment_responses")
-    .select("session_id, item_id, item_kind, value_int, response_ms")
-    .in("session_id", sess.map((s) => s.id));
-  const responses =
-    (resp as {
-      session_id: string;
-      item_id: string;
-      item_kind: string;
-      value_int: number | null;
-      response_ms: number | null;
-    }[] | null) ?? [];
+  // Paginate past the 1000-row cap — a plain .in() drops the newest candidates'
+  // responses once the org has >1000 total, leaving them with no fit.
+  const responses = await fetchResponsesForSessions(sess.map((s) => s.id));
 
   const versions = [...new Set(sess.map((s) => s.methodology_version))];
   const { data: items } = await supa

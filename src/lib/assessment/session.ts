@@ -1,5 +1,6 @@
 import { adminClient } from "@/lib/supabase/admin";
 import { generateToken } from "@/lib/tokens";
+import { fetchResponsesForSessions } from "@/lib/assessment/responses";
 import {
   buildAssessmentForm,
   DEFAULT_FORM_SPEC_V03,
@@ -253,10 +254,8 @@ export async function orgCandidateTiers(
   if (sess.length === 0) return new Map();
 
   const sessionIds = sess.map((s) => s.id);
-  const { data: resp } = await supa
-    .from("assessment_responses")
-    .select("session_id, item_id, item_kind, value_int, response_ms")
-    .in("session_id", sessionIds);
+  // Paginate past the 1000-row cap (see fetchResponsesForSessions).
+  const resp = await fetchResponsesForSessions(sessionIds);
   const versions = [...new Set(sess.map((s) => s.methodology_version))];
   const { data: items } = await supa
     .from("item_bank_items")
@@ -317,10 +316,8 @@ export async function orgCategoryAverages(
   if (sess.length === 0) return { averages: new Map(), n: 0 };
 
   const sessionIds = sess.map((s) => s.id);
-  const { data: resp } = await supa
-    .from("assessment_responses")
-    .select("session_id, item_id, item_kind, value_int, response_ms")
-    .in("session_id", sessionIds);
+  // Paginate past the 1000-row cap (see fetchResponsesForSessions).
+  const resp = await fetchResponsesForSessions(sessionIds);
   const versions = [...new Set(sess.map((s) => s.methodology_version))];
   const { data: items } = await supa
     .from("item_bank_items")

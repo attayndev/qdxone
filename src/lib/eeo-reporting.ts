@@ -1,4 +1,5 @@
 import { adminClient, eeoAdmin } from "@/lib/supabase/admin";
+import { fetchResponsesForSessions } from "@/lib/assessment/responses";
 import {
   scoreAssessment,
   type ScoredItem,
@@ -155,11 +156,8 @@ async function tiersByApplication(orgId: string): Promise<Map<string, OverallFit
   if (sess.length === 0) return new Map();
 
   const sessionIds = sess.map((s) => s.id);
-  const { data: resp } = await supa
-    .from("assessment_responses")
-    .select("session_id, item_id, item_kind, value_int")
-    .in("session_id", sessionIds);
-  const responses = resp ?? [];
+  // Paginate past the 1000-row cap so org-wide EEO stats include every candidate.
+  const responses = await fetchResponsesForSessions(sessionIds);
 
   // Item metadata (facet/category/keying) for the versions in play.
   const versions = [...new Set(sess.map((s) => s.methodology_version))];
