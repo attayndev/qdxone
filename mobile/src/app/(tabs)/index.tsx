@@ -48,7 +48,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default function Candidates() {
-  const { session, signOut } = useAuth();
+  const { session } = useAuth();
   const [candidates, setCandidates] = useState<Candidate[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -99,8 +99,8 @@ export default function Candidates() {
           <Text style={{ color: brand.inkMuted, fontSize: 13 }} numberOfLines={1}>
             {session?.user.email}
           </Text>
-          <Pressable onPress={signOut}>
-            <Text style={{ color: brand.blueDeep, fontWeight: "600", fontSize: 13 }}>Sign out</Text>
+          <Pressable onPress={() => router.push("/account")}>
+            <Text style={{ color: brand.blueDeep, fontWeight: "600", fontSize: 13 }}>Account</Text>
           </Pressable>
         </View>
 
