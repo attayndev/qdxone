@@ -21,12 +21,8 @@ export function ShareStep({
     let alive = true;
     (async () => {
       try {
-        const QRCode = (await import("qrcode")).default;
-        const dataUrl = await QRCode.toDataURL(careersUrl, {
-          width: 512,
-          margin: 2,
-          errorCorrectionLevel: "M",
-        });
+        const { qrPngDataUrl } = await import("@/lib/qr");
+        const dataUrl = await qrPngDataUrl(careersUrl);
         if (alive) setQr(dataUrl);
       } catch {
         /* QR is a nice-to-have; the link still works */
