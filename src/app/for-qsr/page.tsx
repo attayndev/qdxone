@@ -40,9 +40,9 @@ export default function ForMultiUnitPage() {
               The restaurant hiring math.
             </h2>
             <div className="mt-8 grid sm:grid-cols-3 gap-4">
-              <Stat big="20+" small="minutes per interview, multiplied by every weak applicant your managers sat with this week." />
-              <Stat big="60–100%" small="annual turnover in many restaurant concepts. Bad first hires drive bad second hires." />
-              <Stat big="$3–5K" small="commonly cited cost of one frontline hire that washes out in 30 days." />
+              <Stat big="20 min" small="of manager time per interview — multiplied by every weak applicant your managers sat with this week." />
+              <Stat big="Nonstop" small="frontline turnover means hiring never really ends — and a bad first hire restarts the clock." />
+              <Stat big="Twice" small="the most expensive hire is the one you make twice: training hours, re-posting, and covered shifts, all over again." />
             </div>
           </div>
         </section>

@@ -45,7 +45,7 @@ export default function ForIndependentsPage() {
               />
               <Trap
                 t="You're the interviewer."
-                b="20 minutes per applicant. Most of them don't last 20 days."
+                b="20 minutes per applicant — and the ones who wash out take a week of training with them."
               />
               <Trap
                 t="You're the trainer."

@@ -61,6 +61,7 @@ async function route(request: NextRequest) {
     "/login",
     "/auth/callback",
     "/how-it-works",
+    "/shift-ready-hiring",
     "/assessments",
     "/for-qsr",
     "/for-independents",

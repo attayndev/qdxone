@@ -18,6 +18,7 @@ export const dynamic = "force-dynamic";
 
 const APEX_PATHS = [
   "/",
+  "/shift-ready-hiring",
   "/how-it-works",
   "/assessments",
   "/pricing",

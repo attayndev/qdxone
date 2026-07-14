@@ -84,6 +84,7 @@ export function ApexFooter() {
           </p>
         </div>
         <FooterCol title="Product">
+          <FL href="/shift-ready-hiring">Shift-Ready Hiring™</FL>
           <FL href="/how-it-works">How it works</FL>
           <FL href="/assessments">Assessments</FL>
           <FL href="/pricing">Pricing</FL>

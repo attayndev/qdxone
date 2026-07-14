@@ -102,6 +102,14 @@ function VolumeTrap() {
           is the step between the applications and the interview — every
           applicant assessed, scored, and ranked, so the pile works for you.
         </p>
+        <p className="mt-4 text-center">
+          <Link
+            href="/shift-ready-hiring"
+            className="font-semibold text-[color:var(--brand-blue)] hover:underline"
+          >
+            What is Shift-Ready Hiring? →
+          </Link>
+        </p>
       </div>
     </section>
   );
