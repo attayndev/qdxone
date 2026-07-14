@@ -13,8 +13,31 @@ import { authCookieOverrides } from "@/lib/host";
  *     the org named by the subdomain.
  *  4. Apex hosts only see marketing/auth/signup; subdomains only see
  *     the org app. Conflicts are redirected to the right host.
+ *  5. Clickjacking: deny framing everywhere EXCEPT the public candidate
+ *     funnel on org subdomains, which operators may embed in their own
+ *     websites via <iframe>.
  */
+
+// Candidate-funnel routes that stay embeddable (subdomain hosts only):
+// job posting, application, assessment, EEO survey, interview booking.
+// The org landing page ("/") is allowed separately by exact match.
+const FRAMEABLE_PREFIXES = ["/j/", "/apply/", "/a/", "/eeo/", "/interview/"];
+
 export async function proxy(request: NextRequest) {
+  const response = await route(request);
+  const slug = extractSlugFromHost(request.headers.get("host"));
+  const path = request.nextUrl.pathname;
+  const frameable =
+    !!slug &&
+    (path === "/" || FRAMEABLE_PREFIXES.some((p) => path.startsWith(p)));
+  if (!frameable) {
+    response.headers.set("X-Frame-Options", "DENY");
+    response.headers.set("Content-Security-Policy", "frame-ancestors 'none'");
+  }
+  return response;
+}
+
+async function route(request: NextRequest) {
   const host = request.headers.get("host");
   const slug = extractSlugFromHost(host);
   const path = request.nextUrl.pathname;
