@@ -66,7 +66,7 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "How long does it take?",
-        a: "About five minutes, on a phone, right after someone applies.",
+        a: "The assessment is about five minutes, on a phone, right after someone applies. Application plus assessment together run about eight minutes total.",
       },
       {
         q: "What does the assessment actually look like?",
@@ -193,7 +193,7 @@ const SECTIONS: Section[] = [
       },
       {
         q: "When should I move from Solo to Operator?",
-        a: "As soon as you run a second store. Solo is built for one store; the moment you're hiring for two or more, Operator's one login, shared list, and store-by-store reports save you from juggling separate accounts. It's also worth it if you keep hitting your monthly cap or want text alerts, unlimited AI job posts, or fairness reports across stores.",
+        a: "As soon as you run a second store. Solo is built for one store; the moment you're hiring for two or more, Operator's one login, shared list, and store-by-store reports save you from juggling separate accounts. It's also worth it when you want text alerts, AI-written job posts, or fairness reports across stores. Assessments are unlimited on every plan either way.",
       },
     ],
   },
