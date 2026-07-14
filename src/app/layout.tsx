@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "QDXone — Shift-Ready Hiring for restaurants",
+  title: "QDXone — Shift-Ready Hiring™ for restaurants",
   description:
     "Every applicant completes a mobile application and a five-minute assessment. QDXone scores the qualities that matter in restaurant work and hands you a shortlist — so you know who to call first.",
 };

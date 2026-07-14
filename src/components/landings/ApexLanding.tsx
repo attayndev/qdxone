@@ -38,7 +38,7 @@ function Hero() {
     <section className="px-4 sm:px-6 pt-12 sm:pt-20 pb-10">
       <div className="max-w-4xl mx-auto text-center">
         <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-5">
-          Shift-Ready Hiring for restaurants
+          Shift-Ready Hiring™ for restaurants
         </span>
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.02]">
           Know who to

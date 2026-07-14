@@ -22,7 +22,7 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "What is QDXone?",
-        a: "QDXone is Shift-Ready Hiring for restaurants. You post your open jobs, people apply on your own hiring page, and every applicant takes a short five-minute assessment on their phone. You get back a scored shortlist that shows who may deserve attention first — so you know who to call first instead of digging through a pile. You always make the final call — QDXone rates people, it never turns anyone down for you.",
+        a: "QDXone is Shift-Ready Hiring™ for restaurants. You post your open jobs, people apply on your own hiring page, and every applicant takes a short five-minute assessment on their phone. You get back a scored shortlist that shows who may deserve attention first — so you know who to call first instead of digging through a pile. You always make the final call — QDXone rates people, it never turns anyone down for you.",
       },
       {
         q: "Why use QDXone instead of just interviewing people myself?",

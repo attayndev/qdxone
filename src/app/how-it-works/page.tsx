@@ -3,7 +3,7 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 import { ROOT_DOMAIN } from "@/lib/host";
 
 export const metadata = {
-  title: "How Shift-Ready Hiring works — QDXone",
+  title: "How Shift-Ready Hiring™ works — QDXone",
   description:
     "Post a role, every applicant completes a mobile application and a five-minute assessment, and you get a scored shortlist — so you know who to call first.",
 };
@@ -16,7 +16,7 @@ export default function HowItWorksPage() {
         <section className="px-4 sm:px-6 pt-12 pb-10">
           <div className="max-w-3xl mx-auto">
             <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-4">
-              How Shift-Ready Hiring works
+              How Shift-Ready Hiring™ works
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
               Post a role. Get a scored shortlist.

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "QDXone pricing — Shift-Ready Hiring per location",
+  title: "QDXone pricing — Shift-Ready Hiring™ per location",
   description:
     "Flat per-location pricing with unlimited assessments — every applicant assessed and scored. Solo $59/location, Operator $79/location for multi-store, Enterprise for brands. 30-day free trial.",
 };
@@ -19,8 +19,8 @@ export default function PricingPage() {
           </h1>
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
             <strong>Unlimited assessments on every plan</strong> — Shift-Ready
-            Hiring only works if every applicant gets assessed, so we never cap
-            it. Flat rate per location, no per-assessment fees; Operator adds
+            Hiring™ only works if every applicant gets assessed, so we never
+            cap it. Flat rate per location, no per-assessment fees; Operator adds
             the multi-store power tools. 30-day free trial.
           </p>
 
