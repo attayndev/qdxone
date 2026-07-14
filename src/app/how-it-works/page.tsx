@@ -36,7 +36,7 @@ export default function HowItWorksPage() {
               n="1"
               title="Post the role"
               body="Pick a role you've defined (Team Member, Shift Lead, whatever you call them) and QDXone gives you a shareable link plus a QR code for your counter, window, or socials. You control the application fields and your own roles."
-              detail="No job board fees. Candidates land on your branded hiring page."
+              detail="Use your branded QDXone hiring page anywhere you recruit — job boards, social media, your website, or a QR code inside the restaurant."
             />
             <Step
               n="2"
