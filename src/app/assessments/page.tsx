@@ -2,15 +2,15 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "What QDX measures — a look inside the assessment",
+  title: "Inside the five-minute assessment — QDXone",
   description:
-    "Sample items and the four categories behind QDX's restaurant hiring assessment. Real statements, real signal — not personality astrology.",
+    "Sample items and the four job-relevant categories behind QDXone's restaurant hiring assessment — the engine of Shift-Ready Hiring and the scored shortlist.",
 };
 
 const SAMPLES = [
   {
     q: "I show up on time, even when I don't feel like going.",
-    why: "Attendance is the #1 operator pain and the single best predictor of whether a hire lasts. Dependability shows up here.",
+    why: "Attendance is the #1 operator pain, and it never appears on a resume. Dependability shows up here.",
     measures: ["Dependability"],
   },
   {
@@ -62,7 +62,7 @@ export default function AssessmentsPage() {
         <section className="px-4 sm:px-6 pt-12 pb-10">
           <div className="max-w-3xl mx-auto">
             <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-4">
-              Inside the assessment
+              The five-minute assessment
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
               Real statements.{" "}
@@ -70,10 +70,10 @@ export default function AssessmentsPage() {
               Not personality astrology.
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)]">
-              Candidates rate short, honest statements on a 5-point scale.
-              Below are a few, paired with the behavior each one measures. The
-              full assessment runs about 5 minutes on a phone, plus a quick
-              motivation screener.
+              This is the engine behind the scored shortlist. Candidates rate
+              short, honest statements on a 5-point scale — about five minutes
+              on a phone, plus a quick motivation screener. Below are a few,
+              paired with the behavior each one evaluates.
             </p>
           </div>
         </section>
@@ -118,9 +118,10 @@ export default function AssessmentsPage() {
               Four categories.
             </h2>
             <p className="mt-3 text-lg text-[color:var(--brand-ink-muted)]">
-              Each tied to behaviors that decide whether a hire will earn
-              their shift — measured across eight facets and reported as plain
-              Low / Mid / High bands.
+              The qualities that matter in restaurant work — evaluated across
+              eight facets and reported as plain Low / Mid / High bands, so the
+              shortlist gives you a clearer starting point, not a black-box
+              number.
             </p>
             <div className="mt-8 grid sm:grid-cols-2 gap-4">
               {CATEGORIES.map((t) => (

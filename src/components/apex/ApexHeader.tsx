@@ -4,7 +4,7 @@ import { ROOT_DOMAIN } from "@/lib/host";
 
 const NAV = [
   { href: "/how-it-works", label: "How it works" },
-  { href: "/assessments", label: "Assessments" },
+  { href: "/assessments", label: "The assessment" },
   { href: "/for-qsr", label: "Multi-location" },
   { href: "/for-independents", label: "Independents" },
   { href: "/pricing", label: "Pricing" },
@@ -80,7 +80,7 @@ export function ApexFooter() {
         <div>
           <QdxWordmark size="sm" />
           <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
-            The hiring platform built for restaurants.
+            Shift-Ready Hiring for restaurants. Know who to call first.
           </p>
         </div>
         <FooterCol title="Product">

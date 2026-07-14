@@ -2,9 +2,9 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 import DemoForm from "@/components/DemoForm";
 
 export const metadata = {
-  title: "Book a 15-min QDX demo",
+  title: "Book a 15-min QDXone demo",
   description:
-    "See QDX on a real candidate. Quick walkthrough for restaurant operators — QSR, fast-casual, and independent.",
+    "See the scored shortlist on a real candidate. A quick Shift-Ready Hiring walkthrough for restaurant operators — multi-unit, fast-casual, and independent.",
 };
 
 export default function DemoPage() {
@@ -26,9 +26,9 @@ export default function DemoPage() {
               </h1>
               <p className="mt-5 text-[color:var(--brand-ink-muted)] text-lg">
                 Tell me about your shop and the hiring pain you&apos;re
-                trying to solve. I&apos;ll show you exactly what a candidate
-                report looks like and whether QDX makes sense for your
-                situation.
+                trying to solve. I&apos;ll show you a scored shortlist and a
+                real candidate report, and we&apos;ll figure out together
+                whether QDXone makes sense for your situation.
               </p>
               <ul className="mt-6 space-y-2 text-[15px]">
                 <li>✓ Walkthrough of the assessment + report</li>

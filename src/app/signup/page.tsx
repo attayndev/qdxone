@@ -10,11 +10,12 @@ export default function SignupPage() {
       <main className="flex-1 px-4 sm:px-6 py-12">
         <div className="max-w-lg mx-auto">
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight">
-            Start hiring smarter.
+            Start building your shortlist.
           </h1>
           <p className="text-[color:var(--brand-ink-muted)] mt-2">
             30-day free trial on every plan. Pick a name, claim your
-            subdomain, and we&apos;ll email you a magic link to finish.
+            subdomain, and we&apos;ll email you a magic link to finish —
+            you can be taking applications today.
           </p>
 
           <div className="card mt-6">

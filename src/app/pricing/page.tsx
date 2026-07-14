@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "QDX pricing — per-location restaurant hiring",
+  title: "QDXone pricing — Shift-Ready Hiring per location",
   description:
-    "Flat per-location pricing with unlimited assessments. Solo $59/location, Operator $79/location for the multi-store toolkit, Enterprise for brands. 30-day free trial.",
+    "Flat per-location pricing with unlimited assessments — every applicant assessed and scored. Solo $59/location, Operator $79/location for multi-store, Enterprise for brands. 30-day free trial.",
 };
 
 export default function PricingPage() {
@@ -18,9 +18,10 @@ export default function PricingPage() {
             Simple per-location pricing.
           </h1>
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
-            <strong>Unlimited assessments on every plan</strong> — assess everyone
-            who applies, no caps, no surprise bills. Pay a flat rate per location;
-            Operator adds the multi-store power tools. 30-day free trial.
+            <strong>Unlimited assessments on every plan</strong> — Shift-Ready
+            Hiring only works if every applicant gets assessed, so we never cap
+            it. Flat rate per location, no per-assessment fees; Operator adds
+            the multi-store power tools. 30-day free trial.
           </p>
 
           <div className="mt-10 grid md:grid-cols-3 gap-5 items-start">
@@ -72,10 +73,10 @@ const SOLO_FEATURES = [
   "Unlimited assessments",
   "Your own hiring page + QR codes",
   "Custom application form & roles",
-  "5-minute assessment + Low/Medium/High ratings",
+  "Five-minute assessment + Low/Medium/High ratings",
+  "Scored shortlist — know who to call first",
   "Benchmark against your own crew",
   "Basic fairness checks",
-  "Ranked applicant list & review",
   "Interview scheduling — candidates self-book",
   "Email notifications",
 ];

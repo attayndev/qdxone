@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "QDX for independent & owner-operated restaurants",
+  title: "QDXone for independent & owner-operated restaurants",
   description:
-    "When you don't have HR, you have an inbox and a gut feeling. QDX gives you a scored read on every applicant before you waste an evening on the wrong interview.",
+    "When you don't have HR, you have an inbox and a gut feeling. QDXone assesses every applicant and hands you a scored shortlist — so you know who to call first.",
 };
 
 export default function ForIndependentsPage() {
@@ -25,10 +25,10 @@ export default function ForIndependentsPage() {
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)]">
               When you&apos;re running the floor, the office, the schedule,
-              and the hiring, one bad call can ruin a Friday night. QDX gives
-              you a scored read on every applicant before you sit down with
-              them — so you spend interview time on the people who could
-              actually make it work.
+              and the hiring, the Applicant Volume Trap hits hardest — you
+              are the one sorting the inbox. QDXone assesses every applicant
+              before you sit down with anyone, so interview time goes to the
+              people most ready to join the shift.
             </p>
           </div>
         </section>
@@ -62,13 +62,14 @@ export default function ForIndependentsPage() {
         <section className="px-4 sm:px-6 py-16">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-black tracking-tight">
-              QDX gives you signal before you spend time.
+              QDXone gives you signal before you spend time.
             </h2>
             <ul className="mt-6 space-y-4 text-[16px] leading-relaxed">
               <Bullet>
-                <strong>Post once, screen on autopilot.</strong> Share a link
-                or QR code. Candidates apply and take a 5-minute assessment on
-                their phone — you just open the scored shortlist.
+                <strong>Post once, assess on autopilot.</strong> Share a link
+                or QR code. Candidates apply and take a five-minute assessment
+                on their phone — you just open the scored shortlist and know
+                who to call first.
               </Bullet>
               <Bullet>
                 <strong>Works for part-time and full-time hires.</strong> Plain

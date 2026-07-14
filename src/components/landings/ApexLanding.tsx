@@ -4,7 +4,8 @@ import { CommercialVideo } from "@/components/CommercialVideo";
 
 /**
  * Apex marketing site — qdx.one
- * QDX One: applicant intake + screening platform for quick-service restaurants.
+ * QDXone: Shift-Ready Hiring for restaurants — mobile application, 5-minute
+ * assessment, scored shortlist. Positioning: docs/positioning-shift-ready-hiring.md
  */
 export default function ApexLanding() {
   return (
@@ -13,10 +14,10 @@ export default function ApexLanding() {
       <main className="flex-1">
         <Hero />
         <CommercialVideo
-          heading="See QDX in 60 seconds"
-          sub="The hiring page, the application, and the assessment — all on the candidate's phone."
+          heading="See QDXone in 15 seconds"
+          sub="The application and the five-minute assessment, on the candidate's phone — and the scored shortlist you get back."
         />
-        <PainStrip />
+        <VolumeTrap />
         <HowItWorks />
         <WhatWeMeasure />
         <LookInside />
@@ -37,23 +38,22 @@ function Hero() {
     <section className="px-4 sm:px-6 pt-12 sm:pt-20 pb-10">
       <div className="max-w-4xl mx-auto text-center">
         <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-5">
-          Hiring built for restaurants
+          Shift-Ready Hiring for restaurants
         </span>
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.02]">
-          Post the job.
+          Know who to
           <br />
-          <span className="text-[color:var(--brand-blue)]">
-            Get back a scored shortlist.
-          </span>
+          <span className="text-[color:var(--brand-blue)]">call first.</span>
         </h1>
         <p className="mt-6 text-lg sm:text-xl text-[color:var(--brand-ink-muted)] max-w-2xl mx-auto">
-          QDX One is your hiring page, application, and a 5-minute assessment —
-          all on the candidate&apos;s phone. Share a link or QR code, and crew
-          come back ranked on reliability, people skills, and ownership.
+          Every applicant completes a mobile application and a five-minute
+          assessment. QDXone evaluates the qualities that matter in restaurant
+          work — reliability, people skills, ownership — and hands you a scored
+          shortlist.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/signup" className="btn-primary">
-            Start free
+            Start building your shortlist
           </Link>
           <Link href="/how-it-works" className="btn-ghost">
             See how it works
@@ -68,33 +68,40 @@ function Hero() {
 }
 
 // ─────────────────────────────────────────────────────────────────────
-function PainStrip() {
+function VolumeTrap() {
   const items = [
     {
-      icon: "⚡",
-      body: "One no-call/no-show wrecks a shift, the team, and a week of your time.",
+      icon: "📥",
+      body: "Job boards can fill your inbox with applicants. That part works.",
     },
     {
       icon: "⏱",
-      body: "A 20-minute interview tells you almost nothing about whether they&apos;ll show up.",
+      body: "But more applicants means more sorting, more screening calls, more interviews — not better hires.",
     },
     {
-      icon: "📉",
-      body: "Most operators don&apos;t have HR. They have an inbox, a gut feeling, and not enough time.",
+      icon: "📄",
+      body: "And the resumes can't tell you the thing you actually need to know: who will show up, work well with people, and take ownership.",
     },
   ];
   return (
-    <section className="px-4 sm:px-6 py-8 bg-[color:var(--brand-ink)] text-white">
-      <div className="max-w-5xl mx-auto grid sm:grid-cols-3 gap-5 sm:gap-8">
-        {items.map((it, i) => (
-          <div key={i} className="flex gap-3 items-start">
-            <span className="text-2xl flex-shrink-0">{it.icon}</span>
-            <p
-              className="text-[15px] leading-snug font-medium"
-              dangerouslySetInnerHTML={{ __html: it.body }}
-            />
-          </div>
-        ))}
+    <section className="px-4 sm:px-6 py-10 bg-[color:var(--brand-ink)] text-white">
+      <div className="max-w-5xl mx-auto">
+        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-center">
+          The Applicant Volume Trap.
+        </h2>
+        <div className="mt-6 grid sm:grid-cols-3 gap-5 sm:gap-8">
+          {items.map((it, i) => (
+            <div key={i} className="flex gap-3 items-start">
+              <span className="text-2xl flex-shrink-0">{it.icon}</span>
+              <p className="text-[15px] leading-snug font-medium">{it.body}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-7 text-center text-white/85 text-lg font-semibold max-w-2xl mx-auto">
+          You&apos;re still the one deciding who deserves an interview. QDXone
+          is the step between the applications and the interview — every
+          applicant assessed, scored, and ranked, so the pile works for you.
+        </p>
       </div>
     </section>
   );
@@ -106,7 +113,7 @@ function HowItWorks() {
     <section className="px-4 sm:px-6 py-16 border-b border-[color:var(--brand-line)]">
       <div className="max-w-5xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-center">
-          From posting to scored shortlist.
+          How Shift-Ready Hiring works.
         </h2>
         <div className="mt-10 grid sm:grid-cols-3 gap-4">
           <Step
@@ -116,13 +123,13 @@ function HowItWorks() {
           />
           <Step
             n="2"
-            title="They apply & assess"
-            body="A quick application, then a 5-minute assessment — mobile-first, plain language, no login or download. About 8 minutes total."
+            title="Every applicant assesses"
+            body="A quick mobile application, then a five-minute assessment — plain language, no login or download. About 8 minutes total."
           />
           <Step
             n="3"
-            title="You get a scored shortlist"
-            body="Each candidate comes back with verbal bands, a fit recommendation, and quality flags. You decide whose interview is worth your hour."
+            title="You know who to call first"
+            body="Each applicant comes back scored — plain-English bands, a fit recommendation, and flags worth asking about. The shortlist is your starting point for interviews."
           />
         </div>
         <div className="text-center mt-10">
@@ -157,7 +164,7 @@ function WhatWeMeasure() {
   const cats = [
     {
       name: "Reliability & Drive",
-      body: "Shows up on time, follows through, and pushes to get better — the #1 predictor of attendance and tenure.",
+      body: "Shows up on time, follows through, and pushes to get better — the first thing operators need and the hardest to read off a resume.",
     },
     {
       name: "People Skills",
@@ -177,12 +184,12 @@ function WhatWeMeasure() {
       <div className="max-w-5xl mx-auto">
         <div className="max-w-2xl">
           <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-            What we score.
+            What shift-ready looks like.
           </h2>
           <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg">
-            Hiring frontline staff isn&apos;t about the perfect résumé. It&apos;s
-            about whether they&apos;ll show up, work the team, and treat your
-            customers right. We measure four things that predict exactly that.
+            The qualities that make someone a great hourly employee rarely
+            appear on a resume. QDXone evaluates four that show up on every
+            shift.
           </p>
         </div>
         <div className="mt-8 grid sm:grid-cols-2 gap-4">
@@ -240,8 +247,7 @@ function LookInside() {
           </h2>
           <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg">
             Candidates rate short, honest statements on a 5-point scale. Each
-            one maps to a behavior that decides whether they&apos;ll earn their
-            shift.
+            one maps to a behavior that makes someone shift-ready.
           </p>
         </div>
 
@@ -291,14 +297,14 @@ function AudienceSplit() {
         <div className="mt-10 grid md:grid-cols-2 gap-5">
           <AudienceCard
             chip="Multi-unit & franchise"
-            title="Consistent hiring across every location."
-            body="Frontline turnover is brutal and manager hours are scarce — whether it's a fast-casual counter or a full-service floor. QDX standardizes how you screen across locations, so a strong candidate at one restaurant looks like a strong candidate at all of them, and your managers only interview the people worth their time."
+            title="The same shortlist logic at every location."
+            body="Frontline turnover is brutal and manager hours are scarce — whether it's a fast-casual counter or a full-service floor. QDXone gives every location the same scoring, so a strong candidate at one restaurant looks strong at all of them, and your managers start with who to call first instead of a raw inbox."
             href="/for-qsr"
           />
           <AudienceCard
             chip="Independent & owner-operated"
             title="Built for the operator who doesn't have HR."
-            body="When you're running the floor and the office, one bad hire is one ruined Friday night. QDX gives you a clear, scored read on every applicant before you sit down — so interview time goes to the people who could actually make it work."
+            body="When you're running the floor and the office, one bad hire is one ruined Friday night. QDXone gives you a scored read on every applicant before you sit down — so interview time goes to the people most ready to join the shift."
             href="/for-independents"
           />
         </div>
@@ -346,7 +352,7 @@ function FounderBlock() {
           Built in a real shop
         </span>
         <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-          I built QDX in my own shop. Here&apos;s why.
+          I built QDXone in my own shop. Here&apos;s why.
         </h2>
         <div className="mt-6 space-y-4 text-white/85 text-[17px] leading-relaxed">
           <p>
@@ -362,10 +368,10 @@ function FounderBlock() {
           </p>
           <p>The math doesn&apos;t work. Not for me, not for any operator I know.</p>
           <p>
-            So I built QDX — a hiring page, application, and a 5-minute
-            assessment that tells me, before I waste my time, who&apos;s worth
-            interviewing. Today it&apos;s a product. It started as a tool I
-            needed in my own store.
+            So I built QDXone — a hiring page, application, and a five-minute
+            assessment that tells me, before I spend an hour, who to call
+            first. Today it&apos;s a product. It started as a tool I needed in
+            my own store.
           </p>
         </div>
         <div className="mt-7">
@@ -461,8 +467,8 @@ function PricePeek({
 function Faq() {
   const items: Array<{ q: string; a: React.ReactNode }> = [
     {
-      q: "Why use QDX instead of just interviewing people myself?",
-      a: "You still interview — QDX makes sure those minutes go to the right people. Résumés and gut-feel interviews are slow and notoriously poor at predicting who'll show up, take feedback, and stay. QDX scores every applicant on the traits that predict frontline performance in about 5 minutes, turning a pile of 40 applications into a ranked shortlist before your first phone call.",
+      q: "Why use QDXone instead of just interviewing people myself?",
+      a: "You still interview — QDXone decides where those minutes go. Resumes rarely show who'll show up, take feedback, and stay, and you can't interview a whole inbox. QDXone assesses every applicant on job-relevant qualities in about five minutes, turning a pile of 40 applications into a scored shortlist before your first phone call.",
     },
     {
       q: "I'm short-staffed — won't screening just slow me down?",
@@ -470,20 +476,20 @@ function Faq() {
     },
     {
       q: "Does this replace the interview?",
-      a: "No — it replaces the guesswork before it. QDX tells you who's worth your time and what to dig into; you still meet them and make the call. We rate people; we never turn anyone down for you.",
+      a: "No — it gives the interview a starting point. QDXone shows you who may deserve attention first and what to dig into; you still meet them and make the call. We rate people; we never turn anyone down for you.",
     },
     {
       q: "How is this different from a job board like Indeed?",
-      a: "Job boards get you applicants. QDX tells you which ones to hire. Point your QDX careers link or QR code anywhere you already recruit — Indeed, a window sign, Instagram — and every applicant lands in one scored, ranked pipeline.",
+      a: "Job boards generate applicants — that part works. QDXone is the step after: it assesses those applicants and ranks them, so you know who to call first. Point your QDXone careers link or QR code anywhere you already recruit — a job board, a window sign, Instagram — and every applicant lands in one scored shortlist.",
     },
     {
       q: "How is this different from a personality test?",
       a: (
         <>
-          Personality tests profile who someone is. QDX predicts what they&apos;ll
-          do on a shift — show up on time, take feedback, stay productive when
-          it&apos;s slow. We&apos;re predicting frontline behavior, not labeling
-          traits.{" "}
+          Personality tests profile who someone is. QDXone evaluates the
+          qualities that show up on a shift — showing up on time, taking
+          feedback, staying steady when it&apos;s busy. Job-relevant behavior,
+          not trait labels.{" "}
           <Link
             href="/assessments"
             className="underline text-[color:var(--brand-blue-600)]"
@@ -499,7 +505,7 @@ function Faq() {
     },
     {
       q: "Is it fair — could it screen people out unfairly?",
-      a: "Fairness is built in. A person makes every call — QDX never turns anyone down on its own. You see simple ratings, not exact scores, so no one reads too much into small gaps. The background question (race, gender, and so on) is optional, and you never see it tied to a person — only as totals — while the system flags it if any group is being screened out at a lower rate. It's written in plain words and works on any phone, so it doesn't quietly favor one group.",
+      a: "Fairness is built in. A person makes every call — QDXone never turns anyone down on its own. You see simple ratings, not exact scores, so no one reads too much into small gaps. The background question (race, gender, and so on) is optional, and you never see it tied to a person — only as totals — while the system flags it if any group is being screened out at a lower rate. It's written in plain words and works on any phone, so it doesn't quietly favor one group.",
     },
     {
       q: "Why one Operator account instead of a separate account per location?",
@@ -553,18 +559,17 @@ function FinalCta() {
     <section className="px-4 sm:px-6 py-16 bg-[color:var(--brand-ink)] text-white">
       <div className="max-w-3xl mx-auto text-center">
         <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-          Better hires. Faster.{" "}
+          Stop collecting applicants.{" "}
           <span className="text-[color:var(--brand-blue)]">
-            Built for the restaurant world.
+            Start identifying the people most ready to join the shift.
           </span>
         </h2>
         <p className="mt-5 text-white/70 text-lg max-w-xl mx-auto">
-          Stop interviewing people who were never going to make it past week
-          two.
+          Shift-Ready Hiring, built for the restaurant world.
         </p>
         <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/signup" className="btn-primary">
-            Start your 30-day trial
+            Try Shift-Ready Hiring
           </Link>
           <Link
             href="/demo"

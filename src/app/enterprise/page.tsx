@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "QDX One — Enterprise & compliance",
+  title: "QDXone — Enterprise & compliance",
   description:
-    "How QDX One is designed to support fair, defensible hiring across locations and brands: human-in-the-loop decisions, separated EEO data, adverse-impact monitoring, and enterprise reporting.",
+    "How QDXone is designed to support fair, defensible hiring across locations and brands: human-in-the-loop decisions, separated EEO data, adverse-impact monitoring, and enterprise reporting.",
 };
 
 type Item = { q: string; a: React.ReactNode };
@@ -62,8 +62,8 @@ const SECTIONS: Section[] = [
     title: "AI & hiring laws (LL144, state rules)",
     items: [
       {
-        q: "Is QDX an “automated employment decision tool,” and does NYC Local Law 144 apply to us?",
-        a: "QDX is built around “score, don't filter”: it surfaces signals and a fit recommendation, but a person on your team makes every decision. That design is directly relevant to laws like NYC Local Law 144, which target tools used to substantially assist or replace human decision-making. Whether a specific law applies depends on the law, how you deploy the tool, and (for LL144) where the candidate lives — so that's a determination for your counsel. LL144 also requires an independent, third-party bias audit (which a vendor can't perform for itself) plus candidate notice; we'll work with you and a qualified auditor and provide the data they need.",
+        q: "Is QDXone an “automated employment decision tool,” and does NYC Local Law 144 apply to us?",
+        a: "QDXone is built around “score, don't filter”: it surfaces signals and a fit recommendation, but a person on your team makes every decision. That design is directly relevant to laws like NYC Local Law 144, which target tools used to substantially assist or replace human decision-making. Whether a specific law applies depends on the law, how you deploy the tool, and (for LL144) where the candidate lives — so that's a determination for your counsel. LL144 also requires an independent, third-party bias audit (which a vendor can't perform for itself) plus candidate notice; we'll work with you and a qualified auditor and provide the data they need.",
       },
       {
         q: "How do we handle the patchwork of state AI hiring laws?",
@@ -92,8 +92,8 @@ const SECTIONS: Section[] = [
     title: "Roles & responsibilities",
     items: [
       {
-        q: "Who's responsible for compliance — QDX or us?",
-        a: "It's shared. QDX provides the tooling — adverse-impact monitoring, fairness flags, separated EEO data, and a human-in-the-loop design — but you remain the employer making the decisions, and some obligations (for example, the independent bias audit some jurisdictions require) fall to you and can only be performed by a qualified third party. We recommend spelling this split out in your agreement.",
+        q: "Who's responsible for compliance — QDXone or us?",
+        a: "It's shared. QDXone provides the tooling — adverse-impact monitoring, fairness flags, separated EEO data, and a human-in-the-loop design — but you remain the employer making the decisions, and some obligations (for example, the independent bias audit some jurisdictions require) fall to you and can only be performed by a qualified third party. We recommend spelling this split out in your agreement.",
       },
       {
         q: "Does the assessment accommodate disabilities (ADA)?",
@@ -113,15 +113,15 @@ export default function EnterprisePage() {
             Enterprise &amp; compliance.
           </h1>
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
-            How QDX is designed to support fair, defensible hiring across your
+            How QDXone is designed to support fair, defensible hiring across your
             locations and brands. Some items below are part of our Enterprise
             roadmap — we&apos;ll always tell you candidly what&apos;s built today
             versus what we&apos;re building.
           </p>
 
           <p className="mt-6 card text-sm text-[color:var(--brand-ink-muted)] bg-[color:var(--brand-cream)]">
-            <strong>Not legal advice.</strong> These answers describe how QDX is
-            designed to <em>support</em>&nbsp;compliant hiring; QDX doesn&apos;t
+            <strong>Not legal advice.</strong> These answers describe how QDXone is
+            designed to <em>support</em>&nbsp;compliant hiring; QDXone doesn&apos;t
             determine compliance for your business. Hiring laws vary by state and
             city and change often — confirm specifics with your own counsel.
           </p>

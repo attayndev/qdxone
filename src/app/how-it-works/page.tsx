@@ -3,9 +3,9 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 import { ROOT_DOMAIN } from "@/lib/host";
 
 export const metadata = {
-  title: "How QDX works — restaurant hiring, end to end",
+  title: "How Shift-Ready Hiring works — QDXone",
   description:
-    "Post a role, candidates apply and take a 5-minute assessment on their phone, and you get a scored shortlist with bands and a fit recommendation.",
+    "Post a role, every applicant completes a mobile application and a five-minute assessment, and you get a scored shortlist — so you know who to call first.",
 };
 
 export default function HowItWorksPage() {
@@ -16,16 +16,16 @@ export default function HowItWorksPage() {
         <section className="px-4 sm:px-6 pt-12 pb-10">
           <div className="max-w-3xl mx-auto">
             <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-4">
-              How it works
+              How Shift-Ready Hiring works
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
               Post a role. Get a scored shortlist.
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)]">
-              QDX is your whole top-of-funnel — the hiring page, the
-              application, and the assessment. Candidates apply from their
-              phone, and the only people you sit down with are the ones worth
-              your hour.
+              QDXone is the hiring page, the application, and the five-minute
+              assessment. Candidates apply from their phone, every applicant
+              gets assessed, and you start from a shortlist instead of an
+              inbox — knowing who to call first.
             </p>
           </div>
         </section>
@@ -35,7 +35,7 @@ export default function HowItWorksPage() {
             <Step
               n="1"
               title="Post the role"
-              body="Pick a role you've defined (Team Member, Shift Lead, whatever you call them) and QDX gives you a shareable link plus a QR code for your counter, window, or socials. You control the application fields and your own roles."
+              body="Pick a role you've defined (Team Member, Shift Lead, whatever you call them) and QDXone gives you a shareable link plus a QR code for your counter, window, or socials. You control the application fields and your own roles."
               detail="No job board fees. Candidates land on your branded hiring page."
             />
             <Step
@@ -65,11 +65,11 @@ export default function HowItWorksPage() {
               What you don&apos;t do.
             </h2>
             <ul className="mt-6 space-y-3 text-lg">
+              <li>❌ Read 40 resumes that all say the same thing.</li>
+              <li>❌ Sort an inbox by gut feel between rushes.</li>
               <li>❌ Burn 20 minutes on someone who was never going to show.</li>
-              <li>❌ Train someone who was never going to follow a rule.</li>
-              <li>❌ Cover a Saturday because someone called out by week two.</li>
-              <li>❌ Read 40 résumés that all say the same thing.</li>
-              <li>❌ Auto-reject anyone — QDX recommends, you decide.</li>
+              <li>❌ Start the interview with zero idea what to ask about.</li>
+              <li>❌ Auto-reject anyone — QDXone recommends, you decide.</li>
             </ul>
           </div>
         </section>
@@ -77,7 +77,7 @@ export default function HowItWorksPage() {
         <section className="px-4 sm:px-6 py-12 bg-[color:var(--brand-ink)] text-white">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-              Ready to skip the bad interviews?
+              Ready to know who to call first?
             </h2>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/signup" className="btn-primary">

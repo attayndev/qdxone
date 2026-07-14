@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "QDX One — Restaurant hiring FAQs",
+  title: "QDXone — Restaurant hiring FAQs",
   description:
-    "Plain answers to the questions restaurant owners ask about QDX One: how it works, how it compares, what applying is like, fairness, accounts, pricing, and setup.",
+    "Plain answers to the questions restaurant owners ask about QDXone and Shift-Ready Hiring: how it works, how it compares, applying, fairness, accounts, pricing, and setup.",
 };
 
 type Item = { q: string; a: React.ReactNode };
@@ -21,12 +21,12 @@ const SECTIONS: Section[] = [
     title: "The basics",
     items: [
       {
-        q: "What is QDX One?",
-        a: "QDX One helps restaurants hire. You post your open jobs, people apply on your own hiring page, and each person who applies takes a short 5-minute assessment on their phone. You get back a ranked list that shows who is likely to be a strong hire, so you spend your time on the best people. You always make the final call — QDX rates people, it never turns anyone down for you.",
+        q: "What is QDXone?",
+        a: "QDXone is Shift-Ready Hiring for restaurants. You post your open jobs, people apply on your own hiring page, and every applicant takes a short five-minute assessment on their phone. You get back a scored shortlist that shows who may deserve attention first — so you know who to call first instead of digging through a pile. You always make the final call — QDXone rates people, it never turns anyone down for you.",
       },
       {
-        q: "Why use QDX instead of just interviewing people myself?",
-        a: "You already know how to read people — QDX helps you read the right ones. A quick interview is a hit-or-miss way to tell who will show up on time and take ownership, and you can't interview everyone when you're slammed. QDX gives you a steady read on everyone who applies before you spend a minute interviewing, so you walk in already knowing who is worth your time. It doesn't decide for you — it points you at the right people.",
+        q: "Why use QDXone instead of just interviewing people myself?",
+        a: "You already know how to read people — QDXone helps you read the right ones. A quick interview is a hit-or-miss way to tell who will show up on time and take ownership, and you can't interview everyone when you're slammed. QDXone gives you a steady read on everyone who applies before you spend a minute interviewing, so you walk in already knowing who is worth your time. It doesn't decide for you — it points you at the right people.",
       },
       {
         q: "I'm short-staffed — won't this slow me down?",
@@ -34,7 +34,7 @@ const SECTIONS: Section[] = [
       },
       {
         q: "Does it replace the interview?",
-        a: "No — it's a quick check before the interview. It gives you simple Low / Medium / High ratings on things like being reliable, good with people, taking ownership, and staying calm under pressure. You still meet the person and still make the call. QDX rates people; it never turns them down.",
+        a: "No — it's a quick check before the interview. It gives you simple Low / Medium / High ratings on things like being reliable, good with people, taking ownership, and staying calm under pressure. You still meet the person and still make the call. QDXone rates people; it never turns them down.",
       },
     ],
   },
@@ -43,13 +43,13 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "How is this different from a job board like Indeed?",
-        a: "They do different jobs. Indeed and other job boards get people to apply. QDX is what happens next: it takes those applicants, sizes them up, and ranks them so you know who to focus on. Keep posting wherever you like — QDX takes over once people apply.",
+        a: "They do different jobs. Indeed and other job boards get people to apply. QDXone is what happens next: it takes those applicants, sizes them up, and ranks them so you know who to focus on. Keep posting wherever you like — QDXone takes over once people apply.",
       },
       {
         q: "How is this different from a personality test?",
         a: (
           <>
-            A personality test just hands you a profile and stops there. QDX is
+            A personality test just hands you a profile and stops there. QDXone is
             built for restaurant hiring: we measure the things that actually
             matter on a shift — being reliable, good with people, taking
             ownership, and staying calm — plus a quick read on what drives
@@ -112,7 +112,7 @@ const SECTIONS: Section[] = [
       },
       {
         q: "What if my gut disagrees with the ratings?",
-        a: "Trust your gut — it's your call. The assessment is one more piece of information, not an override. When the ratings and your read of someone don't match, that's a good thing to dig into during the interview, not a reason to ignore what you saw in person. QDX is there to help your judgment, never replace it.",
+        a: "Trust your gut — it's your call. The assessment is one more piece of information, not an override. When the ratings and your read of someone don't match, that's a good thing to dig into during the interview, not a reason to ignore what you saw in person. QDXone is there to help your judgment, never replace it.",
       },
     ],
   },
@@ -121,11 +121,11 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "Is it fair? What about bias?",
-        a: "Fairness is built in from the start. A person makes every decision — QDX never turns anyone down on its own. Results come as simple ratings so no one reads too much into small gaps, the questions are job-related and worded to follow fair-hiring rules, and the system automatically flags it if any group is being screened out at a lower rate than others. There's also an optional background question (things like race and gender) that you never see tied to any one person — only as overall totals. And if you ever compare applicants to your current team, there are guardrails so you're not just cloning the staff you already have. No tool is bias-proof, but this one is built to catch and track bias, not hide it.",
+        a: "Fairness is built in from the start. A person makes every decision — QDXone never turns anyone down on its own. Results come as simple ratings so no one reads too much into small gaps, the questions are job-related and worded to follow fair-hiring rules, and the system automatically flags it if any group is being screened out at a lower rate than others. There's also an optional background question (things like race and gender) that you never see tied to any one person — only as overall totals. And if you ever compare applicants to your current team, there are guardrails so you're not just cloning the staff you already have. No tool is bias-proof, but this one is built to catch and track bias, not hide it.",
       },
       {
         q: "Is it legal? Could it get me sued?",
-        a: "Used the way it's meant to be — as a helper, with a person making every call — QDX is built to support fair, legal hiring: job-related questions, fair-hiring wording, automatic fairness checks, and reports you can show. That said, hiring laws are different from state to state and city to city (some places have special rules for hiring tools that score people by computer), and we're not your lawyer — check the rules where you operate.",
+        a: "Used the way it's meant to be — as a helper, with a person making every call — QDXone is built to support fair, legal hiring: job-related questions, fair-hiring wording, automatic fairness checks, and reports you can show. That said, hiring laws are different from state to state and city to city (some places have special rules for hiring tools that score people by computer), and we're not your lawyer — check the rules where you operate.",
       },
       {
         q: "Is applicant information safe, and who owns it?",
@@ -214,7 +214,7 @@ const SECTIONS: Section[] = [
       },
       {
         q: "Does it connect to my POS, scheduling, payroll, or other systems?",
-        a: "QDX is your front door for hiring — post, apply, assess, decide. Connecting it to other systems (POS, scheduling, payroll, and the like) is coming on the Enterprise plan.",
+        a: "QDXone is your front door for hiring — post, apply, assess, decide. Connecting it to other systems (POS, scheduling, payroll, and the like) is coming on the Enterprise plan.",
       },
     ],
   },
@@ -230,7 +230,7 @@ export default function FaqPage() {
             Questions restaurant owners ask.
           </h1>
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
-            How QDX works, what it costs, and how it keeps hiring fair — in plain
+            How QDXone works, what it costs, and how it keeps hiring fair — in plain
             words. Don&apos;t see your question?{" "}
             <Link href="/demo" className="underline text-[color:var(--brand-blue-600)]">
               Talk to us

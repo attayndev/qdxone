@@ -14,7 +14,7 @@ export function CommercialVideo({
   heading?: string;
   sub?: string;
   className?: string;
-  /** R2-hosted video path; defaults to the 60-second commercial. */
+  /** R2-hosted video path; defaults to the 15-second commercial. */
   src?: string;
 }) {
   return (

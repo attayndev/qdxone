@@ -1,5 +1,5 @@
 /**
- * QDX One brand mark + wordmark.
+ * QDXone brand mark + wordmark.
  *
  * The mark is three ascending rounded bars — slate, mid-blue, amber — a tiny
  * bar chart that carries the brand idea ("score, don't filter"); the amber
@@ -13,7 +13,7 @@ export function QdxMark({ className = "h-6 w-auto" }: { className?: string }) {
       viewBox="0 0 34 24"
       className={className}
       role="img"
-      aria-label="QDX One"
+      aria-label="QDXone"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >

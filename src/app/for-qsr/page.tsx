@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "QDX for multi-unit & franchise restaurants",
+  title: "QDXone for multi-unit & franchise restaurants",
   description:
-    "Standardize hiring across every location. One scored signal so a strong candidate at one restaurant looks strong at all of them.",
+    "Shift-Ready Hiring across every location: every applicant assessed, one scored shortlist logic, so a strong candidate at one restaurant looks strong at all of them.",
 };
 
 export default function ForMultiUnitPage() {
@@ -24,11 +24,12 @@ export default function ForMultiUnitPage() {
               </span>
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)]">
-              Frontline turnover is brutal and manager hours are scarce —
-              whether it&apos;s a fast-casual counter or a full-service floor.
-              QDX gives every location the same hiring page, the same scoring,
-              and the same recommendation logic, so a strong candidate at one
-              restaurant looks like a strong candidate at all of them.
+              The Applicant Volume Trap compounds across locations: every store
+              collects applications, and every manager sorts them differently.
+              QDXone gives every location the same hiring page, the same
+              five-minute assessment, and the same scoring — so a strong
+              candidate at one restaurant looks strong at all of them, and
+              every manager starts with who to call first.
             </p>
           </div>
         </section>
@@ -49,16 +50,16 @@ export default function ForMultiUnitPage() {
         <section className="px-4 sm:px-6 py-16">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-black tracking-tight">
-              What changes when QDX handles your applications.
+              What changes when QDXone handles your applications.
             </h2>
             <ul className="mt-6 space-y-4 text-[16px] leading-relaxed">
               <Bullet
                 title="Manager time goes back where it belongs."
-                body="Your managers stop interviewing applicants who would have walked out by week two. The interviews they do run are with candidates that already cleared a scored bar."
+                body="Less time sorting applicants, more time running the floor. The interviews your managers do run start from a scored shortlist, with flags worth asking about."
               />
               <Bullet
                 title="Hiring quality stops being a personality lottery."
-                body="Different locations, different managers, different instincts. QDX gives every restaurant the same scored signal so the bar doesn't drift store to store."
+                body="Different locations, different managers, different instincts. QDXone gives every restaurant the same scored signal so the bar doesn't drift store to store."
               />
               <Bullet
                 title="A fairer, more defensible process."
