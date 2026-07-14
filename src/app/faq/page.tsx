@@ -22,7 +22,7 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "What is QDXone?",
-        a: "QDXone is Shift-Ready Hiring™ for restaurants. You post your open jobs, people apply on your own hiring page, and every applicant takes a short five-minute assessment on their phone. You get back a scored shortlist that shows who may deserve attention first — so you know who to call first instead of digging through a pile. You always make the final call — QDXone rates people, it never turns anyone down for you.",
+        a: "QDXone is Shift-Ready Hiring™ for restaurants. You post your open jobs, people apply on your own hiring page, and every applicant takes a short five-minute assessment on their phone. You get back a scored shortlist that shows who may deserve attention first — so you know who to call first instead of digging through a pile. QDXone evaluates job-relevant signals; it never makes the hiring decision for you.",
       },
       {
         q: "Why use QDXone instead of just interviewing people myself?",
@@ -30,11 +30,11 @@ const SECTIONS: Section[] = [
       },
       {
         q: "I'm short-staffed — won't this slow me down?",
-        a: "It's built for being slammed. The assessment goes out the moment someone applies, they finish it on their phone, and you get a ranked list instead of a stack of resumes to dig through. You only interview the people who already clear your bar — so you hire faster, not slower.",
+        a: "It's built for being slammed. The assessment goes out the moment someone applies, they finish it on their phone, and you get a ranked list instead of a stack of resumes to dig through. You can focus your interview time on the applicants who appear strongest — while the final decision stays entirely in your hands — so you hire faster, not slower.",
       },
       {
         q: "Does it replace the interview?",
-        a: "No — it's a quick check before the interview. It gives you simple Low / Medium / High ratings on things like being reliable, good with people, taking ownership, and staying calm under pressure. You still meet the person and still make the call. QDXone rates people; it never turns them down.",
+        a: "No — it's a quick check before the interview. It gives you simple Low / Medium / High ratings on things like being reliable, good with people, taking ownership, and staying calm under pressure. You still meet the person and still make the call. QDXone evaluates job-relevant signals; it never makes the hiring decision for you.",
       },
     ],
   },

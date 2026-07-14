@@ -54,10 +54,10 @@ export default function AboutPage() {
               Tuesday afternoon between rushes.
             </p>
             <p className="text-2xl font-black tracking-tight text-[color:var(--brand-ink)]">
-              I built QDXone because I wanted a way to know — before I sat
-              down with someone — whether they&apos;d show up on time, take
-              direction, leave their phone in the office, and treat
-              customers like a guest in their home.
+              I built QDXone because I wanted a stronger signal — before I
+              sat down with someone — about whether they were likely to show
+              up on time, take direction, leave their phone in the office,
+              and treat customers like a guest in their home.
             </p>
             <p>
               The first version was a Google Form for my own shop. The

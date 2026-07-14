@@ -476,7 +476,7 @@ function Faq() {
     },
     {
       q: "Does this replace the interview?",
-      a: "No — it gives the interview a starting point. QDXone shows you who may deserve attention first and what to dig into; you still meet them and make the call. We rate people; we never turn anyone down for you.",
+      a: "No — it gives the interview a starting point. QDXone shows you who may deserve attention first and what to dig into; you still meet them and make the call. QDXone evaluates job-relevant signals; it never makes the hiring decision for you.",
     },
     {
       q: "How is this different from a job board like Indeed?",
