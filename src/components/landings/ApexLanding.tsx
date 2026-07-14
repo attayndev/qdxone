@@ -37,15 +37,17 @@ function Hero() {
   return (
     <section className="px-4 sm:px-6 pt-12 sm:pt-20 pb-10">
       <div className="max-w-4xl mx-auto text-center">
-        <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-5">
-          Shift-Ready Hiring™ for restaurants
-        </span>
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.02]">
-          Know who to
+          Shift-Ready Hiring™
           <br />
-          <span className="text-[color:var(--brand-blue)]">call first.</span>
+          <span className="text-[color:var(--brand-blue)]">
+            for restaurants.
+          </span>
         </h1>
-        <p className="mt-6 text-lg sm:text-xl text-[color:var(--brand-ink-muted)] max-w-2xl mx-auto">
+        <p className="mt-5 text-2xl sm:text-3xl font-extrabold tracking-tight">
+          Know who to call first.
+        </p>
+        <p className="mt-4 text-lg sm:text-xl text-[color:var(--brand-ink-muted)] max-w-2xl mx-auto">
           Every applicant completes a mobile application and a five-minute
           assessment. QDXone evaluates the qualities that matter in restaurant
           work — reliability, people skills, ownership — and hands you a scored
