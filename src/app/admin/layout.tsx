@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { StoreMenu } from "@/components/admin/StoreMenu";
+import { BrandMark } from "@/components/Brand";
 import { currentOrg } from "@/lib/tenancy";
 
 export default async function AdminLayout({
@@ -16,8 +17,9 @@ export default async function AdminLayout({
   return (
     <>
       <header className="w-full px-4 sm:px-6 py-3 border-b border-[color:var(--brand-line)] bg-white sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto flex items-center">
-          <StoreMenu org={org} userEmail={user?.email} />
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+          <StoreMenu userEmail={user?.email} />
+          <BrandMark org={org} override={{ subtitle: "Admin" }} />
         </div>
       </header>
       <main className="flex-1 px-4 sm:px-6 py-8">

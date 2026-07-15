@@ -3,9 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { BrandMark } from "@/components/Brand";
 import LogoutButton from "@/components/LogoutButton";
-import type { OrganizationRow } from "@/lib/supabase/types";
 
 const ITEM =
   "px-3 py-2 rounded-lg text-sm font-semibold hover:bg-[color:var(--brand-cream)] whitespace-nowrap";
@@ -28,17 +26,12 @@ const SECONDARY = [
 ];
 
 /**
- * The whole admin nav, behind the store name + logo. Closes on navigation,
- * outside click, and Escape (a plain <details> stays open across Next's
- * client-side route changes, which is the bug this fixes).
+ * The whole admin nav, behind an explicit Menu button (the header's only
+ * dropdown; the brand mark on the right is a static label). Closes on
+ * navigation, outside click, and Escape (a plain <details> stays open
+ * across Next's client-side route changes, which is the bug this fixes).
  */
-export function StoreMenu({
-  org,
-  userEmail,
-}: {
-  org: OrganizationRow | null;
-  userEmail?: string;
-}) {
+export function StoreMenu({ userEmail }: { userEmail?: string }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const ref = useRef<HTMLDivElement>(null);
@@ -63,47 +56,40 @@ export function StoreMenu({
 
   return (
     <div className="relative" ref={ref}>
-      {/* The logo still toggles (muscle memory), but the labeled Menu pill
-          is the affordance non-technical users actually see. */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex items-center gap-3 cursor-pointer group"
+        className={
+          "flex items-center gap-2 px-3.5 py-2 rounded-xl border-2 text-sm font-bold cursor-pointer transition-colors " +
+          (open
+            ? "border-[color:var(--brand-blue)] bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)]"
+            : "border-[color:var(--brand-line)] bg-white shadow-[0_2px_0_var(--brand-line)] text-[color:var(--brand-ink)] hover:border-[color:var(--brand-blue)] hover:text-[color:var(--brand-blue-600)]")
+        }
       >
-        <BrandMark org={org} override={{ subtitle: "Admin" }} />
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          aria-hidden
+          className="flex-shrink-0"
+        >
+          <path
+            d="M2 4h12M2 8h12M2 12h12"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+        Menu
         <span
+          aria-hidden
           className={
-            "flex items-center gap-2 px-3.5 py-2 rounded-xl border-2 text-sm font-bold transition-colors " +
-            (open
-              ? "border-[color:var(--brand-blue)] bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)]"
-              : "border-[color:var(--brand-line)] bg-white shadow-[0_2px_0_var(--brand-line)] text-[color:var(--brand-ink)] group-hover:border-[color:var(--brand-blue)] group-hover:text-[color:var(--brand-blue-600)]")
+            "text-xs transition-transform " + (open ? "rotate-180" : "")
           }
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden
-            className="flex-shrink-0"
-          >
-            <path
-              d="M2 4h12M2 8h12M2 12h12"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
-          Menu
-          <span
-            aria-hidden
-            className={
-              "text-xs transition-transform " + (open ? "rotate-180" : "")
-            }
-          >
-            ▾
-          </span>
+          ▾
         </span>
       </button>
 
