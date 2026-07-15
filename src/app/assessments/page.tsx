@@ -4,7 +4,7 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 export const metadata = {
   title: "Inside the five-minute assessment — QDXone",
   description:
-    "What QDXone's restaurant hiring assessment measures, how plain-English bands are produced, and why gaming it is hard — the engine behind the scored shortlist.",
+    "What QDXone's restaurant hiring assessment measures, how plain-English bands are produced, and what it surfaces before the interview — the engine behind the scored shortlist.",
 };
 
 // Illustrative items written for this page — deliberately NOT drawn from
@@ -16,22 +16,43 @@ const SAMPLES = [
   "If the dining room's a mess and it's nobody's job, it's my job.",
 ];
 
+// Each pain an operator already recognizes → what the assessment surfaces
+// before the interview. The last one deliberately cuts the other way.
+const PAINS = [
+  {
+    t: "Great interview, empty Saturday shift.",
+    b: "The motivation screener flags past attendance and how long someone expects to stay — before you meet them.",
+  },
+  {
+    t: "Bristles at every correction.",
+    b: "Openness to coaching shows up in People Skills — so you know what to probe when you sit down.",
+  },
+  {
+    t: "Never planned to stay past training.",
+    b: "Goals and tenure expectation come back as flags worth asking about.",
+  },
+  {
+    t: "The thin resume hiding your best worker.",
+    b: "First job, caregiver, career-switcher — they get scored on behaviors, not history. A resume screen misses them.",
+  },
+];
+
 const CATEGORIES = [
   {
     name: "Reliability & Drive",
-    body: "Shows up, follows through, and pushes to get better.",
+    body: "Shows up Friday night even when they don't feel like it, and pushes to get better. The difference between a covered schedule and covering it yourself.",
   },
   {
     name: "People Skills",
-    body: "Customer warmth, team cooperation, and openness to coaching. The behaviors guests and crew feel.",
+    body: "Warm with a stressed guest, easy with the crew, and doesn't bristle when you correct the register count.",
   },
   {
     name: "Ownership",
-    body: "Believes effort drives outcomes, and acts on it — owning mistakes and self-starting.",
+    body: "Sees the dining room's a mess and handles it — nobody told them, and it wasn't “their job.”",
   },
   {
     name: "Composure",
-    body: "Stays calm under pressure and bounces back from a bad shift.",
+    body: "The line's out the door and the POS just froze. Some people steady; some unravel.",
   },
 ];
 
@@ -52,12 +73,30 @@ export default function AssessmentsPage() {
               </span>
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)]">
-              This is the engine behind the scored shortlist. Candidates rate
-              short, plain-language statements on a 5-point scale — about five
-              minutes on a phone, plus a quick motivation screener. Here&apos;s
-              what it measures, how results come back, and why it&apos;s hard
-              to game.
+              This is the engine behind the scored shortlist. Every applicant
+              rates short, plain-language statements on their phone — about
+              five minutes, plus a quick motivation screener. Here&apos;s what
+              it measures, why it matters on a shift, and how to read what
+              comes back.
             </p>
+          </div>
+        </section>
+
+        <section className="px-4 sm:px-6 py-12">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-black tracking-tight">
+              What five minutes surfaces that a resume can&apos;t.
+            </h2>
+            <div className="mt-6 grid sm:grid-cols-2 gap-4">
+              {PAINS.map((p) => (
+                <div key={p.t} className="card">
+                  <h3 className="font-extrabold">{p.t}</h3>
+                  <p className="text-[color:var(--brand-ink-muted)] mt-1 text-[15px] leading-relaxed">
+                    {p.b}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -90,12 +129,12 @@ export default function AssessmentsPage() {
         <section className="px-4 sm:px-6 py-16">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-              Four categories.
+              Four categories — each one on an actual shift.
             </h2>
             <p className="mt-3 text-lg text-[color:var(--brand-ink-muted)]">
-              Every statement feeds one of four categories — the qualities
-              that matter in restaurant work — reported as plain Low / Mid /
-              High bands.
+              Every statement feeds one of four categories — reported as
+              plain Low / Mid / High bands. Here&apos;s what each looks like
+              on a shift:
             </p>
             <div className="mt-8 grid sm:grid-cols-2 gap-4">
               {CATEGORIES.map((t) => (
@@ -108,14 +147,13 @@ export default function AssessmentsPage() {
               ))}
             </div>
             <p className="mt-6 text-sm text-[color:var(--brand-ink-muted)]">
-              A separate 5-item motivation screener captures past attendance,
-              goals, and tenure expectation — reported as flags to raise in
+              A separate five-item motivation screener captures past
+              attendance, goals, and tenure expectation — flags to raise in
               the interview, not a score. QDXone is a personality-based
               assessment built for restaurant work: job-relevant behaviors,
-              not personality types. The framework is built on validated
-              personality and motivation research and reviewed by a
-              credentialed I/O psychologist. No candidate is ever
-              auto-rejected — a person makes every hiring decision.
+              not personality types. The framework builds on established
+              personality and motivation research and was reviewed by a
+              credentialed I/O psychologist.
             </p>
           </div>
         </section>
@@ -126,21 +164,20 @@ export default function AssessmentsPage() {
               Bands, not black boxes.
             </h2>
             <p className="mt-3 text-[color:var(--brand-ink-muted)]">
-              Answers across many statements are combined into a Low / Mid /
-              High band per category — never a single magic number, and never
-              a pass/fail. Bands are deliberately coarse: these measures
-              aren&apos;t precise to the decimal, and coarse bands keep small
-              differences from being over-read.
+              Answers across many statements combine into a Low / Mid / High
+              band per category — no single item determines a band, and no
+              single magic number comes out. Bands are deliberately coarse:
+              these measures aren&apos;t precise to the decimal, and coarse
+              bands keep small differences from being over-read.
             </p>
             <p className="mt-3 text-[color:var(--brand-ink-muted)]">
-              Gaming is harder than it looks. There&apos;s no obvious
-              &ldquo;right&rdquo; answer pattern across the set, and quiet
+              Can it be gamed? No assessment is game-proof, and we won&apos;t
+              pretend otherwise. But faking a consistent story across many
+              statements is harder than nailing one interview answer, and
               quality checks — attention items and response-time flags — mark
-              results that look rushed or inattentive, so you can weigh them
-              accordingly. And because the result is a starting point for an
-              interview with a person — not an automated decision — someone
-              who games their way to a band still has to back it up face to
-              face.
+              runs that look rushed or careless. The interview is where you
+              verify; the assessment tells you what to verify. It&apos;s one
+              input — you make every hiring decision.
             </p>
           </div>
         </section>
@@ -151,25 +188,11 @@ export default function AssessmentsPage() {
               You&apos;re in control.
             </h2>
             <p className="mt-3 text-[color:var(--brand-ink-muted)]">
-              The assessment is consistent for everyone, but the rest of the
-              hiring flow is yours to shape:
-            </p>
-            <ul className="mt-4 space-y-2 text-[15px]">
-              <li>✓ Define your own roles — whatever you call them.</li>
-              <li>
-                ✓ Choose which application fields are required, optional, or
-                hidden.
-              </li>
-              <li>✓ Auto-send the assessment, or review applications first.</li>
-              <li>
-                ✓ Your branding — applicants see your restaurant&apos;s name
-                and hiring page, not ours.
-              </li>
-            </ul>
-            <p className="mt-5 text-sm text-[color:var(--brand-ink-muted)] italic">
-              We deliberately don&apos;t publish the live item list or the
-              scoring weights — that would let candidates game the
-              assessment.
+              The assessment is consistent for everyone; the rest of the flow
+              is yours — your roles, your application fields, auto-send or
+              review-first, your branding. We deliberately don&apos;t publish
+              the live item list or scoring weights — that would hand
+              candidates the answer key.
             </p>
           </div>
         </section>
