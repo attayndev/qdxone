@@ -63,15 +63,47 @@ export function StoreMenu({
 
   return (
     <div className="relative" ref={ref}>
+      {/* The logo still toggles (muscle memory), but the labeled Menu pill
+          is the affordance non-technical users actually see. */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex items-center gap-2 cursor-pointer"
+        className="flex items-center gap-3 cursor-pointer group"
       >
         <BrandMark org={org} override={{ subtitle: "Admin" }} />
-        <span className="text-[color:var(--brand-ink-muted)] text-sm" aria-hidden>
-          ▾
+        <span
+          className={
+            "flex items-center gap-2 px-3.5 py-2 rounded-xl border-2 text-sm font-bold transition-colors " +
+            (open
+              ? "border-[color:var(--brand-blue)] bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)]"
+              : "border-[color:var(--brand-line)] bg-white shadow-[0_2px_0_var(--brand-line)] text-[color:var(--brand-ink)] group-hover:border-[color:var(--brand-blue)] group-hover:text-[color:var(--brand-blue-600)]")
+          }
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden
+            className="flex-shrink-0"
+          >
+            <path
+              d="M2 4h12M2 8h12M2 12h12"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+          Menu
+          <span
+            aria-hidden
+            className={
+              "text-xs transition-transform " + (open ? "rotate-180" : "")
+            }
+          >
+            ▾
+          </span>
         </span>
       </button>
 
