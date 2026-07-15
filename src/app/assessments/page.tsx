@@ -4,7 +4,7 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 export const metadata = {
   title: "Inside the five-minute assessment — QDXone",
   description:
-    "What QDXone's restaurant hiring assessment measures, how plain-English bands are produced, and what it surfaces before the interview — the engine behind the scored shortlist.",
+    "What QDXone's restaurant hiring assessment measures, how plain-English bands are produced, and what it surfaces before you spend an hour interviewing.",
 };
 
 // Illustrative items written for this page — deliberately NOT drawn from
@@ -25,7 +25,7 @@ const PAINS = [
   },
   {
     t: "Bristles at every correction.",
-    b: "Openness to coaching shows up in People Skills — so you know what to probe when you sit down.",
+    b: "Openness to coaching shows up in People Skills — you'll know what to probe.",
   },
   {
     t: "Never planned to stay past training.",
@@ -73,11 +73,11 @@ export default function AssessmentsPage() {
               </span>
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)]">
-              This is the engine behind the scored shortlist. Every applicant
-              rates short, plain-language statements on their phone — about
-              five minutes, plus a quick motivation screener. Here&apos;s what
-              it measures, why it matters on a shift, and how to read what
-              comes back.
+              You&apos;ve hired the great interview who stopped showing up by
+              week three. What decides that was never on the resume — so this
+              is where we measure it: five minutes on the applicant&apos;s
+              phone, before you commit your hour. Here&apos;s what it looks
+              for, and how to read it.
             </p>
           </div>
         </section>
@@ -89,9 +89,12 @@ export default function AssessmentsPage() {
             </h2>
             <div className="mt-6 grid sm:grid-cols-2 gap-4">
               {PAINS.map((p) => (
-                <div key={p.t} className="card">
-                  <h3 className="font-extrabold">{p.t}</h3>
-                  <p className="text-[color:var(--brand-ink-muted)] mt-1 text-[15px] leading-relaxed">
+                <div
+                  key={p.t}
+                  className="card border-l-4 border-l-[color:var(--brand-amber)]"
+                >
+                  <h3 className="font-black text-lg leading-snug">{p.t}</h3>
+                  <p className="text-[color:var(--brand-ink-muted)] mt-1.5 text-[15px] leading-relaxed">
                     {p.b}
                   </p>
                 </div>
@@ -103,10 +106,9 @@ export default function AssessmentsPage() {
         <section className="px-4 sm:px-6 py-10 bg-[color:var(--brand-cream)] border-y border-[color:var(--brand-line)]">
           <div className="max-w-4xl mx-auto">
             <p className="text-sm text-[color:var(--brand-ink-muted)] mb-4">
-              The examples below are written for this page — they show the
-              style and reading level, but they aren&apos;t drawn from the
-              live assessment, which uses a larger, rotating set of
-              statements.
+              These examples are written for this page — same style and
+              reading level, but not drawn from the live assessment, which
+              uses a larger, rotating set.
             </p>
             <div className="space-y-4">
               {SAMPLES.map((q, i) => (
@@ -132,9 +134,8 @@ export default function AssessmentsPage() {
               Four categories — each one on an actual shift.
             </h2>
             <p className="mt-3 text-lg text-[color:var(--brand-ink-muted)]">
-              Every statement feeds one of four categories — reported as
-              plain Low / Mid / High bands. Here&apos;s what each looks like
-              on a shift:
+              Every statement feeds one of four categories, reported as plain
+              Low / Mid / High bands — here&apos;s each on a shift:
             </p>
             <div className="mt-8 grid sm:grid-cols-2 gap-4">
               {CATEGORIES.map((t) => (
@@ -149,40 +150,24 @@ export default function AssessmentsPage() {
             <p className="mt-6 text-sm text-[color:var(--brand-ink-muted)]">
               A separate five-item motivation screener captures past
               attendance, goals, and tenure expectation — flags to raise in
-              the interview, not a score. QDXone is a personality-based
-              assessment built for restaurant work: job-relevant behaviors,
-              not personality types. The framework builds on established
-              personality and motivation research and was reviewed by a
-              credentialed I/O psychologist.
+              the interview, not a score.
             </p>
+
+            <div className="mt-6 card bg-[color:var(--brand-soft)] border-[color:var(--brand-blue)]/30">
+              <div className="text-xs uppercase tracking-wider text-[color:var(--brand-blue-600)] font-semibold">
+                The foundation
+              </div>
+              <p className="mt-1.5 text-[15px] leading-relaxed">
+                Job-relevant behaviors and motivation — not personality types
+                or labels. Built on established personality and motivation
+                research; framework reviewed by a credentialed I/O
+                psychologist.
+              </p>
+            </div>
           </div>
         </section>
 
-        <section className="px-4 sm:px-6 py-16 bg-[color:var(--brand-cream)] border-y border-[color:var(--brand-line)]">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Bands, not black boxes.
-            </h2>
-            <p className="mt-3 text-[color:var(--brand-ink-muted)]">
-              Answers across many statements combine into a Low / Mid / High
-              band per category — no single item determines a band, and no
-              single magic number comes out. Bands are deliberately coarse:
-              these measures aren&apos;t precise to the decimal, and coarse
-              bands keep small differences from being over-read.
-            </p>
-            <p className="mt-3 text-[color:var(--brand-ink-muted)]">
-              Can it be gamed? No assessment is game-proof, and we won&apos;t
-              pretend otherwise. But faking a consistent story across many
-              statements is harder than nailing one interview answer, and
-              quality checks — attention items and response-time flags — mark
-              runs that look rushed or careless. The interview is where you
-              verify; the assessment tells you what to verify. It&apos;s one
-              input — you make every hiring decision.
-            </p>
-          </div>
-        </section>
-
-        <section className="px-4 sm:px-6 py-16">
+        <section className="px-4 sm:px-6 py-12">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
               You&apos;re in control.
@@ -197,11 +182,45 @@ export default function AssessmentsPage() {
           </div>
         </section>
 
+        <section className="px-4 sm:px-6 py-16 bg-[color:var(--brand-cream)] border-y border-[color:var(--brand-line)]">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+              Bands, not black boxes.
+            </h2>
+            <p className="mt-3 text-[color:var(--brand-ink-muted)]">
+              Answers across many statements combine into a Low / Mid / High
+              band per category — no single item determines a band. Bands are
+              deliberately coarse:
+              these measures aren&apos;t precise to the decimal, and coarse
+              bands keep small differences from being over-read.
+            </p>
+            <p className="mt-3 text-[color:var(--brand-ink-muted)]">
+              Can it be gamed? No assessment is game-proof, and we won&apos;t
+              pretend otherwise. But faking a consistent story across many
+              statements is harder than nailing one interview answer, and
+              quality checks — attention items and response-time flags — mark
+              rushed or careless runs. It&apos;s one input — you make every
+              hiring decision.
+            </p>
+            <p className="mt-8 text-2xl sm:text-3xl font-black tracking-tight leading-snug text-center">
+              The interview is where you verify.
+              <br />
+              <span className="text-[color:var(--brand-blue)]">
+                The assessment tells you what to verify.
+              </span>
+            </p>
+          </div>
+        </section>
+
         <section className="px-4 sm:px-6 py-12 bg-[color:var(--brand-ink)] text-white">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-              See it on a real candidate.
+              Spend your interview hour where it counts.
             </h2>
+            <p className="mt-4 text-white/80 max-w-xl mx-auto">
+              Five minutes from every applicant — so your time goes to the
+              people most ready to join the shift.
+            </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/signup" className="btn-primary">
                 Start free
