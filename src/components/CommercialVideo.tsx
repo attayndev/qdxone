@@ -1,15 +1,17 @@
 /**
  * The QDXone commercial, self-hosted on Cloudflare R2 and served by the Worker
- * at /media/qdxone.mp4 (Range-enabled, edge-cached). `preload="metadata"` keeps
+ * at /media/* (Range-enabled, edge-cached). `preload="metadata"` keeps
  * the page light — only a few KB of headers load until the visitor hits play —
  * so it doesn't compete with the hero CTA. No third-party embed, no cookies.
+ * NOTE: /media/* is cached immutable for a year — replacing a video means
+ * uploading under a NEW key and updating the src, never overwriting the key.
  */
 
 export function CommercialVideo({
   heading,
   sub,
   className = "",
-  src = "/media/qdxone.mp4",
+  src = "/media/shift-ready-hiring.mp4",
 }: {
   heading?: string;
   sub?: string;
