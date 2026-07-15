@@ -1,8 +1,15 @@
 # QDXone 15-second film — "What a resume can't show you"
 
-The commercial on the qdx.one front page (R2 key `shift-ready-hiring.mp4`,
-served at `/media/shift-ready-hiring.mp4`). Yan's creative brief + generation
-prompt (Seedance 2.0), kept for future cuts and channel versions.
+The commercial on the qdx.one front page (R2 key `shift-ready-hiring-v2.mp4`,
+served at `/media/shift-ready-hiring-v2.mp4`). Yan's creative brief +
+generation prompt (Seedance 2.0), kept for future cuts and channel versions.
+
+**v2 (live):** closing QDXone end card added in post — crossfade starts at
+12.6s (0.6s) into a brand card (three-bar mark, QDXone wordmark, Shift-Ready
+Hiring™ tagline, cream #fbfaf7) while the final voiceover lands; runtime
+stays 15.07s, audio untouched. Card generator: Pillow script (HelveticaNeue
+Bold + stroke ≈ font-black); composite: ffmpeg overlay with alpha fade.
+`shift-ready-hiring.mp4` (v1, no end card) remains in R2 as the clean master.
 
 **Site presentation:** heading "What a resume can't show you." · sub "A
 15-second film about the small moments that reveal who's shift-ready."
