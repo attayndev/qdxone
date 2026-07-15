@@ -13,7 +13,10 @@ export default function ApexLanding() {
       <ApexHeader active="/" />
       <main className="flex-1">
         <Hero />
-        <CommercialVideo heading="See QDXone in 15 seconds" />
+        <CommercialVideo
+          heading="What a resume can't show you."
+          sub="A 15-second film about the small moments that reveal who's shift-ready."
+        />
         <VolumeTrap />
         <HowItWorks />
         <WhatWeMeasure />
