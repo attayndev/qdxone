@@ -84,3 +84,10 @@ text. Final frame stays visually clean for the QDXone logo in post.
 **Ops note:** `/media/*` is edge-cached immutable for one year — a new cut
 must be uploaded under a NEW R2 key (`wrangler r2 object put qdxone-media/…
 --remote`) and the `src` updated in `CommercialVideo`.
+
+## Companion film: origin story (about page)
+
+`origin-story.mp4` (864×496, 15.07s) on `/about` — Yan's origin-story film
+with the same end-card treatment (identical card PNG, crossfade at 12.6s).
+Source master: Yan's Downloads / "qdx one orgin story.mp4". The old
+about-page video key `how-it-works.mp4` remains in R2, now unused.
