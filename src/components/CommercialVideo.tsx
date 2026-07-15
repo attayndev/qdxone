@@ -11,7 +11,7 @@ export function CommercialVideo({
   heading,
   sub,
   className = "",
-  src = "/media/shift-ready-hiring.mp4",
+  src = "/media/shift-ready-hiring-v2.mp4",
 }: {
   heading?: string;
   sub?: string;
