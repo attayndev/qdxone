@@ -4,7 +4,7 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 export const metadata = {
   title: "QDXone for multi-unit & franchise restaurants",
   description:
-    "Shift-Ready Hiring across every location: every applicant assessed, one scored shortlist logic, so a strong candidate at one restaurant looks strong at all of them.",
+    "Shift-Ready Hiring across every location: every applicant assessed, the same plain-English bands at every store, so a strong candidate at one restaurant looks strong at all of them.",
 };
 
 export default function ForMultiUnitPage() {
@@ -27,9 +27,8 @@ export default function ForMultiUnitPage() {
               The Applicant Volume Trap compounds across locations: every store
               collects applications, and every manager sorts them differently.
               QDXone gives every location the same hiring page, the same
-              five-minute assessment, and the same scoring — so a strong
-              candidate at one restaurant looks strong at all of them, and
-              every manager starts with who to call first.
+              five-minute assessment, and the same bands — so a strong
+              candidate at one restaurant looks strong at all of them.
             </p>
           </div>
         </section>
@@ -59,11 +58,11 @@ export default function ForMultiUnitPage() {
               />
               <Bullet
                 title="Hiring quality stops being a personality lottery."
-                body="Different locations, different managers, different instincts. QDXone gives every restaurant the same scored signal so the bar doesn't drift store to store."
+                body="Different locations, different managers, different instincts. QDXone gives every restaurant the same bands so the bar doesn't drift store to store."
               />
               <Bullet
-                title="A fairer, more defensible process."
-                body="The same assessment for everyone, clear Low/Medium/High ratings instead of gut calls, and built-in fairness checks. No applicant is ever turned down by the system — the ratings support your managers, they don't overrule them."
+                title="A consistent process you can stand behind."
+                body="The same assessment for everyone, plain Low/Mid/High bands instead of gut calls, and built-in checks that flag if any group is being screened out at a lower rate. No applicant is ever turned down by the system — a person makes every hiring decision."
               />
               <Bullet
                 title="Hire the behaviors guests notice."
@@ -72,6 +71,11 @@ export default function ForMultiUnitPage() {
             </ul>
           </div>
         </section>
+
+        {/* [HIDDEN UNTIL ASSET EXISTS — PROOF: MULTI-LOCATION OPERATOR]
+            Case block (locations count, applicants assessed, operator's own
+            words) goes here. Spec: docs/site-strengthening/06-for-qsr.md +
+            appendix-b #1. */}
 
         <section className="px-4 sm:px-6 py-12 bg-[color:var(--brand-ink)] text-white">
           <div className="max-w-3xl mx-auto text-center">

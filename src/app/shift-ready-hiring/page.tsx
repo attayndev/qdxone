@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "What is Shift-Ready Hiring™? — QDXone",
+  title: "What is Shift-Ready Hiring? — QDXone",
   description:
-    "Shift-Ready Hiring is a different way to hire hourly restaurant staff: every applicant assessed on job-relevant qualities, scored, and ranked — so operators know who to call first.",
+    "Shift-Ready Hiring is a different way to hire hourly restaurant staff: every applicant assessed on job-relevant qualities and scored into plain-English bands — so operators know who to call first.",
 };
 
 export default function ShiftReadyHiringPage() {
@@ -19,7 +19,7 @@ export default function ShiftReadyHiringPage() {
               The category
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
-              What is Shift-Ready Hiring™?
+              What is Shift-Ready Hiring?
             </h1>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)] leading-relaxed">
               <strong className="text-[color:var(--brand-ink)]">
@@ -33,7 +33,7 @@ export default function ShiftReadyHiringPage() {
             <p className="mt-4 text-lg text-[color:var(--brand-ink-muted)] leading-relaxed">
               It doesn&apos;t replace job boards, and it doesn&apos;t replace
               the interview. It answers the question that sits between them:{" "}
-              <em>who deserves my attention first?</em>
+              <em>who should I call first?</em>
             </p>
           </div>
         </section>
@@ -57,7 +57,7 @@ export default function ShiftReadyHiringPage() {
                 applicants create more sorting, more screening calls, and more
                 interviews — without necessarily creating better hires. The
                 pile gets taller. The signal doesn&apos;t get stronger. And
-                the operator is still left deciding who deserves an interview,
+                the operator is still the one choosing whom to interview,
                 usually between rushes.
               </p>
             </div>
@@ -73,10 +73,10 @@ export default function ShiftReadyHiringPage() {
             <p className="mt-4 text-[17px] text-[color:var(--brand-ink-muted)] leading-relaxed">
               A resume records where someone has been. For office careers,
               that history carries real information. For hourly restaurant
-              work, the qualities that decide whether a hire works out —
-              showing up on time, staying calm when the line is out the door,
-              taking feedback, doing what needs doing without being told —
-              rarely appear on paper at all. Many strong candidates are on
+              work, the qualities that matter most — showing up on time,
+              staying calm when the line is out the door, taking feedback,
+              doing what needs doing without being told — rarely appear on
+              paper at all. Many strong candidates are on
               their first job, or bring experience from school, caregiving, or
               a different industry entirely.
             </p>
@@ -124,22 +124,22 @@ export default function ShiftReadyHiringPage() {
               />
               <Principle
                 t="Score, don't filter."
-                b="Nobody is auto-rejected. QDXone evaluates job-relevant signals and ranks the list; it never makes the hiring decision for you."
+                b="Nobody is auto-rejected. QDXone scores every applicant into plain-English bands; a person on your team makes every hiring decision."
               />
               <Principle
                 t="Behavior beats biography."
-                b="Evaluate what someone is likely to do on a shift — not where they've worked before. First-job candidates get a fair read."
+                b="Assess what someone is likely to do on a shift — not where they've worked before. First-job candidates get a fair read."
               />
               <Principle
                 t="Plain language, human judgment."
-                b="Operators see simple bands and flags, not black-box numbers — decision support for the person who still makes every call."
+                b="Operators see simple bands and flags, not black-box numbers — a clearer starting point for the person who still makes every call."
               />
             </div>
             <p className="mt-6 text-sm text-[color:var(--brand-ink-muted)]">
-              Fairness is part of the design: consistent questions for
-              everyone, ratings instead of exact-looking scores, and built-in
-              checks that flag if any group is being screened out at a lower
-              rate.
+              Consistency is part of the design: the same questions for
+              everyone, bands instead of exact-looking scores, an optional
+              demographic question visible only in aggregate, and monitoring
+              that flags if any group is being screened out at a lower rate.
             </p>
           </div>
         </section>

@@ -3,9 +3,9 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 import { ROOT_DOMAIN } from "@/lib/host";
 
 export const metadata = {
-  title: "How Shift-Ready Hiring™ works — QDXone",
+  title: "How Shift-Ready Hiring works — QDXone",
   description:
-    "Post a role, every applicant completes a mobile application and a five-minute assessment, and you get a scored shortlist — so you know who to call first.",
+    "Post a role, every applicant completes a mobile application and a five-minute assessment, and you get a scored shortlist as your starting point — so you know who to call first.",
 };
 
 export default function HowItWorksPage() {
@@ -16,7 +16,7 @@ export default function HowItWorksPage() {
         <section className="px-4 sm:px-6 pt-12 pb-10">
           <div className="max-w-3xl mx-auto">
             <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] mb-4">
-              How Shift-Ready Hiring™ works
+              How Shift-Ready Hiring works
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
               Post a role. Get a scored shortlist.
@@ -25,7 +25,7 @@ export default function HowItWorksPage() {
               QDXone is the hiring page, the application, and the five-minute
               assessment. Candidates apply from their phone, every applicant
               gets assessed, and you start from a shortlist instead of an
-              inbox — knowing who to call first.
+              inbox.
             </p>
           </div>
         </section>
@@ -41,15 +41,20 @@ export default function HowItWorksPage() {
             <Step
               n="2"
               title="They apply and take a 5-minute assessment"
-              body="A short, mobile-first application, then a 5-minute assessment — plain-language statements rated on a 5-point scale, written at a 6th-grade reading level. No login, no download. About 8 minutes total, and they can pick up where they left off for 72 hours."
+              body="A short, mobile-first application, then a five-minute assessment — plain-language statements rated on a 5-point scale, written at an everyday reading level. No login, no download. About 8 minutes total, and they can pick up where they left off for 72 hours."
               detail="Quiet quality checks (attention items, response timing) keep the results trustworthy."
             />
             <Step
               n="3"
               title="You get a scored shortlist"
-              body="Each candidate comes back with verbal bands across four categories — Reliability & Drive, People Skills, Ownership, Composure — an overall fit recommendation (Strong fit, Consider, Caution, Not recommended), and screener flags like past attendance and tenure expectation."
-              detail="Bands, not black-box numbers. Recommendations are decision support — you make every call."
+              body="Each candidate comes back with plain Low / Mid / High bands across four categories — Reliability & Drive, People Skills, Ownership, Composure — plus motivation-screener flags like past attendance and tenure expectation, so you know what to ask about before you meet them."
+              detail="Bands, not black-box numbers. A person on your team makes every hiring decision."
             />
+            {/* [HIDDEN UNTIL ASSET EXISTS — SCREENSHOT PLACEHOLDER:
+                CANDIDATE DETAIL] Single-candidate report screenshot goes
+                here (bands, one flag, text/schedule buttons; no numeric
+                scores, no "recommended" language). Spec + caption:
+                docs/site-strengthening/02-how-it-works.md. */}
             <Step
               n="4"
               title="Invite your top pick to interview"
@@ -68,8 +73,7 @@ export default function HowItWorksPage() {
               <li>❌ Read 40 resumes that all say the same thing.</li>
               <li>❌ Sort an inbox by gut feel between rushes.</li>
               <li>❌ Burn 20 minutes on someone who was never going to show.</li>
-              <li>❌ Start the interview with zero idea what to ask about.</li>
-              <li>❌ Auto-reject anyone — QDXone recommends, you decide.</li>
+              <li>❌ Auto-reject anyone — every decision is yours.</li>
             </ul>
           </div>
         </section>
@@ -93,7 +97,7 @@ export default function HowItWorksPage() {
                 href="/assessments"
                 className="btn-ghost !text-white !border-white hover:!bg-white hover:!text-[color:var(--brand-ink)]"
               >
-                Sample Questions
+                Sample questions
               </Link>
             </div>
           </div>

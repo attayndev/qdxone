@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "QDXone pricing — Shift-Ready Hiring™ per location",
+  title: "QDXone pricing — Shift-Ready Hiring per location",
   description:
     "Flat per-location pricing with unlimited assessments — every applicant assessed and scored. Solo $59/location, Operator $79/location for multi-store, Enterprise for brands. 30-day free trial.",
 };
@@ -19,7 +19,7 @@ export default function PricingPage() {
           </h1>
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
             <strong>Unlimited assessments on every plan</strong> — Shift-Ready
-            Hiring™ only works if every applicant gets assessed, so we never
+            Hiring only works if every applicant gets assessed, so we never
             cap it. Flat rate per location, no per-assessment fees; Operator adds
             the multi-store power tools. 30-day free trial.
           </p>
@@ -73,8 +73,8 @@ const SOLO_FEATURES = [
   "Unlimited assessments",
   "Your own hiring page + QR codes",
   "Custom application form & roles",
-  "Five-minute assessment + Low/Medium/High ratings",
-  "Scored shortlist — know who to call first",
+  "Five-minute assessment + Low/Mid/High bands",
+  "A scored shortlist as your starting point",
   "Benchmark against your own crew",
   "Basic fairness checks",
   "Interview scheduling — candidates self-book",
@@ -83,7 +83,7 @@ const SOLO_FEATURES = [
 
 const OPERATOR_FEATURES = [
   "Manage every location from one login",
-  "One hiring page + ranked list across stores",
+  "One hiring page + one shortlist across stores",
   "SMS notifications + candidate texting",
   "AI-written job posts",
   "Reports that compare your stores",
@@ -165,9 +165,6 @@ function EnterpriseCard() {
       <h3 className="text-2xl font-black tracking-tight">Enterprise</h3>
       <div className="mt-3 flex items-baseline gap-2">
         <span className="text-3xl font-black">Let&apos;s talk</span>
-      </div>
-      <div className="mt-1 text-xs text-[color:var(--brand-ink-muted)]">
-        $2,500/mo floor · better unit economics at scale
       </div>
       <div className="mt-2 text-sm text-[color:var(--brand-ink-muted)]">
         For brands, groups & multi-brand operators

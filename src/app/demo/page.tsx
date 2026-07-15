@@ -4,7 +4,7 @@ import DemoForm from "@/components/DemoForm";
 export const metadata = {
   title: "Book a 15-min QDXone demo",
   description:
-    "See the scored shortlist on a real candidate. A quick Shift-Ready Hiring walkthrough for restaurant operators — multi-unit, fast-casual, and independent.",
+    "See a scored shortlist on realistic candidates. A quick Shift-Ready Hiring walkthrough for restaurant operators — multi-unit, fast-casual, and independent.",
 };
 
 export default function DemoPage() {
@@ -27,8 +27,8 @@ export default function DemoPage() {
               <p className="mt-5 text-[color:var(--brand-ink-muted)] text-lg">
                 Tell me about your shop and the hiring pain you&apos;re
                 trying to solve. I&apos;ll show you a scored shortlist and a
-                real candidate report, and we&apos;ll figure out together
-                whether QDXone makes sense for your situation.
+                candidate report from the demo org, and we&apos;ll figure out
+                together whether QDXone makes sense for your situation.
               </p>
               <ul className="mt-6 space-y-2 text-[15px]">
                 <li>✓ Walkthrough of the assessment + report</li>

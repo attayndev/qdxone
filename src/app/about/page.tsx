@@ -117,7 +117,7 @@ export default function AboutPage() {
               />
               <Principle
                 t="Honest signal, not a black box."
-                b="Operators see plain-English bands and flags, and why a candidate landed where they did. Recommendations support your call — they never auto-reject anyone. No vibes-based AI shrouded in mystery."
+                b="Operators see plain-English bands and flags, and why a candidate landed where they did. The bands support your call — they never auto-reject anyone. No vibes-based AI shrouded in mystery."
               />
               <Principle
                 t="Built in a real shop, tested in real shops."

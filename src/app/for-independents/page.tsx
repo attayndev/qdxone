@@ -4,7 +4,7 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 export const metadata = {
   title: "QDXone for independent & owner-operated restaurants",
   description:
-    "When you don't have HR, you have an inbox and a gut feeling. QDXone assesses every applicant and hands you a scored shortlist — so you know who to call first.",
+    "When you don't have HR, you have an inbox and a gut feeling. QDXone assesses every applicant and hands you a scored shortlist as your starting point.",
 };
 
 export default function ForIndependentsPage() {
@@ -68,8 +68,7 @@ export default function ForIndependentsPage() {
               <Bullet>
                 <strong>Post once, assess on autopilot.</strong> Share a link
                 or QR code. Candidates apply and take a five-minute assessment
-                on their phone — you just open the scored shortlist and know
-                who to call first.
+                on their phone — you just open the scored shortlist.
               </Bullet>
               <Bullet>
                 <strong>Works for part-time and full-time hires.</strong> Plain
@@ -85,8 +84,8 @@ export default function ForIndependentsPage() {
               </Bullet>
               <Bullet>
                 <strong>Your brand, not ours.</strong>&nbsp;The applicant sees your
-                restaurant&apos;s name and your wording. The scoring behind the
-                scenes is yours alone — and nobody gets auto-rejected.
+                restaurant&apos;s name and your wording. And nobody gets
+                auto-rejected — every decision is yours.
               </Bullet>
             </ul>
           </div>
