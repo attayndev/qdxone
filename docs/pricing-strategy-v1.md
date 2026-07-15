@@ -1,7 +1,21 @@
 # QDX One — Pricing Strategy v1
 
-**Last updated:** 2026-06-15
+**Last updated:** 2026-07-15
 **Status:** Live model below. `src/lib/plan.ts` is the source of truth.
+
+> **Pricing update (2026-07-15) — Operator goes graduated: $79 + $50 per
+> additional location.** Supersedes the flat $79/location below. Solo stays
+> $59 (1 location). Operator: **$79/mo for the first location, $50/mo for
+> each additional** (annual = 10× / 2 months free). Yan's rationale: each
+> location is worth $50; the $29 premium on the first is the platform fee —
+> **unification (one login), SMS + candidate texting, and multi-location
+> management**. Math vs separate Solos: 2 loc $129 vs $118, 3 loc $179 vs
+> $177, 4 loc $229 vs $236 (cheaper from 4 on) — the pitch stays
+> tools-first, not price-first. Stripe implementation: ONE graduated-tier
+> price (tier 1 → $79, 2+ → $50), quantity = location count, so the
+> existing quantity-sync code is unchanged; new price IDs still need to be
+> created in Stripe and pointed at by `STRIPE_PRICE_OPERATOR_{MONTHLY,ANNUAL}`
+> (see TODO in `src/lib/stripe.ts`). Site copy updated 2026-07-15.
 
 > **Pricing update (2026-06-15) — UNLIMITED assessments, feature-differentiated.**
 > This supersedes everything below. The model is now dead simple: a **flat

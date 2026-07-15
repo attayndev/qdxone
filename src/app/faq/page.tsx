@@ -150,12 +150,16 @@ const SECTIONS: Section[] = [
                 your scored shortlist.
               </li>
               <li>
-                <strong>Operator — $79 a month per store</strong> (or $790 a
-                year). Two or more stores, 2 logins plus 1 per store,{" "}
-                <strong>unlimited assessments</strong>. Everything in Solo plus
-                one login across all stores, a shared hiring page and
-                shortlist, SMS notifications and candidate texting, AI-written
-                job posts, and reports that compare your stores.
+                <strong>
+                  Operator — $79 a month plus $50 for each additional
+                  location
+                </strong>{" "}
+                (two months free paid yearly). Two or more stores, 2 logins
+                plus 1 per store, <strong>unlimited assessments</strong>.
+                Everything in Solo plus one login across all stores, a shared
+                hiring page and shortlist, SMS notifications and candidate
+                texting, AI-written job posts, and reports that compare your
+                stores.
               </li>
               <li>
                 <strong>Enterprise — let&apos;s talk.</strong> For brands and
@@ -174,7 +178,7 @@ const SECTIONS: Section[] = [
       },
       {
         q: "When should I use Operator instead of separate Solo accounts?",
-        a: "As soon as you run a second store. You could run a Solo account per store at $59 each — but each one stands alone. Operator ($79 per location) puts every store under one login: one hiring page, one shortlist across stores, reports that compare them, SMS + candidate texting, and AI-written job posts. Separate accounts are a little cheaper per store; Operator runs all your stores from one place.",
+        a: "As soon as you run a second store. Operator is $79 for your first location and $50 for each additional one. The $29 over a Solo store is the multi-location toolkit: one login for every store, one hiring page and shortlist across them, SMS + candidate texting, AI-written job posts, and cross-store reports. Do the math and it's close to separate Solo accounts at two stores — and cheaper from four on — but the real difference is running everything from one place instead of juggling logins.",
       },
       {
         q: "Can my managers each have their own login?",

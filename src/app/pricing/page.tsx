@@ -4,7 +4,7 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 export const metadata = {
   title: "QDXone pricing — Shift-Ready Hiring per location",
   description:
-    "Flat per-location pricing with unlimited assessments — every applicant assessed and scored. Solo $59/location, Operator $79/location for multi-store, Enterprise for brands. 30-day free trial.",
+    "Simple pricing with unlimited assessments — every applicant assessed and scored. Solo $59/mo. Operator $79/mo plus $50 per additional location. Enterprise for brands. 30-day free trial.",
 };
 
 export default function PricingPage() {
@@ -37,12 +37,12 @@ export default function PricingPage() {
             <PlanCard
               name="Operator"
               priceLine="$79"
-              priceSub="/mo per location"
-              annualNote="or $790/yr (2 months free)"
+              priceSub="/mo + $50 per additional location"
+              annualNote="2 months free when you pay yearly"
               meta="2+ locations · 2 + 1/location users"
               tagline="Everything in Solo, plus:"
               features={OPERATOR_FEATURES}
-              note="No separate signup — start free, add your locations, and you move to Operator automatically (billed $79 per location)."
+              note="The $29 over a Solo store buys the multi-location toolkit — one login for every store, SMS + candidate texting, cross-store reporting. Each additional location is $50. No separate signup: start free, add locations, and you move to Operator automatically."
               highlight
             />
             <EnterpriseCard />

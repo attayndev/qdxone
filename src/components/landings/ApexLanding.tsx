@@ -405,8 +405,8 @@ function PricingPeek() {
           with SMS, AI-written job posts, and cross-store reporting.
         </p>
         <div className="mt-8 grid sm:grid-cols-3 gap-4 text-left">
-          <PricePeek name="Solo" price={59} quota="1 location · unlimited assessments" />
-          <PricePeek name="Operator" price={79} quota="2+ locations · unlimited assessments" highlight />
+          <PricePeek name="Solo" price={59} priceSub="/mo · 1 location" quota="Unlimited assessments" />
+          <PricePeek name="Operator" price={79} priceSub="/mo + $50 per added location" quota="Unlimited assessments" highlight />
           <PricePeek name="Enterprise" price="Let's talk" quota="For brands & multi-location groups" />
         </div>
         <div className="mt-7">
@@ -426,11 +426,13 @@ function PricingPeek() {
 function PricePeek({
   name,
   price,
+  priceSub,
   quota,
   highlight,
 }: {
   name: string;
   price: number | string;
+  priceSub?: string;
   quota: string;
   highlight?: boolean;
 }) {
@@ -453,9 +455,9 @@ function PricePeek({
         <span className="text-3xl font-black">
           {typeof price === "number" ? `$${price}` : price}
         </span>
-        {typeof price === "number" && (
+        {priceSub && (
           <span className="text-[color:var(--brand-ink-muted)] text-sm">
-            /mo per location
+            {priceSub}
           </span>
         )}
       </div>

@@ -15,15 +15,20 @@ export function stripe(): Stripe {
 export type { PaidPlan };
 
 type PlanPrices = {
-  monthly?: string; // flat base price, billed monthly ($59 / $79 per location)
-  annual?: string; //  flat base price, billed yearly  (2 months free)
+  monthly?: string; // base price, billed monthly
+  annual?: string; //  base price, billed yearly (2 months free)
 };
 
 /**
- * Stripe Price IDs per self-serve tier — a flat per-location base price, monthly
- * and annual. Assessments are unlimited (no metered/overage prices, no meter).
- * Solo bills quantity 1; Operator bills quantity = location count. A Checkout
- * subscription is just the one base price. Enterprise is never self-serve.
+ * Stripe Price IDs per self-serve tier. Assessments are unlimited (no
+ * metered/overage prices, no meter). Solo: flat $59, quantity 1. Operator:
+ * a GRADUATED-TIER price — first unit (location) $79, every additional unit
+ * $50 — billed with quantity = location count, so the existing quantity-sync
+ * logic needs no change. Annual mirrors it at 10× (2 months free).
+ * TODO(stripe-phase): create the graduated Operator prices in Stripe and
+ * point STRIPE_PRICE_OPERATOR_{MONTHLY,ANNUAL} at them (tiers: up_to 1 →
+ * $79/$790, inf → $50/$500). Until then Stripe still bills the old flat
+ * $79/location. Enterprise is never self-serve.
  */
 export const PLAN_PRICES: Record<PaidPlan, PlanPrices> = {
   solo: {

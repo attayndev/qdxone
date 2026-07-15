@@ -9,8 +9,9 @@ import { orgUrl } from "./tenancy";
  * subscription on the chosen billing cycle (monthly or annual = 2 months free)
  * with a 30-day trial; the card is captured at checkout
  * (`payment_method_collection: 'always'`) and auto-charges when the trial ends.
- * Just one flat base price — assessments are unlimited (no overage). Solo bills
- * quantity 1; Operator bills quantity = `locations` ($79 each).
+ * Just one base price — assessments are unlimited (no overage). Solo bills
+ * quantity 1; Operator bills quantity = `locations` against a graduated
+ * price ($79 first location, $50 each additional — see stripe.ts TODO).
  */
 export async function createCheckoutSessionForOrg(args: {
   orgId: string;
@@ -46,7 +47,8 @@ export async function createCheckoutSessionForOrg(args: {
   const successUrl = orgUrl(args.orgSlug, "/admin/billing?success=1");
   const cancelUrl = orgUrl(args.orgSlug, "/admin/billing?canceled=1");
 
-  // One flat base price. Solo qty 1; Operator qty = location count ($79 each).
+  // One base price. Solo qty 1; Operator qty = location count (graduated:
+  // $79 first location, $50 each additional).
   const baseQty = args.plan === "operator" ? Math.max(2, args.locations) : 1;
   const lineItems = [{ price: basePriceFor(args.plan, args.cycle), quantity: baseQty }];
 
