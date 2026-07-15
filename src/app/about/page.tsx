@@ -28,7 +28,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <CommercialVideo src="/media/how-it-works.mp4" />
+        <CommercialVideo src="/media/origin-story.mp4" />
 
         <section className="px-4 sm:px-6 py-8">
           <div className="max-w-3xl mx-auto space-y-5 text-[17px] leading-relaxed">
