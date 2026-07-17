@@ -17,6 +17,15 @@ export type { PlanTier, BillingCycle };
 /** Free-trial length for new self-serve orgs, in days. */
 export const TRIAL_DAYS = 30;
 
+/**
+ * Beta posture: new orgs are created with NO trial end date (open-ended), so
+ * the billing gate in proxy.ts never locks a pilot out while Stripe conversion
+ * isn't live yet. Flip to false when paid billing goes live to resume the
+ * 30-day trial. (An org with trial_ends_at = null in 'trialing' status is
+ * never treated as lapsed.)
+ */
+export const BETA_NO_TRIAL_END = true;
+
 /** The two self-serve tiers (Enterprise is sales-led, never via Checkout). */
 export type PaidPlan = "solo" | "operator";
 

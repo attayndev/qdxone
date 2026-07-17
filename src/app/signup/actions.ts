@@ -5,7 +5,7 @@ import { adminClient } from "@/lib/supabase/admin";
 import { otpClient } from "@/lib/supabase/otp";
 import { ROOT_DOMAIN, isReservedSubdomain, orgUrl } from "@/lib/tenancy";
 import { apexUrl } from "@/lib/host";
-import { TRIAL_DAYS } from "@/lib/plan";
+import { TRIAL_DAYS, BETA_NO_TRIAL_END } from "@/lib/plan";
 import { TERMS_VERSION } from "@/lib/legal";
 import type { BillingCycle } from "@/lib/supabase/types";
 
@@ -78,12 +78,14 @@ export async function signup(
     return { ok: false, error: "That subdomain is taken.", field: "slug" };
   }
 
-  // Everyone gets a 30-day trial with a card captured at signup. New orgs start
-  // as Solo (1 location); tier/quota/seats are derived from plan + location
-  // count at read time (src/lib/plan), so nothing numeric is stored here.
-  const trialEnds = new Date(
-    Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000
-  ).toISOString();
+  // During beta, orgs are created with no trial end date (open-ended) so the
+  // billing gate never locks a pilot out before Stripe conversion is live.
+  // Post-beta (BETA_NO_TRIAL_END=false) this reverts to a 30-day trial with a
+  // card captured at signup. New orgs start as Solo (1 location); tier/seats
+  // are derived from plan + location count at read time (src/lib/plan).
+  const trialEnds = BETA_NO_TRIAL_END
+    ? null
+    : new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000).toISOString();
   const billingCycle: BillingCycle = v.cycle;
 
   const { data: org, error: oerr } = await supa

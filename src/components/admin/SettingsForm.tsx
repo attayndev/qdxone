@@ -96,7 +96,7 @@ export default function SettingsForm({ org }: { org: OrganizationRow }) {
           <input
             name="hero_copy_h1_post"
             className="input"
-            placeholder="Earn it."
+            placeholder="We'd love to meet you."
             defaultValue={b.hero_copy_h1_post ?? ""}
           />
         </div>

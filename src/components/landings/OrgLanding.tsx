@@ -20,8 +20,8 @@ export default async function OrgLanding({ org }: { org: OrganizationRow }) {
   const b = org.branding;
   const eyebrow =
     b.hero_copy_eyebrow ?? `Now hiring · ${b.location_subtitle ?? org.name}`;
-  const h1Pre = b.hero_copy_h1_pre ?? "Join the team.";
-  const h1Post = b.hero_copy_h1_post ?? "Earn it.";
+  const h1Pre = b.hero_copy_h1_pre ?? "Come join the team.";
+  const h1Post = b.hero_copy_h1_post ?? "We'd love to meet you.";
   const copy = careersCopy(b);
 
   const supa = adminClient();

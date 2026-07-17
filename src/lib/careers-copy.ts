@@ -18,50 +18,50 @@ export type CareersCopy = {
 };
 
 export const DEFAULT_SUBHEAD =
-  "We're picky about who joins the crew. Strong attitude beats fancy resume. Apply in a few minutes, right from your phone.";
+  "We hire for how you show up and how you treat people — not for a perfect resume. Take a few minutes to apply, right from your phone. We'd love to meet you.";
 
 export const DEFAULT_LOOK_FOR_INTRO =
-  "You don't need fancy work history. You need a strong attitude and the willingness to own your shift.";
+  "No long work history required — we can teach the job. Here's what we genuinely care about, and if it sounds like you, we'd love for you to apply.";
 
 export const DEFAULT_VALUES: CareersValue[] = [
   {
+    emoji: "⏰",
+    title: "You show up",
+    body: "When you say you'll be there, you're there — and your team knows they can count on you.",
+  },
+  {
     emoji: "💪",
-    title: "Ownership",
-    body: "When something goes wrong, you ask 'what was my part?' before 'whose fault is this?'",
+    title: "You take pride in it",
+    body: "You care how a shift turns out, and you own your part — the wins and the fixes.",
   },
   {
     emoji: "👂",
-    title: "Coachability",
-    body: "Feedback doesn't sting your ego — it sharpens you.",
-  },
-  {
-    emoji: "⏰",
-    title: "Reliability",
-    body: "If you say you'll be there, you're there — five minutes early.",
-  },
-  {
-    emoji: "📋",
-    title: "Respect for the rules",
-    body: "Even the ones you don't love.",
-  },
-  {
-    emoji: "🧹",
-    title: "Useful when it's slow",
-    body: "Empty store? You're already wiping, restocking, prepping.",
+    title: "You're open to learning",
+    body: "Feedback isn't a knock — it's how we all get a little better each day.",
   },
   {
     emoji: "😊",
-    title: "Customer-first attitude",
-    body: "When a guest is upset, you stay calm and make it right.",
+    title: "You're good with people",
+    body: "You stay warm and steady, and you can turn a guest's rough moment around.",
+  },
+  {
+    emoji: "🤝",
+    title: "You look out for the team",
+    body: "Slow moment? You're already pitching in — wiping down, restocking, getting ready for the rush.",
+  },
+  {
+    emoji: "✨",
+    title: "You sweat the details",
+    body: "The little things done right are what make a good shop a place people come back to.",
   },
 ];
 
 export const DEFAULT_ROLE_INTRO = "";
 
 export const DEFAULT_ROLE_POINTS = [
-  "Customer-facing. You'll be the face of the shop.",
-  "Cleaning, restocking, and prep — the unglamorous stuff that keeps a great shop great.",
-  "Teamwork, professionalism, and following the playbook.",
+  "You'll be the face of the shop — greeting guests and making their day a little better.",
+  "Keeping things clean, stocked, and ready — the work behind the scenes that keeps a great shop great.",
+  "Working shoulder to shoulder with a team that has your back.",
 ];
 
 /** Resolve the effective careers copy for an org, default-filling each field. */
