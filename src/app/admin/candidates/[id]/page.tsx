@@ -63,10 +63,11 @@ export default async function CandidateDetail({ params }: PageProps) {
     .eq("org_id", org.id)
     .maybeSingle();
   if (!app) notFound();
-  // decision columns added in migration 0012 — not in generated types yet.
+  // decision columns added in migrations 0012 + 0021 — not in generated types yet.
   const a = app as AppRow & {
     decision: string | null;
     decision_reason: string | null;
+    decision_notes: string | null;
     decision_at: string | null;
   };
   const currentDecision: Decision | null = isDecision(a.decision) ? a.decision : null;
@@ -300,6 +301,8 @@ export default async function CandidateDetail({ params }: PageProps) {
           applicationId={a.id}
           initialDecision={currentDecision}
           initialReason={a.decision_reason ?? ""}
+          initialNotes={a.decision_notes ?? ""}
+          reasonOptions={org.branding.decision_reasons ?? []}
           decidedLabel={
             a.decision_at
               ? `Recorded ${new Date(a.decision_at).toLocaleDateString()}`

@@ -63,6 +63,9 @@ export interface OrgBranding {
   roles?: string[];
   // Optional job description per role name.
   role_descriptions?: Record<string, string>;
+  // Operator-editable pick-list for the decision "Reason" dropdown. Any reason
+  // an operator types while recording a decision is appended here for reuse.
+  decision_reasons?: string[];
   // When false, applications don't auto-fire the assessment — the manager
   // reviews and sends it manually (filters joke applications). Default: auto.
   auto_send_assessment?: boolean;

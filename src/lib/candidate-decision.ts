@@ -17,3 +17,23 @@ export const DECISION_LABEL: Record<Decision, string> = {
 export function isDecision(v: string | null | undefined): v is Decision {
   return v === "hired" || v === "not_hired" || v === "declined";
 }
+
+/**
+ * Default pick-list for the decision "Reason" dropdown. Operators edit their
+ * own list — any reason they type is remembered for next time — so these are
+ * only the starting options for an org that hasn't customized.
+ */
+export const DEFAULT_DECISION_REASONS: string[] = [
+  "Too young",
+  "On their phone too much",
+  "Availability didn't fit",
+  "Attendance / reliability concerns",
+  "Roles already filled",
+  "No-show / didn't respond",
+  "Not the right fit",
+];
+
+/** Resolve an org's reason list, falling back to the defaults. */
+export function decisionReasons(orgReasons?: string[] | null): string[] {
+  return orgReasons && orgReasons.length ? orgReasons : DEFAULT_DECISION_REASONS;
+}

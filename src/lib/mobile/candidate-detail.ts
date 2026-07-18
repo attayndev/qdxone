@@ -18,7 +18,7 @@ import {
   type Band,
   type FlagTone,
 } from "@/lib/assessment/scoring";
-import { isDecision } from "@/lib/candidate-decision";
+import { isDecision, decisionReasons } from "@/lib/candidate-decision";
 import { listInterviewTypes } from "@/lib/scheduling/templates";
 import { getWeeklySchedule } from "@/lib/scheduling/availability-rules";
 import { applicationConfig } from "@/lib/application-config";
@@ -49,6 +49,8 @@ export interface MobileCandidateDetail {
   assessmentStatus: string | null;
   decision: string | null;
   decisionReason: string | null;
+  decisionNotes: string | null;
+  decisionReasonOptions: string[];
   decisionAt: string | null;
   interviewTypes: { id: string; name: string; durationMinutes: number }[];
   senderHasAvailability: boolean;
@@ -108,6 +110,7 @@ export async function getCandidateDetail(
     submitted_at: string;
     decision: string | null;
     decision_reason: string | null;
+    // decision_notes read via the Record index below (generated types stale).
     decision_at: string | null;
   };
 
@@ -254,8 +257,9 @@ export async function getCandidateDetail(
     .select("branding")
     .eq("id", orgId)
     .maybeSingle();
+  const orgBranding = (orgRow?.branding ?? null) as OrgBranding | null;
   const gateFindings = evaluateCustomGates(
-    applicationConfig((orgRow?.branding ?? null) as OrgBranding | null).custom_questions,
+    applicationConfig(orgBranding).custom_questions,
     (a.custom_answers ?? []) as { id: string; value: string }[]
   );
   if (report && report.overall !== "Incomplete") {
@@ -280,6 +284,8 @@ export async function getCandidateDetail(
     assessmentStatus: session ? (session.status as string) : null,
     decision: isDecision(a.decision) ? a.decision : null,
     decisionReason: a.decision_reason,
+    decisionNotes: (a.decision_notes as string | null) ?? null,
+    decisionReasonOptions: decisionReasons(orgBranding?.decision_reasons),
     decisionAt: a.decision_at,
     interviewTypes,
     senderHasAvailability,
@@ -313,17 +319,41 @@ export async function setMobileDecision(input: {
   applicationId: string;
   decision: string | null;
   reason: string;
+  notes?: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   if (input.decision !== null && !isDecision(input.decision)) {
     return { ok: false, error: "Invalid decision." };
   }
   const supa = adminClient();
+  const cleanReason = input.reason.trim();
+
+  // Remember any new reason for the org's dropdown (mirrors the web action).
+  if (cleanReason) {
+    const { data: orgRow } = await supa
+      .from("organizations")
+      .select("branding")
+      .eq("id", input.orgId)
+      .maybeSingle();
+    const branding = (orgRow?.branding ?? {}) as { decision_reasons?: string[] };
+    const current = branding.decision_reasons ?? [];
+    if (!current.some((r) => r.toLowerCase() === cleanReason.toLowerCase())) {
+      await supa
+        .from("organizations")
+        .update({
+          branding: { ...branding, decision_reasons: [...current, cleanReason] },
+        } as never)
+        .eq("id", input.orgId);
+    }
+  }
+
   const { error } = await supa
     .from("applications")
-    // decision columns added in migration 0012 — not in generated types yet.
+    // decision columns added in migrations 0012 (reason) + 0021 (notes) —
+    // not in generated types yet.
     .update({
       decision: input.decision,
-      decision_reason: input.reason.trim() || null,
+      decision_reason: cleanReason || null,
+      decision_notes: input.notes?.trim() || null,
       decision_at: input.decision ? new Date().toISOString() : null,
       decided_by: input.decision ? input.userId : null,
       status: input.decision ? "decision_made" : "assessment_complete",

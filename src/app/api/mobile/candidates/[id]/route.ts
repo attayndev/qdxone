@@ -31,7 +31,7 @@ export async function PATCH(
   if (!ctx) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const { id } = await params;
 
-  let body: { decision?: string | null; reason?: string };
+  let body: { decision?: string | null; reason?: string; notes?: string };
   try {
     body = await request.json();
   } catch {
@@ -44,6 +44,7 @@ export async function PATCH(
     applicationId: id,
     decision: body.decision ?? null,
     reason: body.reason ?? "",
+    notes: body.notes ?? "",
   });
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
   return NextResponse.json({ ok: true });

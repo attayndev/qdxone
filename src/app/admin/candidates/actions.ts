@@ -87,7 +87,8 @@ export async function sendAssessmentToCandidate(
 export async function setCandidateDecision(
   applicationId: string,
   decision: string | null,
-  reason: string
+  reason: string,
+  notes: string = ""
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const org = await currentOrgOrThrow();
   const m = await requireMembership(org.id);
@@ -96,12 +97,29 @@ export async function setCandidateDecision(
     return { ok: false, error: "Invalid decision." };
   }
   const supa = adminClient();
+  const cleanReason = reason.trim();
+
+  // Any new reason the operator typed is remembered for the org's dropdown.
+  if (cleanReason) {
+    const current = org.branding.decision_reasons ?? [];
+    if (!current.some((r) => r.toLowerCase() === cleanReason.toLowerCase())) {
+      await supa
+        .from("organizations")
+        .update({
+          branding: { ...org.branding, decision_reasons: [...current, cleanReason] },
+        } as never)
+        .eq("id", org.id);
+    }
+  }
+
   await supa
     .from("applications")
-    // decision columns added in migration 0012 — not in generated types yet.
+    // decision columns added in migrations 0012 (reason) + 0021 (notes) —
+    // not in generated types yet.
     .update({
       decision,
-      decision_reason: reason.trim() || null,
+      decision_reason: cleanReason || null,
+      decision_notes: notes.trim() || null,
       decision_at: decision ? new Date().toISOString() : null,
       decided_by: decision ? m.user_id : null,
       status: decision ? "decision_made" : "assessment_complete",

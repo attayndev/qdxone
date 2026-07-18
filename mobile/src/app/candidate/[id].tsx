@@ -27,6 +27,8 @@ interface Detail {
   assessmentStatus: string | null;
   decision: string | null;
   decisionReason: string | null;
+  decisionNotes: string | null;
+  decisionReasonOptions: string[];
   decisionAt: string | null;
   interviewTypes: { id: string; name: string; durationMinutes: number }[];
   senderHasAvailability: boolean;
@@ -95,6 +97,9 @@ export default function CandidateDetail() {
   const [error, setError] = useState<string | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [reason, setReason] = useState("");
+  const [notes, setNotes] = useState("");
+  const [addingReason, setAddingReason] = useState(false);
+  const [newReason, setNewReason] = useState("");
   const [saving, setSaving] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -105,6 +110,7 @@ export default function CandidateDetail() {
       setDetail(data.candidate);
       setDecision(data.candidate.decision);
       setReason(data.candidate.decisionReason ?? "");
+      setNotes(data.candidate.decisionNotes ?? "");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load candidate");
     }
@@ -117,11 +123,22 @@ export default function CandidateDetail() {
   );
 
   const save = useCallback(
-    async (next: string | null) => {
+    async (
+      nextDecision?: string | null,
+      nextReason?: string,
+      nextNotes?: string
+    ) => {
+      const d = nextDecision !== undefined ? nextDecision : decision;
+      const r = nextReason !== undefined ? nextReason : reason;
+      const n = nextNotes !== undefined ? nextNotes : notes;
       setSaving(true);
       try {
-        await apiSend("PATCH", `/api/mobile/candidates/${id}`, { decision: next, reason });
-        setDecision(next);
+        await apiSend("PATCH", `/api/mobile/candidates/${id}`, {
+          decision: d,
+          reason: r,
+          notes: n,
+        });
+        setDecision(d);
         await load();
       } catch (e) {
         Alert.alert("Couldn't save", e instanceof Error ? e.message : "Try again.");
@@ -129,7 +146,7 @@ export default function CandidateDetail() {
         setSaving(false);
       }
     },
-    [id, reason, load]
+    [id, decision, reason, notes, load]
   );
 
   if (!detail) {
@@ -327,13 +344,101 @@ export default function CandidateDetail() {
           })}
         </View>
 
-        <Text style={{ fontSize: 12, color: brand.inkMuted, marginTop: 14, marginBottom: 4 }}>
+        <Text style={{ fontSize: 12, color: brand.inkMuted, marginTop: 14, marginBottom: 6 }}>
           Reason (optional)
         </Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          {detail.decisionReasonOptions.map((r) => {
+            const active = reason === r;
+            return (
+              <Pressable
+                key={r}
+                disabled={saving}
+                onPress={() => {
+                  const next = active ? "" : r;
+                  setReason(next);
+                  if (decision) save(decision, next);
+                }}
+                style={{
+                  borderWidth: 1.5,
+                  borderColor: active ? brand.blue : brand.line,
+                  backgroundColor: active ? brand.soft : brand.white,
+                  borderRadius: 999,
+                  paddingVertical: 7,
+                  paddingHorizontal: 12,
+                }}
+              >
+                <Text style={{ fontWeight: "600", fontSize: 13, color: active ? brand.blueDeep : brand.ink }}>
+                  {r}
+                </Text>
+              </Pressable>
+            );
+          })}
+          {!addingReason && (
+            <Pressable
+              disabled={saving}
+              onPress={() => setAddingReason(true)}
+              style={{
+                borderWidth: 1.5,
+                borderColor: brand.line,
+                borderRadius: 999,
+                paddingVertical: 7,
+                paddingHorizontal: 12,
+              }}
+            >
+              <Text style={{ fontWeight: "600", fontSize: 13, color: brand.blueDeep }}>＋ Add reason</Text>
+            </Pressable>
+          )}
+        </View>
+        {addingReason && (
+          <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
+            <TextInput
+              value={newReason}
+              onChangeText={setNewReason}
+              autoFocus
+              placeholder="Type a new reason"
+              placeholderTextColor={brand.inkMuted}
+              onSubmitEditing={() => {
+                const r = newReason.trim();
+                if (!r) return;
+                setReason(r);
+                setAddingReason(false);
+                setNewReason("");
+                if (decision) save(decision, r);
+              }}
+              style={{
+                flex: 1,
+                borderWidth: 1,
+                borderColor: brand.line,
+                borderRadius: 12,
+                paddingHorizontal: 12,
+                paddingVertical: 10,
+                color: brand.ink,
+                backgroundColor: brand.white,
+              }}
+            />
+            <Pressable
+              onPress={() => {
+                setAddingReason(false);
+                setNewReason("");
+              }}
+              style={{ justifyContent: "center", paddingHorizontal: 6 }}
+            >
+              <Text style={{ color: brand.inkMuted, fontWeight: "600" }}>Cancel</Text>
+            </Pressable>
+          </View>
+        )}
+
+        <Text style={{ fontSize: 12, color: brand.inkMuted, marginTop: 14, marginBottom: 4 }}>
+          Notes (optional)
+        </Text>
         <TextInput
-          value={reason}
-          onChangeText={setReason}
-          placeholder="Add a note for the record"
+          value={notes}
+          onChangeText={setNotes}
+          onBlur={() => {
+            if (decision) save(decision, reason, notes);
+          }}
+          placeholder="Anything worth remembering for the record"
           placeholderTextColor={brand.inkMuted}
           multiline
           style={{
