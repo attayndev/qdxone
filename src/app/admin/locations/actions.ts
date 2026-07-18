@@ -161,6 +161,35 @@ export async function saveRoles(
 }
 
 /**
+ * Save the org's editable decision-reason pick-list (deduped, trimmed). An
+ * empty list is allowed — the decision panel falls back to the code defaults.
+ */
+export async function saveDecisionReasons(
+  reasons: string[]
+): Promise<SaveLocationResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+
+  const seen = new Set<string>();
+  const clean: string[] = [];
+  for (const raw of reasons) {
+    const r = raw.trim();
+    if (!r || seen.has(r.toLowerCase())) continue;
+    seen.add(r.toLowerCase());
+    clean.push(r);
+    if (clean.length >= 40) break;
+  }
+
+  const supa = adminClient();
+  const branding = { ...(org.branding ?? {}), decision_reasons: clean };
+  await supa.from("organizations").update({ branding }).eq("id", org.id);
+
+  revalidatePath("/admin/locations");
+  revalidatePath("/admin/candidates", "layout");
+  return { ok: true };
+}
+
+/**
  * Draft a job description with AI from the role name + the operator's notes.
  * Uses the AI SDK through the Vercel AI Gateway. Gracefully errors if no AI
  * key is configured.

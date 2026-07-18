@@ -8,6 +8,7 @@ import DeleteLocationButton from "@/components/admin/DeleteLocationButton";
 import AssessmentModeToggle from "@/components/admin/AssessmentModeToggle";
 import ApplicationFormSettings from "@/components/admin/ApplicationFormSettings";
 import CustomQuestionsEditor from "@/components/admin/CustomQuestionsEditor";
+import DecisionReasonsEditor from "@/components/admin/DecisionReasonsEditor";
 
 export default async function LocationsPage() {
   const org = await currentOrg();
@@ -59,6 +60,9 @@ export default async function LocationsPage() {
       <AssessmentModeToggle
         autoSend={org.branding?.auto_send_assessment !== false}
       />
+      <div id="decision-reasons" className="scroll-mt-24">
+        <DecisionReasonsEditor initial={org.branding?.decision_reasons ?? []} />
+      </div>
     </div>
   );
 }
