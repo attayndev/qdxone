@@ -1,14 +1,13 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { currentOrg, getMembership } from "@/lib/tenancy";
 import { googleOAuthConfigured } from "@/lib/calendar-providers/config";
 import { listConnectionStatuses } from "@/lib/scheduling/connections";
 import { getWeeklySchedule } from "@/lib/scheduling/availability-rules";
 import { listInterviewTypes } from "@/lib/scheduling/templates";
-import { listUpcomingBookings } from "@/lib/scheduling/bookings";
 import { getPrimaryLocation } from "@/lib/locations";
 import AvailabilityEditor from "@/components/admin/scheduling/AvailabilityEditor";
 import InterviewTypes from "@/components/admin/scheduling/InterviewTypes";
-import UpcomingInterviews from "@/components/admin/scheduling/UpcomingInterviews";
 import { disconnectCalendar } from "./actions";
 
 interface PageProps {
@@ -36,11 +35,10 @@ export default async function SchedulingPage({ searchParams }: PageProps) {
   const google = connections.find((c) => c.provider === "google" && c.status !== "revoked");
   const isConnected = !!google;
 
-  const [schedule, interviewTypes, primaryLocation, upcoming] = await Promise.all([
+  const [schedule, interviewTypes, primaryLocation] = await Promise.all([
     getWeeklySchedule(org.id, m.user_id),
     listInterviewTypes(org.id),
     getPrimaryLocation(org.id),
-    listUpcomingBookings(org.id),
   ]);
   // Seed the timezone from the store when no schedule exists yet.
   if (schedule.windows.length === 0 && primaryLocation?.timezone) {
@@ -49,7 +47,15 @@ export default async function SchedulingPage({ searchParams }: PageProps) {
 
   return (
     <div>
-      <h1 className="text-3xl font-black tracking-tight">Calendar</h1>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <h1 className="text-3xl font-black tracking-tight">Calendar</h1>
+        <Link
+          href="/admin/interviews"
+          className="text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline whitespace-nowrap"
+        >
+          ← Back to interviews
+        </Link>
+      </div>
       <p className="text-[color:var(--brand-ink-muted)] mb-6 max-w-prose">
         Connect your calendar so QDX can read your free/busy times and put
         confirmed interviews on your schedule. We never share what&apos;s on your
@@ -66,11 +72,6 @@ export default async function SchedulingPage({ searchParams }: PageProps) {
           {ERRORS[sp.error] ?? "Something went wrong. Please try again."}
         </div>
       )}
-
-      <section className="mb-10">
-        <h2 className="text-xl font-bold tracking-tight mb-3">Upcoming interviews</h2>
-        <UpcomingInterviews bookings={upcoming} />
-      </section>
 
       <h2 className="text-xl font-bold tracking-tight mb-3">Connection &amp; setup</h2>
       <div className="rounded-xl border border-black/10 bg-white p-5 max-w-xl">
