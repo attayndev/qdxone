@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import type { ApplicationInput } from "@/app/apply/[token]/actions";
 import type { ApplicationConfig } from "@/lib/application-config";
-import { smsConsentDisclosure } from "@/lib/consent";
+import { smsConsentBody } from "@/lib/consent";
 
 type Props = {
   token: string;
@@ -179,7 +179,8 @@ export default function ApplicationForm({
             <span className="font-semibold">Text me about this application</span>{" "}
             <span className="text-[color:var(--brand-ink-muted)]">(optional)</span>
             <span className="block text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
-              {smsConsentDisclosure(orgName)} See our{" "}
+              {smsConsentBody(orgName)}{" "}
+              View our{" "}
               <a
                 href="/terms"
                 target="_blank"
@@ -187,7 +188,7 @@ export default function ApplicationForm({
                 onClick={(e) => e.stopPropagation()}
                 className="underline"
               >
-                Terms
+                Terms of Service
               </a>{" "}
               and{" "}
               <a

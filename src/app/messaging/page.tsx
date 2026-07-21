@@ -1,6 +1,6 @@
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 import { LEGAL_ENTITY, LEGAL_EMAIL, TERMS_EFFECTIVE } from "@/lib/legal";
-import { smsConsentDisclosure } from "@/lib/consent";
+import { smsConsentBody } from "@/lib/consent";
 
 export const metadata = {
   title: "QDX One — Text Messaging (SMS) Terms",
@@ -45,7 +45,16 @@ export default function MessagingPage() {
                 <span className="font-semibold">Text me about this application</span>{" "}
                 <span className="text-[color:var(--brand-ink-muted)]">(optional)</span>
                 <span className="block text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
-                  {smsConsentDisclosure("[Your restaurant]")} See our Terms and Privacy Policy.
+                  {smsConsentBody("[the restaurant you applied to]")}{" "}
+                  View our{" "}
+                  <a href="/terms" className="underline">
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a href="/privacy" className="underline">
+                    Privacy Policy
+                  </a>
+                  .
                 </span>
               </div>
             </div>

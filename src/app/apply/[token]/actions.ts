@@ -7,7 +7,7 @@ import { generateToken } from "@/lib/tokens";
 import { currentOrgOrThrow } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
 import { applicationConfig } from "@/lib/application-config";
-import { smsConsentDisclosure } from "@/lib/consent";
+import { smsConsentText } from "@/lib/consent";
 import { effectiveTier, hasFeature, billingLapsed } from "@/lib/plan";
 
 const WorkHistory = z.object({
@@ -139,7 +139,7 @@ export async function submitApplication(
       custom_answers: customAnswers,
       sms_consent: smsConsent,
       sms_consent_at: smsConsent ? new Date().toISOString() : null,
-      sms_consent_disclosure: smsConsent ? smsConsentDisclosure(org.name) : null,
+      sms_consent_disclosure: smsConsent ? smsConsentText(org.name) : null,
       status: "new",
       resume_token: generateToken(),
     })
