@@ -58,19 +58,6 @@ export async function updatePosting(
   id: string,
   formData: FormData
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  try {
-    return await updatePostingImpl(id, formData);
-  } catch (e) {
-    // TEMP TRACE: never let the action 500 — surface the real error on-screen.
-    const err = e as Error;
-    return { ok: false, error: `TRACE: ${err?.message} :: ${String(err?.stack).slice(0, 600)}` };
-  }
-}
-
-async function updatePostingImpl(
-  id: string,
-  formData: FormData
-): Promise<{ ok: true } | { ok: false; error: string }> {
   const org = await currentOrgOrThrow();
   await requireMembership(org.id);
   const parsed = parsePostingInput(rawFromForm(formData));
