@@ -41,3 +41,5 @@ example
 # generated native folders
 /ios
 /android
+play-service-account.json
+*.iam.gserviceaccount.com.json

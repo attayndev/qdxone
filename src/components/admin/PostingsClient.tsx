@@ -403,7 +403,7 @@ function PostingItem({
   function saveEdit(formData: FormData) {
     setError(null);
     startTransition(async () => {
-      const res = await updatePosting(posting.id, formData);
+      const res = await updatePosting(formData);
       if (res.ok) setEditing(false);
       else setError(res.error);
     });
@@ -427,6 +427,7 @@ function PostingItem({
     return (
       <li className="rounded-xl border border-[color:var(--brand-line)] p-4">
         <form action={saveEdit} className="space-y-3">
+          <input type="hidden" name="posting_id" value={posting.id} />
           <div>
             <label className="label">Role</label>
             <select className="input" name="title" defaultValue={posting.title}>

@@ -53,11 +53,17 @@ export async function setPostingStatus(id: string, status: "open" | "closed") {
   revalidatePath("/admin/postings");
 }
 
-/** Fix a posting's role and/or store (e.g. picked the wrong one). */
+/**
+ * Fix a posting's role and/or store (e.g. picked the wrong one).
+ * Takes a single FormData arg (id travels as a hidden `posting_id` field):
+ * this Next build fails server-action dispatch when FormData is passed as a
+ * non-first argument, so we mirror the createPosting signature that works.
+ */
 export async function updatePosting(
-  id: string,
   formData: FormData
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  const id = String(formData.get("posting_id") || "");
+  if (!id) return { ok: false, error: "Could not save the posting. Try again." };
   const org = await currentOrgOrThrow();
   await requireMembership(org.id);
   const parsed = parsePostingInput(rawFromForm(formData));
