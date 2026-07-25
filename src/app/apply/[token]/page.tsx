@@ -4,6 +4,7 @@ import { BrandTheme } from "@/components/BrandTheme";
 import { currentOrg, orgUrl } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
 import { applicationConfig } from "@/lib/application-config";
+import type { FieldMode } from "@/lib/supabase/types";
 import { jobPostingJsonLd, jsonLdScript } from "@/lib/job-posting-jsonld";
 import { formatPay, payBaseSalary } from "@/lib/pay";
 import ApplicationForm from "@/components/ApplicationForm";
@@ -102,7 +103,11 @@ export default async function ApplyPage({ params }: PageProps) {
           token={token}
           postingTitle={posting.title}
           orgName={org.name}
-          config={applicationConfig(org.branding, posting.title)}
+          config={applicationConfig(org.branding, posting.title, {
+            // Per-posting overrides (0022); null = inherit org default.
+            work_experience: (posting as { work_experience_mode: FieldMode | null }).work_experience_mode,
+            references: (posting as { references_mode: FieldMode | null }).references_mode,
+          })}
           submitAction={submitApplication}
         />
       </main>

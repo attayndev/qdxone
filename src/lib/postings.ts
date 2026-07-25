@@ -10,6 +10,14 @@ import { z } from "zod";
 import { adminClient } from "@/lib/supabase/admin";
 import { generateToken } from "@/lib/tokens";
 import { getPrimaryLocation, getOrgLocations } from "@/lib/locations";
+import type { FieldMode } from "@/lib/supabase/types";
+
+// Per-posting field-mode override: one of the three modes, or "" (= inherit
+// the org default). Empty string normalizes to null in the parsed output.
+const FieldModeOverride = z
+  .enum(["hidden", "optional", "required"])
+  .or(z.literal(""))
+  .optional();
 
 const PostingSchema = z
   .object({
@@ -21,6 +29,8 @@ const PostingSchema = z
     pay_min: z.coerce.number().positive("Enter a minimum pay").max(2_000_000),
     pay_max: z.coerce.number().positive("Enter a maximum pay").max(2_000_000),
     pay_period: z.enum(["hour", "year"]),
+    work_experience_mode: FieldModeOverride,
+    references_mode: FieldModeOverride,
   })
   .refine((d) => d.pay_max >= d.pay_min, {
     message: "Max pay must be at least the minimum",
@@ -34,6 +44,9 @@ export interface PostingInput {
   pay_max: number;
   pay_period: "hour" | "year";
   tips: boolean;
+  // null = inherit the org default (branding.application_config).
+  work_experience_mode: FieldMode | null;
+  references_mode: FieldMode | null;
 }
 
 /** Raw fields from a form (strings) or a JSON body (mixed); validated here. */
@@ -44,6 +57,8 @@ export interface RawPostingInput {
   pay_max?: unknown;
   pay_period?: unknown;
   tips?: unknown;
+  work_experience_mode?: unknown;
+  references_mode?: unknown;
 }
 
 export function parsePostingInput(
@@ -55,13 +70,23 @@ export function parsePostingInput(
     pay_min: raw.pay_min ?? "",
     pay_max: raw.pay_max ?? "",
     pay_period: raw.pay_period ?? "hour",
+    work_experience_mode: raw.work_experience_mode ?? "",
+    references_mode: raw.references_mode ?? "",
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
   // Tips arrives as a checkbox ("on") from a form or a boolean from JSON.
   const tips = raw.tips === true || raw.tips === "on";
-  return { ok: true, data: { ...parsed.data, tips } };
+  return {
+    ok: true,
+    data: {
+      ...parsed.data,
+      tips,
+      work_experience_mode: parsed.data.work_experience_mode || null,
+      references_mode: parsed.data.references_mode || null,
+    },
+  };
 }
 
 export type CreatePostingResult =
@@ -107,6 +132,8 @@ export async function createJobPosting(
       pay_max: input.pay_max,
       pay_period: input.pay_period,
       tips: input.tips,
+      work_experience_mode: input.work_experience_mode,
+      references_mode: input.references_mode,
     } as never)
     .select("public_token")
     .single();

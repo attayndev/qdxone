@@ -22,6 +22,8 @@ function rawFromForm(formData: FormData): RawPostingInput {
     pay_max: formData.get("pay_max"),
     pay_period: formData.get("pay_period"),
     tips: formData.get("tips"),
+    work_experience_mode: formData.get("work_experience_mode"),
+    references_mode: formData.get("references_mode"),
   };
 }
 
@@ -68,6 +70,8 @@ export async function updatePosting(
     pay_max: v.pay_max,
     pay_period: v.pay_period,
     tips: v.tips,
+    work_experience_mode: v.work_experience_mode,
+    references_mode: v.references_mode,
   };
   if (v.location_id) {
     const locs = await getOrgLocations(org.id);

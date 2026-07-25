@@ -26,9 +26,10 @@ export default function ApplicationFormSettings({
 
   return (
     <div className="card mt-6 max-w-xl">
-      <h2 className="font-extrabold text-lg">Application form</h2>
+      <h2 className="font-extrabold text-lg">Application form defaults</h2>
       <p className="text-sm text-[color:var(--brand-ink-muted)] mt-1">
-        Choose which optional sections candidates see.
+        The default for new postings — each posting can override these under
+        Postings. Choose which sections candidates see.
       </p>
       <div className="mt-4 space-y-3">
         <FieldRow

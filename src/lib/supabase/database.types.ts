@@ -22,6 +22,7 @@ export type Database = {
           decided_by: string | null
           decision: string | null
           decision_at: string | null
+          decision_notes: string | null
           decision_reason: string | null
           earliest_start_date: string | null
           eligible_to_work: boolean | null
@@ -54,6 +55,7 @@ export type Database = {
           decided_by?: string | null
           decision?: string | null
           decision_at?: string | null
+          decision_notes?: string | null
           decision_reason?: string | null
           earliest_start_date?: string | null
           eligible_to_work?: boolean | null
@@ -86,6 +88,7 @@ export type Database = {
           decided_by?: string | null
           decision?: string | null
           decision_at?: string | null
+          decision_notes?: string | null
           decision_reason?: string | null
           earliest_start_date?: string | null
           eligible_to_work?: boolean | null
@@ -828,11 +831,13 @@ export type Database = {
           pay_min: number | null
           pay_period: string
           public_token: string
+          references_mode: string | null
           role_type: Database["public"]["Enums"]["location_role_type"]
           status: Database["public"]["Enums"]["job_posting_status"]
           tips: boolean
           title: string
           updated_at: string
+          work_experience_mode: string | null
         }
         Insert: {
           created_at?: string
@@ -844,11 +849,13 @@ export type Database = {
           pay_min?: number | null
           pay_period?: string
           public_token: string
+          references_mode?: string | null
           role_type?: Database["public"]["Enums"]["location_role_type"]
           status?: Database["public"]["Enums"]["job_posting_status"]
           tips?: boolean
           title: string
           updated_at?: string
+          work_experience_mode?: string | null
         }
         Update: {
           created_at?: string
@@ -860,11 +867,13 @@ export type Database = {
           pay_min?: number | null
           pay_period?: string
           public_token?: string
+          references_mode?: string | null
           role_type?: Database["public"]["Enums"]["location_role_type"]
           status?: Database["public"]["Enums"]["job_posting_status"]
           tips?: boolean
           title?: string
           updated_at?: string
+          work_experience_mode?: string | null
         }
         Relationships: [
           {

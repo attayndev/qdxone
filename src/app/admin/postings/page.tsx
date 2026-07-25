@@ -9,6 +9,7 @@ import PostingsClient, {
   type PostingView,
 } from "@/components/admin/PostingsClient";
 import type { Database } from "@/lib/supabase/database.types";
+import type { FieldMode } from "@/lib/supabase/types";
 
 type PostingRow = Database["public"]["Tables"]["job_postings"]["Row"];
 
@@ -35,12 +36,14 @@ export default async function PostingsPage() {
   const postings: PostingView[] = await Promise.all(
     ((rows as PostingRow[] | null) ?? []).map(async (p) => {
       const url = orgUrl(org.slug, `/j/${p.public_token}`);
-      // pay_* / tips added in 0015 — not in the generated row type yet.
+      // pay_* / tips added in 0015, field modes in 0022 — not in generated types yet.
       const pay = p as typeof p & {
         pay_min: number | null;
         pay_max: number | null;
         pay_period: "hour" | "year" | null;
         tips: boolean | null;
+        work_experience_mode: FieldMode | null;
+        references_mode: FieldMode | null;
       };
       return {
         id: p.id,
@@ -56,6 +59,8 @@ export default async function PostingsPage() {
         payMax: pay.pay_max,
         payPeriod: pay.pay_period ?? "hour",
         tips: pay.tips ?? false,
+        workExperienceMode: pay.work_experience_mode,
+        referencesMode: pay.references_mode,
       };
     })
   );

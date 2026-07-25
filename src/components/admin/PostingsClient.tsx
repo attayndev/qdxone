@@ -8,6 +8,7 @@ import {
   deletePosting,
 } from "@/app/admin/postings/actions";
 import { formatPay } from "@/lib/pay";
+import type { FieldMode } from "@/lib/supabase/types";
 
 /** Pay-range + tips inputs, shared by the create and edit forms. */
 function PayFields({
@@ -67,6 +68,49 @@ function PayFields({
   );
 }
 
+/** Per-posting override for work history + references (blank = store default). */
+function ApplicationFields({
+  workMode,
+  refsMode,
+}: {
+  workMode?: FieldMode | null;
+  refsMode?: FieldMode | null;
+}) {
+  return (
+    <div>
+      <label className="label">Application fields</label>
+      <p className="mt-1 mb-2 text-xs text-[color:var(--brand-ink-muted)]">
+        Set how work history and references appear on this posting.
+        &ldquo;Store default&rdquo; uses your Store setup.
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        <label className="text-sm">
+          <span className="block text-xs text-[color:var(--brand-ink-muted)] mb-0.5">
+            Work history
+          </span>
+          <select name="work_experience_mode" className="input" defaultValue={workMode ?? ""}>
+            <option value="">Store default</option>
+            <option value="optional">Optional</option>
+            <option value="required">Required</option>
+            <option value="hidden">Hidden</option>
+          </select>
+        </label>
+        <label className="text-sm">
+          <span className="block text-xs text-[color:var(--brand-ink-muted)] mb-0.5">
+            References
+          </span>
+          <select name="references_mode" className="input" defaultValue={refsMode ?? ""}>
+            <option value="">Store default</option>
+            <option value="optional">Optional</option>
+            <option value="required">Required</option>
+            <option value="hidden">Hidden</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  );
+}
+
 export type PostingView = {
   id: string;
   title: string;
@@ -79,6 +123,8 @@ export type PostingView = {
   payMax?: number | null;
   payPeriod?: "hour" | "year";
   tips?: boolean;
+  workExperienceMode?: FieldMode | null;
+  referencesMode?: FieldMode | null;
 };
 
 const slug = (s: string) =>
@@ -324,6 +370,7 @@ function CreateForm({
           </div>
         )}
         <PayFields />
+        <ApplicationFields />
         <button
           type="submit"
           disabled={pending || !hasLocation}
@@ -415,6 +462,10 @@ function PostingItem({
             max={posting.payMax}
             period={posting.payPeriod}
             tips={posting.tips}
+          />
+          <ApplicationFields
+            workMode={posting.workExperienceMode}
+            refsMode={posting.referencesMode}
           />
           {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex gap-3">

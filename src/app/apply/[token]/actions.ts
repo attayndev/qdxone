@@ -7,6 +7,7 @@ import { generateToken } from "@/lib/tokens";
 import { currentOrgOrThrow } from "@/lib/tenancy";
 import { getPrimaryLocation } from "@/lib/locations";
 import { applicationConfig } from "@/lib/application-config";
+import type { FieldMode } from "@/lib/supabase/types";
 import { smsConsentText } from "@/lib/consent";
 import { effectiveTier, hasFeature, billingLapsed } from "@/lib/plan";
 
@@ -62,13 +63,17 @@ export async function submitApplication(
 
   const { data: posting } = await supa
     .from("job_postings")
-    .select("id, location_id, title, status")
+    .select("id, location_id, title, status, work_experience_mode, references_mode")
     .eq("public_token", token)
     .eq("org_id", org.id)
     .maybeSingle();
   if (!posting || posting.status !== "open") {
     return { ok: false, error: "This posting is no longer accepting applications." };
   }
+  const p = posting as typeof posting & {
+    work_experience_mode: FieldMode | null;
+    references_mode: FieldMode | null;
+  };
 
   const parsed = ApplicationSchema.safeParse(input);
   if (!parsed.success) {
@@ -80,7 +85,10 @@ export async function submitApplication(
   const phone = v.phone?.trim() || null;
   const smsConsent = v.sms_consent === true && !!phone;
 
-  const cfg = applicationConfig(org.branding, posting.title);
+  const cfg = applicationConfig(org.branding, posting.title, {
+    work_experience: p.work_experience_mode,
+    references: p.references_mode,
+  });
   if (
     cfg.work_experience === "required" &&
     !v.work_history.some((j) => j.employer.trim() && j.role.trim())
