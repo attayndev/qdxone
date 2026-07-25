@@ -60,9 +60,19 @@ export async function updatePosting(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const org = await currentOrgOrThrow();
   await requireMembership(org.id);
+  // TEMP DIAGNOSTIC: what does the form actually submit for the field modes?
+  console.log(
+    "[updatePosting] rawWork=",
+    JSON.stringify(formData.get("work_experience_mode")),
+    "rawRefs=",
+    JSON.stringify(formData.get("references_mode")),
+    "allKeys=",
+    JSON.stringify([...formData.keys()])
+  );
   const parsed = parsePostingInput(rawFromForm(formData));
   if (!parsed.ok) return { ok: false, error: parsed.error };
   const v = parsed.data;
+  console.log("[updatePosting] parsedWork=", v.work_experience_mode, "parsedRefs=", v.references_mode);
 
   const update: Record<string, unknown> = {
     title: v.title,
