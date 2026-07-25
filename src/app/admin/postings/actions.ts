@@ -60,16 +60,6 @@ export async function updatePosting(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const org = await currentOrgOrThrow();
   await requireMembership(org.id);
-  // TEMP DIAGNOSTIC: surface what the form actually submitted, on-screen, so we
-  // can see it without live logs. Remove after diagnosis.
-  const DIAG = true;
-  if (DIAG) {
-    return {
-      ok: false,
-      error: `DIAG — server received: work="${formData.get("work_experience_mode")}" refs="${formData.get("references_mode")}" | fields=[${[...formData.keys()].join(", ")}]`,
-    };
-  }
-
   const parsed = parsePostingInput(rawFromForm(formData));
   if (!parsed.ok) return { ok: false, error: parsed.error };
   const v = parsed.data;
