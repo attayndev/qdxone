@@ -10,8 +10,9 @@ import {
   type RawPostingInput,
   type CreatePostingResult,
 } from "@/lib/postings";
-
-export type { CreatePostingResult };
+// NOTE: a "use server" module may export only async functions. Do NOT add
+// `export type { ... }` or any non-function export here — it breaks the whole
+// server-actions module at evaluation (every action in the file 500s).
 
 /** Pull the posting fields out of submitted form data for validation. */
 function rawFromForm(formData: FormData): RawPostingInput {
@@ -60,17 +61,6 @@ export async function setPostingStatus(id: string, status: "open" | "closed") {
  * non-first argument, so we mirror the createPosting signature that works.
  */
 export async function updatePosting(
-  formData: FormData
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  try {
-    return await updatePostingImpl(formData);
-  } catch (e) {
-    const err = e as Error;
-    return { ok: false, error: `TRACE ${err?.name}: ${err?.message} @@ ${String(err?.stack).slice(0, 500)}` };
-  }
-}
-
-async function updatePostingImpl(
   formData: FormData
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const id = String(formData.get("posting_id") || "");
