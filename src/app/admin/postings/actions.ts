@@ -79,7 +79,15 @@ export async function updatePosting(
     if (loc) update.location_id = loc.id;
   }
   const supa = adminClient();
-  await supa.from("job_postings").update(update as never).eq("id", id).eq("org_id", org.id);
+  const { error } = await supa
+    .from("job_postings")
+    .update(update as never)
+    .eq("id", id)
+    .eq("org_id", org.id);
+  if (error) {
+    console.error("posting update failed", error);
+    return { ok: false, error: "Could not save the posting. Try again." };
+  }
   revalidatePath("/admin/postings");
   return { ok: true };
 }
