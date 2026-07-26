@@ -18,6 +18,7 @@ import { generateToken } from "@/lib/tokens";
 import { fitByApplication, categoryBandsByApplication } from "@/lib/assessment/fit";
 import { nextReviewDue } from "@/lib/employees";
 import { REVIEW_CATEGORIES } from "@/lib/review-categories";
+import { weekDates } from "@/lib/shifts-core";
 import { orgRoles } from "@/lib/roles";
 import type { OrgBranding } from "@/lib/supabase/types";
 
@@ -76,7 +77,8 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
   }
 
   // Wipe prior demo candidates/postings (FK order). Org + members preserved.
-  // Employees first — their reviews + role changes cascade with them.
+  // Shifts + employees first — reviews/role-changes cascade with employees.
+  await supa.from("shifts").delete().eq("org_id", orgId);
   await supa.from("employees").delete().eq("org_id", orgId);
   const { data: oldSess } = await supa.from("assessment_sessions").select("id").eq("org_id", orgId);
   const oldSessionIds = ((oldSess as { id: string }[] | null) ?? []).map((s) => s.id);
@@ -215,6 +217,9 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
   // with backdated reviews whose ratings trend with assessment fit (so the
   // "does the assessment predict performance?" story is visible in the demo).
   await seedDemoEmployees(orgId, orgRoles(orgFields.branding as unknown as OrgBranding));
+
+  // Populate the Schedule module: a published current-week schedule.
+  await seedDemoScheduleWeek(orgId, locationId);
 
   // Let platform admins view the demo directly (members of the demo org).
   const { data: admins } = await supa.from("platform_admins").select("user_id");
@@ -429,4 +434,63 @@ async function seedDemoEmployees(orgId: string, ladder: string[]): Promise<void>
 
     idx++;
   }
+}
+
+// Shift patterns for the demo week (openers → closers).
+const SHIFT_PATTERNS = [
+  { start: "10:00:00", end: "18:00:00" },
+  { start: "11:00:00", end: "19:00:00" },
+  { start: "15:00:00", end: "23:00:00" },
+  { start: "17:00:00", end: "23:00:00" },
+];
+
+/** Seed a published current-week schedule so the demo Schedule tab is populated. */
+async function seedDemoScheduleWeek(orgId: string, locationId: string | null): Promise<void> {
+  if (!locationId) return;
+  const supa = adminClient();
+  const { data: empRows } = await supa
+    .from("employees")
+    .select("id, current_role_name")
+    .eq("org_id", orgId)
+    .eq("employment_status", "employed");
+  const emps = (empRows as { id: string; current_role_name: string | null }[] | null) ?? [];
+  if (emps.length === 0) return;
+
+  const dates = weekDates(new Date().toISOString().slice(0, 10));
+  const now = new Date().toISOString();
+  const rows: Record<string, unknown>[] = [];
+  let i = 0;
+  for (const d of dates) {
+    const nShifts = 3 + (i % 2); // 3–4 shifts/day
+    for (let k = 0; k < nShifts; k++) {
+      const emp = emps[(i * 3 + k) % emps.length];
+      const p = SHIFT_PATTERNS[(i + k) % SHIFT_PATTERNS.length];
+      rows.push({
+        org_id: orgId,
+        location_id: locationId,
+        employee_id: emp.id,
+        role: emp.current_role_name,
+        shift_date: d,
+        start_time: p.start,
+        end_time: p.end,
+        status: "published",
+        published_at: now,
+      });
+    }
+    if (i === 2 || i === 5) {
+      rows.push({
+        org_id: orgId,
+        location_id: locationId,
+        employee_id: null, // an open shift
+        role: "Team Member",
+        shift_date: d,
+        start_time: "18:00:00",
+        end_time: "22:00:00",
+        status: "published",
+        published_at: now,
+      });
+    }
+    i++;
+  }
+  await supa.from("shifts").insert(rows as never);
 }

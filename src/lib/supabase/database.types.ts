@@ -1499,6 +1499,79 @@ export type Database = {
           },
         ]
       }
+      shifts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          employee_id: string | null
+          end_time: string
+          id: string
+          location_id: string
+          notes: string | null
+          org_id: string
+          published_at: string | null
+          role: string | null
+          shift_date: string
+          start_time: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string | null
+          end_time: string
+          id?: string
+          location_id: string
+          notes?: string | null
+          org_id: string
+          published_at?: string | null
+          role?: string | null
+          shift_date: string
+          start_time: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string | null
+          end_time?: string
+          id?: string
+          location_id?: string
+          notes?: string | null
+          org_id?: string
+          published_at?: string | null
+          role?: string | null
+          shift_date?: string
+          start_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shifts_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sms_opt_outs: {
         Row: {
           opted_out_at: string
