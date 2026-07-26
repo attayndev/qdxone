@@ -64,7 +64,9 @@ export async function addReview(formData: FormData): Promise<ActionResult> {
   if (stillEmployed) {
     await supa
       .from("employees")
-      .update({ next_review_due: nextReviewDue() } as never)
+      .update({
+        next_review_due: nextReviewDue(new Date(), new Date(emp.hired_at)),
+      } as never)
       .eq("id", employeeId)
       .eq("org_id", org.id);
   } else {

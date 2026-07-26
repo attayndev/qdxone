@@ -67,10 +67,16 @@ export default async function EmployeesPage({
         <div>
           <h1 className="text-3xl font-black tracking-tight">Employees</h1>
           <p className="text-[color:var(--brand-ink-muted)] max-w-2xl">
-            Everyone you&apos;ve hired. Rate each person every 3 months against
-            the role they&apos;re in, track promotions, and record when someone
-            leaves.
+            Everyone you&apos;ve hired. Rate each person monthly for their first
+            3 months, then quarterly — against the role they&apos;re in — track
+            promotions, and record when someone leaves.
           </p>
+          <Link
+            href="/admin/reports"
+            className="inline-block mt-2 text-sm text-[color:var(--brand-blue-600)] hover:underline"
+          >
+            Does the assessment predict performance? See Reports →
+          </Link>
         </div>
         {untracked > 0 && <ImportHiresButton count={untracked} />}
       </div>

@@ -102,7 +102,7 @@ export default function EmployeeActions({
       {/* Quarterly review */}
       <div className={"card " + (reviewDue ? "border-l-4 border-l-rose-500" : "")}>
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h2 className="font-extrabold text-lg">Quarterly review</h2>
+          <h2 className="font-extrabold text-lg">Performance review</h2>
           <span className="text-xs text-[color:var(--brand-ink-muted)]">
             {reviewDue
               ? "Due now"

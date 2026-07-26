@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { currentOrg } from "@/lib/tenancy";
 import { computeOrgReport } from "@/lib/reports";
+import PerformanceByFit from "@/components/admin/PerformanceByFit";
 import type { OverallFit } from "@/lib/assessment/scoring";
 
 const TIER_ORDER: OverallFit[] = ["Strong fit", "Consider", "Caution", "Not recommended"];
@@ -78,6 +79,9 @@ export default async function ReportsPage() {
           </>
         )}
       </div>
+
+      {/* Assessment ↔ performance (fills in as reviews accrue) */}
+      <PerformanceByFit orgId={org.id} />
 
       {/* By location (Operator+ / multi-store) */}
       {org.location_count >= 2 && (

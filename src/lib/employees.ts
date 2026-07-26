@@ -7,7 +7,10 @@ import { getOrgLocations } from "./locations";
  * Tables added in migration 0023 (not in generated types yet — typed here).
  */
 
-export const REVIEW_INTERVAL_MONTHS = 3;
+// New hires are reviewed MONTHLY for their first 3 months, then QUARTERLY.
+export const ONBOARDING_MONTHS = 3;
+export const MONTHLY_INTERVAL = 1;
+export const QUARTERLY_INTERVAL = 3;
 
 export type EmploymentStatus = "employed" | "terminated";
 
@@ -66,16 +69,27 @@ export interface EmployeeRoleChangeRow {
   created_at: string;
 }
 
-/** Add whole months to a date, returning a YYYY-MM-DD string (date-only). */
+/**
+ * Add whole months to a date, returning a YYYY-MM-DD string (date-only).
+ * Uses UTC arithmetic so calendar math never shifts a day across a DST boundary.
+ */
 export function addMonths(from: Date, months: number): string {
   const d = new Date(from.getTime());
-  d.setMonth(d.getMonth() + months);
+  d.setUTCMonth(d.getUTCMonth() + months);
   return d.toISOString().slice(0, 10);
 }
 
-/** The next quarterly review date from a given point (default: now). */
-export function nextReviewDue(from: Date = new Date()): string {
-  return addMonths(from, REVIEW_INTERVAL_MONTHS);
+/**
+ * The next review date. New hires are reviewed monthly for their first 3
+ * months, then quarterly. `from` is the point we schedule from (the hire date
+ * at creation, or the just-completed review's date); `hiredAt` anchors the
+ * onboarding window.
+ */
+export function nextReviewDue(from: Date, hiredAt: Date): string {
+  const onboardingEnd = new Date(hiredAt.getTime());
+  onboardingEnd.setUTCMonth(onboardingEnd.getUTCMonth() + ONBOARDING_MONTHS);
+  const months = from < onboardingEnd ? MONTHLY_INTERVAL : QUARTERLY_INTERVAL;
+  return addMonths(from, months);
 }
 
 /** Is this employee due (or overdue) for a review? Terminated → never. */
@@ -252,7 +266,7 @@ export async function ensureEmployeeForHire(params: {
       current_role_name: startRole,
       employment_status: "employed",
       hired_at: hiredAt.toISOString().slice(0, 10),
-      next_review_due: nextReviewDue(hiredAt),
+      next_review_due: nextReviewDue(hiredAt, hiredAt),
     } as never)
     .select("id")
     .maybeSingle();

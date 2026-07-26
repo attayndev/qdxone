@@ -69,9 +69,11 @@ under `requireMembership`.
 - **4 — Exceeds expectations**
 - **5 — Outstanding**
 
-## 3-month cadence + reminder
-- On hire: `next_review_due = hired_at + 3 months`.
-- On each review: `next_review_due = reviewed_at + 3 months` (cleared if terminated).
+## Review cadence + reminder
+- **Monthly for the first 3 months of employment, then quarterly.** On hire and
+  on each review, `next_review_due` = the from-date + 1 month while still inside
+  the first 3 months of tenure (`hired_at + 3 months`), else + 3 months. Cleared
+  when terminated.
 - **In-app reminder (v1):** Employees section shows a "Reviews due" list + badge
   count = employees where `employment_status = 'employed'` and
   `next_review_due <= today`.
