@@ -548,6 +548,181 @@ export type Database = {
           },
         ]
       }
+      employee_reviews: {
+        Row: {
+          created_at: string
+          employee_id: string
+          id: string
+          notes: string | null
+          org_id: string
+          rating: number | null
+          reviewed_at: string
+          reviewed_by: string | null
+          role_at_review: string | null
+          still_employed: boolean
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          id?: string
+          notes?: string | null
+          org_id: string
+          rating?: number | null
+          reviewed_at?: string
+          reviewed_by?: string | null
+          role_at_review?: string | null
+          still_employed?: boolean
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          id?: string
+          notes?: string | null
+          org_id?: string
+          rating?: number | null
+          reviewed_at?: string
+          reviewed_by?: string | null
+          role_at_review?: string | null
+          still_employed?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_reviews_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_reviews_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_role_changes: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          created_at: string
+          employee_id: string
+          from_role: string | null
+          id: string
+          org_id: string
+          to_role: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          created_at?: string
+          employee_id: string
+          from_role?: string | null
+          id?: string
+          org_id: string
+          to_role: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          created_at?: string
+          employee_id?: string
+          from_role?: string | null
+          id?: string
+          org_id?: string
+          to_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_role_changes_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_role_changes_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          application_id: string | null
+          created_at: string
+          current_role_name: string | null
+          employment_status: string
+          first_name: string
+          hired_at: string
+          id: string
+          last_name: string
+          location_id: string | null
+          next_review_due: string | null
+          org_id: string
+          terminated_at: string | null
+          termination_reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          application_id?: string | null
+          created_at?: string
+          current_role_name?: string | null
+          employment_status?: string
+          first_name: string
+          hired_at?: string
+          id?: string
+          last_name: string
+          location_id?: string | null
+          next_review_due?: string | null
+          org_id: string
+          terminated_at?: string | null
+          termination_reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string | null
+          created_at?: string
+          current_role_name?: string | null
+          employment_status?: string
+          first_name?: string
+          hired_at?: string
+          id?: string
+          last_name?: string
+          location_id?: string | null
+          next_review_due?: string | null
+          org_id?: string
+          terminated_at?: string | null
+          termination_reason?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       interview_bookings: {
         Row: {
           application_id: string

@@ -127,6 +127,18 @@ export async function setCandidateDecision(
     .eq("id", applicationId)
     .eq("org_id", org.id);
 
+  // Marking someone HIRED starts their employee record (tracked lifecycle +
+  // quarterly reviews). Idempotent; done inline so the roster is up to date
+  // the moment the page revalidates.
+  if (decision === "hired") {
+    try {
+      const { ensureEmployeeForHire } = await import("@/lib/employees");
+      await ensureEmployeeForHire({ orgId: org.id, applicationId });
+    } catch (e) {
+      console.error("ensureEmployeeForHire failed", e);
+    }
+  }
+
   // Marking someone HIRED is team-wide news — alert everyone else in the org.
   if (decision === "hired") {
     after(async () => {
