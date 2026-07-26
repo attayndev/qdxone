@@ -4,8 +4,35 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addReview, changeRole, terminateEmployee } from "@/app/admin/employees/actions";
 import { RATING_LABELS } from "@/lib/employees";
+import { REVIEW_CATEGORIES } from "@/lib/review-categories";
 
 const RATINGS = [1, 2, 3, 4, 5];
+
+/** A compact 1–5 rating select with labels; "" = not rated. */
+function RatingSelect({
+  value,
+  onChange,
+  blankLabel = "— not rated —",
+}: {
+  value: number | null;
+  onChange: (v: number | null) => void;
+  blankLabel?: string;
+}) {
+  return (
+    <select
+      className="input"
+      value={value ?? ""}
+      onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
+    >
+      <option value="">{blankLabel}</option>
+      {RATINGS.map((n) => (
+        <option key={n} value={n}>
+          {n} · {RATING_LABELS[n]}
+        </option>
+      ))}
+    </select>
+  );
+}
 
 export default function EmployeeActions({
   employeeId,
@@ -27,7 +54,8 @@ export default function EmployeeActions({
   const [error, setError] = useState<string | null>(null);
 
   // Add-review form state
-  const [rating, setRating] = useState<number | null>(null);
+  const [rating, setRating] = useState<number | null>(null); // overall
+  const [catRatings, setCatRatings] = useState<Record<string, number | null>>({});
   const [reviewRole, setReviewRole] = useState(currentRole ?? "");
   const [stillEmployed, setStillEmployed] = useState(true);
   const [termReason, setTermReason] = useState("");
@@ -61,7 +89,7 @@ export default function EmployeeActions({
 
   function submitReview() {
     if (stillEmployed && rating === null) {
-      setError("Pick a rating.");
+      setError("Pick an overall rating.");
       return;
     }
     const fd = new FormData();
@@ -69,10 +97,15 @@ export default function EmployeeActions({
     fd.set("still_employed", stillEmployed ? "yes" : "no");
     fd.set("role_at_review", reviewRole);
     if (rating !== null) fd.set("rating", String(rating));
+    for (const c of REVIEW_CATEGORIES) {
+      const v = catRatings[c.column];
+      if (v != null) fd.set(c.column, String(v));
+    }
     if (!stillEmployed) fd.set("termination_reason", termReason);
     fd.set("notes", notes);
     run(() => addReview(fd), () => {
       setRating(null);
+      setCatRatings({});
       setNotes("");
       setStillEmployed(true);
       setTermReason("");
@@ -112,28 +145,26 @@ export default function EmployeeActions({
           </span>
         </div>
 
-        <label className="label mt-3">
-          Do they meet expectations of their current role?
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {RATINGS.map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => setRating(n)}
-              className={
-                "px-3 py-2 rounded-lg border-2 text-sm font-semibold text-left flex-1 min-w-[130px] " +
-                (rating === n
-                  ? "border-[color:var(--brand-blue)] bg-[color:var(--brand-soft)]"
-                  : "border-[color:var(--brand-line)] hover:border-[color:var(--brand-blue)]")
-              }
-            >
-              <div className="text-base font-black">{n}</div>
-              <div className="text-xs text-[color:var(--brand-ink-muted)]">
-                {RATING_LABELS[n]}
-              </div>
-            </button>
+        <p className="text-sm text-[color:var(--brand-ink-muted)] mt-3">
+          Rate them on the same dimensions the assessment measures — this is what
+          lets you see whether the assessment predicted how they&apos;d do.
+        </p>
+
+        <div className="grid sm:grid-cols-2 gap-3 mt-2">
+          {REVIEW_CATEGORIES.map((c) => (
+            <div key={c.column}>
+              <label className="label">{c.label}</label>
+              <RatingSelect
+                value={catRatings[c.column] ?? null}
+                onChange={(v) => setCatRatings((prev) => ({ ...prev, [c.column]: v }))}
+              />
+            </div>
           ))}
+        </div>
+
+        <div className="mt-3">
+          <label className="label">Overall — do they meet expectations of their role?</label>
+          <RatingSelect value={rating} onChange={setRating} blankLabel="— select —" />
         </div>
 
         <div className="grid sm:grid-cols-2 gap-3 mt-3">

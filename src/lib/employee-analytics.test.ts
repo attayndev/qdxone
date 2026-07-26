@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { bucketPerformanceByFit, MIN_READABLE_N } from "./employee-analytics-core";
-import type { OverallFit } from "./assessment/scoring";
+import {
+  bucketPerformanceByFit,
+  bucketPerformanceByDimension,
+  MIN_READABLE_N,
+} from "./employee-analytics-core";
+import type { OverallFit, Band } from "./assessment/scoring";
 
 const emp = (
   id: string,
@@ -85,5 +89,62 @@ describe("bucketPerformanceByFit", () => {
       "Caution",
       "Not recommended",
     ]);
+  });
+});
+
+describe("bucketPerformanceByDimension", () => {
+  it("buckets employees by their assessment band on each dimension and averages on-job ratings", () => {
+    // Two employees: a1 assessed High on Conscientiousness, a2 assessed Low.
+    const categoryBands = new Map<string, Map<string, Band>>([
+      ["a1", new Map<string, Band>([["Conscientiousness", "High"]])],
+      ["a2", new Map<string, Band>([["Conscientiousness", "Low"]])],
+    ]);
+    const avgByEmpByCategory = new Map<string, Map<string, number>>([
+      ["Conscientiousness", new Map([["e1", 5], ["e2", 2]])],
+    ]);
+    const dims = bucketPerformanceByDimension({
+      employees: [
+        { id: "e1", application_id: "a1", employment_status: "employed" },
+        { id: "e2", application_id: "a2", employment_status: "employed" },
+      ],
+      categoryBands,
+      avgByEmpByCategory,
+    });
+    const consc = dims.find((d) => d.academic === "Conscientiousness")!;
+    expect(consc.label).toBe("Reliability & Drive");
+    const high = consc.bands.find((b) => b.band === "High")!;
+    const low = consc.bands.find((b) => b.band === "Low")!;
+    expect(high.count).toBe(1);
+    expect(high.avgRating).toBe(5); // High assessment band → strong on-job rating
+    expect(low.avgRating).toBe(2); // Low band → weak on-job rating (the signal)
+  });
+
+  it("returns all four dimensions with High/Mid/Low bands, and null avg when unrated", () => {
+    const dims = bucketPerformanceByDimension({
+      employees: [{ id: "e1", application_id: "a1", employment_status: "employed" }],
+      categoryBands: new Map([["a1", new Map<string, Band>([["Agreeableness", "Mid"]])]]),
+      avgByEmpByCategory: new Map(), // no on-job ratings
+    });
+    expect(dims).toHaveLength(4);
+    const agree = dims.find((d) => d.academic === "Agreeableness")!;
+    expect(agree.bands.map((b) => b.band)).toEqual(["High", "Mid", "Low"]);
+    const mid = agree.bands.find((b) => b.band === "Mid")!;
+    expect(mid.count).toBe(1);
+    expect(mid.rated).toBe(0);
+    expect(mid.avgRating).toBeNull();
+  });
+
+  it("excludes employees with no application or no assessment band on that dimension", () => {
+    const dims = bucketPerformanceByDimension({
+      employees: [
+        { id: "e1", application_id: null, employment_status: "employed" },
+        { id: "e2", application_id: "a2", employment_status: "employed" }, // no bands
+      ],
+      categoryBands: new Map([["a2", new Map()]]),
+      avgByEmpByCategory: new Map(),
+    });
+    for (const d of dims) {
+      expect(d.bands.reduce((s, b) => s + b.count, 0)).toBe(0);
+    }
   });
 });

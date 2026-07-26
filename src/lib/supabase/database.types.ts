@@ -556,6 +556,10 @@ export type Database = {
           notes: string | null
           org_id: string
           rating: number | null
+          rating_agreeableness: number | null
+          rating_conscientiousness: number | null
+          rating_emotional_stability: number | null
+          rating_self_direction: number | null
           reviewed_at: string
           reviewed_by: string | null
           role_at_review: string | null
@@ -568,6 +572,10 @@ export type Database = {
           notes?: string | null
           org_id: string
           rating?: number | null
+          rating_agreeableness?: number | null
+          rating_conscientiousness?: number | null
+          rating_emotional_stability?: number | null
+          rating_self_direction?: number | null
           reviewed_at?: string
           reviewed_by?: string | null
           role_at_review?: string | null
@@ -580,6 +588,10 @@ export type Database = {
           notes?: string | null
           org_id?: string
           rating?: number | null
+          rating_agreeableness?: number | null
+          rating_conscientiousness?: number | null
+          rating_emotional_stability?: number | null
+          rating_self_direction?: number | null
           reviewed_at?: string
           reviewed_by?: string | null
           role_at_review?: string | null

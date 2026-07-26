@@ -1,4 +1,5 @@
-import type { OverallFit } from "./assessment/scoring";
+import type { OverallFit, Band } from "./assessment/scoring";
+import { REVIEW_CATEGORIES } from "./review-categories";
 
 /**
  * Pure assessment ↔ performance aggregation (no DB / no server-only imports, so
@@ -100,4 +101,78 @@ export function bucketPerformanceByFit(input: {
     totalReviewed: bands.reduce((s, b) => s + b.reviewed, 0),
     untrackedFit,
   };
+}
+
+// ── Per-dimension analytics ────────────────────────────────────────────────
+// For each of the four assessment dimensions: does a higher ASSESSMENT band on
+// that dimension predict a higher on-the-job rating on that same dimension?
+
+/** Assessment bands, best first. */
+export const ASSESS_BANDS = ["High", "Mid", "Low"] as const;
+export type AssessBand = (typeof ASSESS_BANDS)[number];
+
+export interface DimBandPerformance {
+  band: AssessBand;
+  count: number; // employees whose assessment band on this dimension = band
+  rated: number; // of those, how many have an on-the-job rating on this dimension
+  avgRating: number | null; // mean of per-employee avg on-job ratings; null if rated 0
+  readable: boolean;
+}
+
+export interface DimensionPerformance {
+  academic: string; // assessment category key
+  label: string; // operator-facing label (e.g. "Reliability & Drive")
+  bands: DimBandPerformance[]; // High / Mid / Low
+  totalRated: number;
+}
+
+/**
+ * Pure per-dimension aggregation. `categoryBands` maps applicationId → (academic
+ * category → assessment band). `avgByEmpByCategory` maps academic category →
+ * (employeeId → that employee's average on-the-job rating for that dimension).
+ */
+export function bucketPerformanceByDimension(input: {
+  employees: EmployeeLite[];
+  categoryBands: Map<string, Map<string, Band>>;
+  avgByEmpByCategory: Map<string, Map<string, number>>;
+}): DimensionPerformance[] {
+  const { employees, categoryBands, avgByEmpByCategory } = input;
+
+  return REVIEW_CATEGORIES.map((cat) => {
+    const acc: Record<AssessBand, { count: number; ratings: number[] }> = {
+      High: { count: 0, ratings: [] },
+      Mid: { count: 0, ratings: [] },
+      Low: { count: 0, ratings: [] },
+    };
+    const empAvg = avgByEmpByCategory.get(cat.academic) ?? new Map<string, number>();
+
+    for (const e of employees) {
+      if (!e.application_id) continue;
+      const band = categoryBands.get(e.application_id)?.get(cat.academic);
+      if (!band) continue; // no assessment band on this dimension (invalid/incomplete)
+      const a = acc[band];
+      a.count++;
+      const avg = empAvg.get(e.id);
+      if (avg != null) a.ratings.push(avg);
+    }
+
+    const bands: DimBandPerformance[] = ASSESS_BANDS.map((band) => {
+      const a = acc[band];
+      const rated = a.ratings.length;
+      return {
+        band,
+        count: a.count,
+        rated,
+        avgRating: rated > 0 ? a.ratings.reduce((s, r) => s + r, 0) / rated : null,
+        readable: rated >= MIN_READABLE_N,
+      };
+    });
+
+    return {
+      academic: cat.academic,
+      label: cat.label,
+      bands,
+      totalRated: bands.reduce((s, b) => s + b.rated, 0),
+    };
+  });
 }

@@ -15,6 +15,11 @@
 import "server-only";
 import { adminClient } from "@/lib/supabase/admin";
 import { generateToken } from "@/lib/tokens";
+import { fitByApplication, categoryBandsByApplication } from "@/lib/assessment/fit";
+import { nextReviewDue } from "@/lib/employees";
+import { REVIEW_CATEGORIES } from "@/lib/review-categories";
+import { orgRoles } from "@/lib/roles";
+import type { OrgBranding } from "@/lib/supabase/types";
 
 export const DEMO_SLUG = "demo";
 export const DEMO_USER_EMAIL = "demo@qdx.one";
@@ -71,6 +76,8 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
   }
 
   // Wipe prior demo candidates/postings (FK order). Org + members preserved.
+  // Employees first — their reviews + role changes cascade with them.
+  await supa.from("employees").delete().eq("org_id", orgId);
   const { data: oldSess } = await supa.from("assessment_sessions").select("id").eq("org_id", orgId);
   const oldSessionIds = ((oldSess as { id: string }[] | null) ?? []).map((s) => s.id);
   if (oldSessionIds.length) await supa.from("assessment_responses").delete().in("session_id", oldSessionIds);
@@ -204,6 +211,11 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
     i++;
   }
 
+  // Populate the Employees module + its analytics: a coherent roster of hires
+  // with backdated reviews whose ratings trend with assessment fit (so the
+  // "does the assessment predict performance?" story is visible in the demo).
+  await seedDemoEmployees(orgId, orgRoles(orgFields.branding as unknown as OrgBranding));
+
   // Let platform admins view the demo directly (members of the demo org).
   const { data: admins } = await supa.from("platform_admins").select("user_id");
   for (const row of (admins as { user_id: string | null }[] | null) ?? []) {
@@ -231,4 +243,190 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
   }
 
   return { orgId, candidates: apps.length };
+}
+
+/** UTC date `days` before now (date math stays in UTC — no DST drift). */
+function daysAgoUTC(days: number): Date {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - days);
+  return d;
+}
+
+// Review ratings (1–5 ints) trend with the assessment fit band, cycled across
+// an employee's reviews. This is what makes the demo analytics tell the story.
+const BAND_RATINGS: Record<string, number[]> = {
+  "Strong fit": [5, 4, 5, 4],
+  Consider: [4, 3, 4],
+  Caution: [3, 2, 3],
+  "Not recommended": [2, 1, 2],
+  Incomplete: [3, 3],
+};
+const BAND_RANK: Record<string, number> = {
+  "Strong fit": 0,
+  Consider: 1,
+  Caution: 2,
+  "Not recommended": 3,
+  Incomplete: 4,
+};
+
+// Per-dimension on-job ratings trend with the assessment band on that dimension,
+// so the "assessment accuracy by dimension" view shows a real relationship.
+const DIM_BAND_RATINGS: Record<string, number[]> = {
+  High: [5, 4, 5],
+  Mid: [4, 3, 3],
+  Low: [2, 2, 3],
+};
+
+/**
+ * Seed a believable single-store employee roster from the demo's hires, with
+ * backdated reviews whose ratings trend with each person's assessment fit, a
+ * couple of promotions, and one departure — so the Employees module and its
+ * "does the assessment predict performance?" analytics are populated and
+ * compelling. Illustrative demo data, demo org only.
+ */
+async function seedDemoEmployees(orgId: string, ladder: string[]): Promise<void> {
+  const supa = adminClient();
+  const roles = ladder.length
+    ? ladder
+    : ["Team Member", "Shift Lead", "Assistant Manager", "Manager"];
+  const [fit, catBands] = await Promise.all([
+    fitByApplication(orgId),
+    categoryBandsByApplication(orgId),
+  ]);
+
+  const { data: appRows } = await supa
+    .from("applications")
+    .select("id, positions, decision, first_name, last_name")
+    .eq("org_id", orgId);
+  const apps = (
+    (appRows as
+      | {
+          id: string;
+          positions: string[] | null;
+          decision: string | null;
+          first_name: string;
+          last_name: string;
+        }[]
+      | null) ?? []
+  ).map((a) => ({ ...a, band: fit.get(a.id) ?? "Incomplete" }));
+
+  // Roster: everyone already hired, then fill with the best-fit remaining
+  // candidates up to a believable headcount for one store.
+  const TARGET = 10;
+  apps.sort((x, y) => (BAND_RANK[x.band] ?? 5) - (BAND_RANK[y.band] ?? 5));
+  const roster: typeof apps = [];
+  const chosen = new Set<string>();
+  for (const a of apps)
+    if (a.decision === "hired") {
+      roster.push(a);
+      chosen.add(a.id);
+    }
+  for (const a of apps) {
+    if (roster.length >= TARGET) break;
+    if (!chosen.has(a.id) && a.band !== "Incomplete") {
+      roster.push(a);
+      chosen.add(a.id);
+    }
+  }
+
+  let idx = 0;
+  for (const a of roster) {
+    const band = a.band;
+    const tenureMonths = 2 + (idx % 8); // 2..9 months — spans onboarding + tenured
+    const hiredAt = daysAgoUTC(tenureMonths * 30);
+    const startRole = a.positions?.[0] ?? roles[0];
+    const roleIdx = roles.indexOf(startRole);
+    const promote =
+      band === "Strong fit" && tenureMonths >= 5 && roleIdx >= 0 && roleIdx < roles.length - 1;
+    const currentRole = promote ? roles[roleIdx + 1] : startRole;
+    const terminate = band === "Not recommended" && idx % 2 === 1;
+
+    // Mark hired for coherence (candidate list ↔ roster).
+    if (a.decision !== "hired") {
+      await supa
+        .from("applications")
+        .update({
+          decision: "hired",
+          decision_at: hiredAt.toISOString(),
+          status: "decision_made",
+        } as never)
+        .eq("id", a.id)
+        .eq("org_id", orgId);
+    }
+
+    const reviewCount = Math.min(3, tenureMonths); // monthly reviews, up to 3
+    const reviewDates: Date[] = [];
+    for (let k = 1; k <= reviewCount; k++) reviewDates.push(daysAgoUTC((tenureMonths - k) * 30));
+    const lastReview = reviewDates[reviewDates.length - 1] ?? hiredAt;
+
+    const { data: empRow } = await supa
+      .from("employees")
+      .insert({
+        org_id: orgId,
+        location_id: null,
+        application_id: a.id,
+        first_name: a.first_name,
+        last_name: a.last_name,
+        current_role_name: currentRole,
+        employment_status: terminate ? "terminated" : "employed",
+        hired_at: hiredAt.toISOString().slice(0, 10),
+        terminated_at: terminate ? daysAgoUTC(10).toISOString().slice(0, 10) : null,
+        termination_reason: terminate ? "Attendance" : null,
+        next_review_due: terminate ? null : nextReviewDue(lastReview, hiredAt),
+      } as never)
+      .select("id")
+      .single();
+    const empId = (empRow as { id: string } | null)?.id;
+    if (!empId) {
+      idx++;
+      continue;
+    }
+
+    // Reviews (backdated): overall trends with fit band; each category rating
+    // trends with that candidate's assessment band on that dimension.
+    const ratings = BAND_RATINGS[band] ?? BAND_RATINGS.Incomplete;
+    const bands = catBands.get(a.id); // academic → High/Mid/Low
+    const reviews = reviewDates.map((d, k) => {
+      const catCols: Record<string, number | null> = {};
+      for (const c of REVIEW_CATEGORIES) {
+        const dimBand = bands?.get(c.academic);
+        const scale = dimBand ? DIM_BAND_RATINGS[dimBand] : null;
+        catCols[c.column] = scale ? scale[k % scale.length] : null;
+      }
+      return {
+        employee_id: empId,
+        org_id: orgId,
+        reviewed_at: d.toISOString(),
+        role_at_review: startRole,
+        rating: ratings[k % ratings.length],
+        ...catCols,
+        still_employed: true,
+        notes: null,
+      };
+    });
+    if (reviews.length) await supa.from("employee_reviews").insert(reviews as never);
+
+    // Role history: initial role, plus a promotion if earned.
+    const roleChanges: Record<string, unknown>[] = [
+      {
+        employee_id: empId,
+        org_id: orgId,
+        from_role: null,
+        to_role: startRole,
+        changed_at: hiredAt.toISOString(),
+      },
+    ];
+    if (promote) {
+      roleChanges.push({
+        employee_id: empId,
+        org_id: orgId,
+        from_role: startRole,
+        to_role: currentRole,
+        changed_at: daysAgoUTC(Math.max(15, (tenureMonths - 3) * 30)).toISOString(),
+      });
+    }
+    await supa.from("employee_role_changes").insert(roleChanges as never);
+
+    idx++;
+  }
 }

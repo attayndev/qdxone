@@ -8,6 +8,13 @@ import { revalidatePath } from "next/cache";
 import { adminClient } from "@/lib/supabase/admin";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
 import { nextReviewDue, type EmployeeRow } from "@/lib/employees";
+import { REVIEW_CATEGORIES } from "@/lib/review-categories";
+
+/** Parse a 1–5 rating from form data; null if blank, out-of-range treated as null. */
+function parseRating(raw: FormDataEntryValue | null): number | null {
+  const n = raw ? Number(raw) : NaN;
+  return Number.isInteger(n) && n >= 1 && n <= 5 ? n : null;
+}
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -37,13 +44,14 @@ export async function addReview(formData: FormData): Promise<ActionResult> {
   const stillEmployed = String(formData.get("still_employed") || "yes") === "yes";
   const roleAtReview =
     String(formData.get("role_at_review") || "").trim() || emp.current_role_name;
-  const ratingRaw = String(formData.get("rating") || "");
-  const rating = ratingRaw ? Number(ratingRaw) : null;
-  if (rating !== null && (rating < 1 || rating > 5)) {
-    return { ok: false, error: "Rating must be 1–5." };
-  }
+  const rating = parseRating(formData.get("rating")); // overall
   if (stillEmployed && rating === null) {
-    return { ok: false, error: "Pick a rating." };
+    return { ok: false, error: "Pick an overall rating." };
+  }
+  // The four optional category ratings (same dimensions the assessment scores).
+  const categoryRatings: Record<string, number | null> = {};
+  for (const c of REVIEW_CATEGORIES) {
+    categoryRatings[c.column] = parseRating(formData.get(c.column));
   }
   const notes = String(formData.get("notes") || "").trim() || null;
 
@@ -53,6 +61,7 @@ export async function addReview(formData: FormData): Promise<ActionResult> {
     reviewed_by: m.user_id,
     role_at_review: roleAtReview,
     rating,
+    ...categoryRatings,
     still_employed: stillEmployed,
     notes,
   } as never);

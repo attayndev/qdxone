@@ -52,7 +52,11 @@ export interface EmployeeReviewRow {
   reviewed_at: string;
   reviewed_by: string | null;
   role_at_review: string | null;
-  rating: number | null;
+  rating: number | null; // overall (1–5)
+  rating_conscientiousness: number | null; // Reliability & Drive
+  rating_agreeableness: number | null; // People Skills
+  rating_emotional_stability: number | null; // Composure
+  rating_self_direction: number | null; // Ownership
   still_employed: boolean;
   notes: string | null;
   created_at: string;

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { currentOrg } from "@/lib/tenancy";
 import { orgRoles } from "@/lib/roles";
 import { getEmployee, ratingLabel } from "@/lib/employees";
+import { REVIEW_CATEGORIES } from "@/lib/review-categories";
 import EmployeeActions from "@/components/admin/EmployeeActions";
 
 const RATING_CLS: Record<number, string> = {
@@ -130,6 +131,21 @@ export default async function EmployeeDetailPage({
                     )
                   )}
                 </div>
+                {REVIEW_CATEGORIES.some((c) => r[c.column] != null) && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {REVIEW_CATEGORIES.map((c) =>
+                      r[c.column] != null ? (
+                        <span
+                          key={c.column}
+                          className="chip bg-[color:var(--brand-cream)] text-[color:var(--brand-ink)]"
+                          title={ratingLabel(r[c.column]) ?? undefined}
+                        >
+                          {c.label} {r[c.column]}/5
+                        </span>
+                      ) : null
+                    )}
+                  </div>
+                )}
                 {r.notes && (
                   <div className="text-sm text-[color:var(--brand-ink-muted)] mt-1.5 whitespace-pre-wrap">
                     {r.notes}

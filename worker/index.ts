@@ -140,16 +140,21 @@ export default {
   // Cloudflare cron → drain the scheduling outbox by calling into the container.
   // The container holds the Next runtime (Supabase, Resend, Google clients); the
   // Worker just authenticates the call with the shared secret.
-  async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+  async scheduled(event: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    // The nightly demo-reset cron rebuilds the demo org; every other tick drains
+    // the scheduling outbox. Branch on which cron pattern fired.
+    const isDemoReset = event.cron === "0 5 * * *";
+    const path = isDemoReset ? "/api/cron/demo-reset" : "/api/cron/scheduling";
+    const label = isDemoReset ? "demo reset" : "scheduling drain";
     const run = async () => {
       if (!env.CRON_SECRET) return;
       const res = await getContainer(env.NEXT_CONTAINER, "main").fetch(
-        new Request("https://qdx.one/api/cron/scheduling", {
+        new Request(`https://qdx.one${path}`, {
           method: "POST",
           headers: { "x-cron-secret": env.CRON_SECRET },
         })
       );
-      if (!res.ok) console.error("[cron] scheduling drain failed:", res.status, await res.text());
+      if (!res.ok) console.error(`[cron] ${label} failed:`, res.status, await res.text());
     };
     ctx.waitUntil(run());
   },
