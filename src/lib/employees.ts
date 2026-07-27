@@ -41,6 +41,10 @@ export interface EmployeeRow {
   terminated_at: string | null;
   termination_reason: string | null;
   next_review_due: string | null; // date
+  email: string | null;
+  user_id: string | null;
+  invited_at: string | null;
+  activated_at: string | null;
   created_at: string;
   updated_at: string;
 }

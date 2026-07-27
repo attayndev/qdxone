@@ -664,13 +664,16 @@ export type Database = {
       }
       employees: {
         Row: {
+          activated_at: string | null
           application_id: string | null
           created_at: string
           current_role_name: string | null
+          email: string | null
           employment_status: string
           first_name: string
           hired_at: string
           id: string
+          invited_at: string | null
           last_name: string
           location_id: string | null
           next_review_due: string | null
@@ -678,15 +681,19 @@ export type Database = {
           terminated_at: string | null
           termination_reason: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
+          activated_at?: string | null
           application_id?: string | null
           created_at?: string
           current_role_name?: string | null
+          email?: string | null
           employment_status?: string
           first_name: string
           hired_at?: string
           id?: string
+          invited_at?: string | null
           last_name: string
           location_id?: string | null
           next_review_due?: string | null
@@ -694,15 +701,19 @@ export type Database = {
           terminated_at?: string | null
           termination_reason?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
+          activated_at?: string | null
           application_id?: string | null
           created_at?: string
           current_role_name?: string | null
+          email?: string | null
           employment_status?: string
           first_name?: string
           hired_at?: string
           id?: string
+          invited_at?: string | null
           last_name?: string
           location_id?: string | null
           next_review_due?: string | null
@@ -710,6 +721,7 @@ export type Database = {
           terminated_at?: string | null
           termination_reason?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {

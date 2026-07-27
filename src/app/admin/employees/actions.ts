@@ -162,6 +162,51 @@ export async function terminateEmployee(formData: FormData): Promise<ActionResul
   return { ok: true };
 }
 
+/** Invite (or re-invite) an employee to the /staff portal: email a set-password link. */
+export async function inviteEmployeeToStaff(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const supa = adminClient();
+  const employeeId = String(formData.get("employee_id") || "");
+  if (!employeeId) return { ok: false, error: "Missing employee." };
+
+  const { data: emp } = await supa
+    .from("employees")
+    .select("email")
+    .eq("id", employeeId)
+    .eq("org_id", org.id)
+    .maybeSingle();
+  const email = (emp as { email: string | null } | null)?.email;
+  if (!email) return { ok: false, error: "This employee has no email on file — add one first." };
+
+  const { sendStaffSetupLink } = await import("@/lib/staff-invite");
+  const { matched } = await sendStaffSetupLink({
+    orgId: org.id,
+    orgSlug: org.slug,
+    orgName: org.name,
+    email,
+  });
+  if (!matched) return { ok: false, error: "Could not match this employee. Try again." };
+  revalidate(employeeId);
+  return { ok: true };
+}
+
+/** Revoke portal access: unlink the account and clear the invite. */
+export async function revokeStaffAccess(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const supa = adminClient();
+  const employeeId = String(formData.get("employee_id") || "");
+  if (!employeeId) return { ok: false, error: "Missing employee." };
+  await supa
+    .from("employees")
+    .update({ user_id: null, invited_at: null, activated_at: null } as never)
+    .eq("id", employeeId)
+    .eq("org_id", org.id);
+  revalidate(employeeId);
+  return { ok: true };
+}
+
 /**
  * Import existing hires that predate employee tracking (idempotent). Returns
  * a message with how many were created. Triggered from the Employees list.

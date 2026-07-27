@@ -5,6 +5,7 @@ import { orgRoles } from "@/lib/roles";
 import { getEmployee, ratingLabel } from "@/lib/employees";
 import { REVIEW_CATEGORIES } from "@/lib/review-categories";
 import EmployeeActions from "@/components/admin/EmployeeActions";
+import StaffAccessControl from "@/components/admin/StaffAccessControl";
 
 const RATING_CLS: Record<number, string> = {
   1: "bg-rose-100 text-rose-700",
@@ -88,6 +89,16 @@ export default async function EmployeeDetailPage({
             {e.termination_reason ? ` — ${e.termination_reason}` : ""}
           </div>
         </div>
+      )}
+
+      {/* Employee portal access (Phase 2a) */}
+      {e.employment_status === "employed" && (
+        <StaffAccessControl
+          employeeId={e.id}
+          email={e.email}
+          invitedAt={e.invited_at}
+          activatedAt={e.activated_at}
+        />
       )}
 
       {/* Interactive controls (add review / change role / terminate) */}

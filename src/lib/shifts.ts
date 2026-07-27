@@ -10,6 +10,25 @@ import {
 
 export * from "./shifts-core";
 
+/** An employee's own published shifts on/after `fromDate` (the /staff view). */
+export async function listEmployeeUpcomingShifts(
+  orgId: string,
+  employeeId: string,
+  fromDate: string
+): Promise<ShiftRow[]> {
+  const supa = adminClient();
+  const { data } = await supa
+    .from("shifts")
+    .select("*")
+    .eq("org_id", orgId)
+    .eq("employee_id", employeeId)
+    .eq("status", "published")
+    .gte("shift_date", fromDate)
+    .order("shift_date", { ascending: true })
+    .order("start_time", { ascending: true });
+  return (data as ShiftRow[] | null) ?? [];
+}
+
 /** Flat list of shifts in the week containing `anchorDate` (for the grid UI). */
 export async function listShiftsForWeek(
   orgId: string,
