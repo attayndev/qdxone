@@ -506,4 +506,16 @@ async function seedDemoScheduleWeek(orgId: string, locationId: string | null): P
   if (emps[4]) timeOff.push({ org_id: orgId, employee_id: emps[4].id, start_date: dates[4], end_date: dates[4], all_day: true, reason: "Wedding", status: "approved", reviewed_at: now });
   if (emps[5]) timeOff.push({ org_id: orgId, employee_id: emps[5].id, start_date: addDays(dates[6], 3), end_date: addDays(dates[6], 5), all_day: true, reason: "Vacation", status: "pending" });
   if (timeOff.length) await supa.from("time_off_requests").insert(timeOff as never);
+
+  // A pending claim (on an open shift) + a drop (on an assigned shift).
+  const [{ data: openShift }, { data: assignedShift }] = await Promise.all([
+    supa.from("shifts").select("id").eq("org_id", orgId).is("employee_id", null).limit(1).maybeSingle(),
+    supa.from("shifts").select("id, employee_id").eq("org_id", orgId).not("employee_id", "is", null).limit(1).maybeSingle(),
+  ]);
+  const reqs: Record<string, unknown>[] = [];
+  const os = openShift as { id: string } | null;
+  const as = assignedShift as { id: string; employee_id: string } | null;
+  if (os && emps[6]) reqs.push({ org_id: orgId, shift_id: os.id, employee_id: emps[6].id, kind: "claim" });
+  if (as) reqs.push({ org_id: orgId, shift_id: as.id, employee_id: as.employee_id, kind: "drop" });
+  if (reqs.length) await supa.from("shift_requests").insert(reqs as never);
 }

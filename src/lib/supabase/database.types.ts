@@ -1562,6 +1562,67 @@ export type Database = {
           },
         ]
       }
+      shift_requests: {
+        Row: {
+          created_at: string
+          employee_id: string
+          id: string
+          kind: string
+          org_id: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          shift_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          id?: string
+          kind: string
+          org_id: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          shift_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          id?: string
+          kind?: string
+          org_id?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          shift_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_requests_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_requests_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shifts: {
         Row: {
           created_at: string

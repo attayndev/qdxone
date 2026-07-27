@@ -327,9 +327,14 @@ export async function publishWeek(
   return { ok: true, published: toPublish.length, notified: affected.size };
 }
 
-function revalidateTimeOff() {
+function revalidateRequests() {
+  revalidatePath("/admin/schedule/requests");
   revalidatePath("/admin/schedule/time-off");
   revalidatePath("/admin/schedule");
+  revalidatePath("/staff");
+}
+function revalidateTimeOff() {
+  revalidateRequests();
 }
 
 /** Approve a pending time-off request. */
@@ -353,6 +358,109 @@ export async function approveTimeOff(formData: FormData): Promise<ActionResult> 
     return { ok: false, error: "Could not approve. Try again." };
   }
   revalidateTimeOff();
+  return { ok: true };
+}
+
+/** Approve a shift request: claim → assign the shift; drop → open the shift. */
+export async function approveShiftRequest(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  const m = await requireMembership(org.id);
+  const id = String(formData.get("request_id") || "");
+  if (!id) return { ok: false, error: "Missing request." };
+  const supa = adminClient();
+  const now = new Date().toISOString();
+
+  const { data: reqRow } = await supa
+    .from("shift_requests")
+    .select("id, shift_id, employee_id, kind, status")
+    .eq("id", id)
+    .eq("org_id", org.id)
+    .maybeSingle();
+  const req = reqRow as {
+    id: string;
+    shift_id: string;
+    employee_id: string;
+    kind: "claim" | "drop";
+    status: string;
+  } | null;
+  if (!req || req.status !== "pending") return { ok: false, error: "This request was already handled." };
+
+  const { data: shiftRow } = await supa
+    .from("shifts")
+    .select("id, employee_id, shift_date, start_time, end_time")
+    .eq("id", req.shift_id)
+    .eq("org_id", org.id)
+    .maybeSingle();
+  const shift = shiftRow as {
+    id: string;
+    employee_id: string | null;
+    shift_date: string;
+    start_time: string;
+    end_time: string;
+  } | null;
+  if (!shift) return { ok: false, error: "That shift no longer exists." };
+
+  let warning: string | undefined;
+  if (req.kind === "claim") {
+    if (shift.employee_id !== null) return { ok: false, error: "That shift was already assigned." };
+    if (await hasConflict(org.id, req.employee_id, shift.shift_date, shift.start_time, shift.end_time)) {
+      return { ok: false, error: "They already have an overlapping shift then." };
+    }
+    await supa
+      .from("shifts")
+      .update({ employee_id: req.employee_id, status: "published", published_at: now } as never)
+      .eq("id", shift.id)
+      .eq("org_id", org.id);
+    // Fill decided: auto-decline other pending claims for this shift.
+    await supa
+      .from("shift_requests")
+      .update({ status: "denied", reviewed_by: m.user_id, reviewed_at: now, review_note: "Shift filled" } as never)
+      .eq("shift_id", shift.id)
+      .eq("kind", "claim")
+      .eq("status", "pending")
+      .neq("id", id);
+    warning = await conflictWarning(org.id, req.employee_id, {
+      shift_date: shift.shift_date,
+      start_time: shift.start_time,
+      end_time: shift.end_time,
+    });
+  } else {
+    if (shift.employee_id !== req.employee_id) return { ok: false, error: "They no longer hold that shift." };
+    await supa
+      .from("shifts")
+      .update({ employee_id: null, status: "published", published_at: now } as never)
+      .eq("id", shift.id)
+      .eq("org_id", org.id);
+  }
+
+  await supa
+    .from("shift_requests")
+    .update({ status: "approved", reviewed_by: m.user_id, reviewed_at: now } as never)
+    .eq("id", id)
+    .eq("org_id", org.id);
+  revalidateRequests();
+  return { ok: true, warning };
+}
+
+/** Deny a shift request. */
+export async function denyShiftRequest(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  const m = await requireMembership(org.id);
+  const id = String(formData.get("request_id") || "");
+  if (!id) return { ok: false, error: "Missing request." };
+  const note = String(formData.get("review_note") || "").trim() || null;
+  const supa = adminClient();
+  await supa
+    .from("shift_requests")
+    .update({
+      status: "denied",
+      reviewed_by: m.user_id,
+      reviewed_at: new Date().toISOString(),
+      review_note: note,
+    } as never)
+    .eq("id", id)
+    .eq("org_id", org.id);
+  revalidateRequests();
   return { ok: true };
 }
 

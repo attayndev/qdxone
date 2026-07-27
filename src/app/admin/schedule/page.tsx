@@ -6,6 +6,7 @@ import { listEmployees } from "@/lib/employees";
 import { listShiftsForWeek, weekStart } from "@/lib/shifts";
 import { unavailabilityByEmployee } from "@/lib/availability";
 import { approvedTimeOffByEmployee, pendingTimeOffCount } from "@/lib/time-off";
+import { pendingShiftRequestCount } from "@/lib/shift-requests";
 import type { UnavailBlock, TimeOffRange } from "@/lib/shifts-core";
 import ScheduleGrid from "@/components/admin/ScheduleGrid";
 
@@ -24,13 +25,14 @@ export default async function SchedulePage({
     : new Date().toISOString().slice(0, 10);
   const monday = weekStart(anchor);
 
-  const [shifts, employees, locations, unavailMap, timeOffMap, pendingTO] = await Promise.all([
+  const [shifts, employees, locations, unavailMap, timeOffMap, pendingTO, pendingSR] = await Promise.all([
     listShiftsForWeek(org.id, monday),
     listEmployees(org.id),
     getOrgLocations(org.id),
     unavailabilityByEmployee(org.id),
     approvedTimeOffByEmployee(org.id),
     pendingTimeOffCount(org.id),
+    pendingShiftRequestCount(org.id),
   ]);
 
   // Serialize the maps to plain records for the client grid.
@@ -57,7 +59,7 @@ export default async function SchedulePage({
       roles={orgRoles(org.branding)}
       unavail={unavail}
       timeOff={timeOff}
-      pendingTimeOff={pendingTO}
+      pendingRequests={pendingTO + pendingSR}
     />
   );
 }

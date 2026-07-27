@@ -56,7 +56,7 @@ export default function ScheduleGrid({
   roles,
   unavail = {},
   timeOff = {},
-  pendingTimeOff = 0,
+  pendingRequests = 0,
 }: {
   weekStart: string;
   shifts: ShiftRow[];
@@ -65,7 +65,7 @@ export default function ScheduleGrid({
   roles: string[];
   unavail?: Record<string, UnavailBlock[]>;
   timeOff?: Record<string, TimeOffRange[]>;
-  pendingTimeOff?: number;
+  pendingRequests?: number;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -223,12 +223,12 @@ export default function ScheduleGrid({
         <div className="text-lg font-bold">{rangeLabel}</div>
         <div className="flex items-center gap-2 flex-wrap">
           <Link
-            href="/admin/schedule/time-off"
+            href="/admin/schedule/requests"
             className={
-              "chip " + (pendingTimeOff > 0 ? "bg-rose-600 text-white" : "bg-gray-100 text-gray-600")
+              "chip " + (pendingRequests > 0 ? "bg-rose-600 text-white" : "bg-gray-100 text-gray-600")
             }
           >
-            Time off{pendingTimeOff > 0 ? ` (${pendingTimeOff})` : ""}
+            Requests{pendingRequests > 0 ? ` (${pendingRequests})` : ""}
           </Link>
           <span
             className={

@@ -3,7 +3,9 @@ import { currentOrg } from "@/lib/tenancy";
 import { currentEmployee } from "@/lib/staff-auth";
 import Link from "next/link";
 import { listEmployeeUpcomingShifts, weekStart, formatTimeRange, shiftHours } from "@/lib/shifts";
+import { openShiftsForEmployee, pendingShiftIds } from "@/lib/shift-requests";
 import LogoutButton from "@/components/LogoutButton";
+import ShiftRequestButton from "@/components/staff/ShiftRequestButton";
 
 function dayHeading(d: string): string {
   return new Date(`${d}T00:00:00`).toLocaleDateString(undefined, {
@@ -20,7 +22,12 @@ export default async function StaffSchedulePage() {
   if (!emp) redirect("/staff/login");
 
   const from = weekStart(new Date().toISOString().slice(0, 10));
-  const shifts = await listEmployeeUpcomingShifts(org.id, emp.id, from);
+  const [shifts, openShifts, pendingDrops, pendingClaims] = await Promise.all([
+    listEmployeeUpcomingShifts(org.id, emp.id, from),
+    openShiftsForEmployee(org.id, emp.id),
+    pendingShiftIds(org.id, emp.id, "drop"),
+    pendingShiftIds(org.id, emp.id, "claim"),
+  ]);
 
   // Group by date.
   const byDate = new Map<string, typeof shifts>();
@@ -75,8 +82,11 @@ export default async function StaffSchedulePage() {
                           <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5">{s.notes}</div>
                         )}
                       </div>
-                      <div className="text-xs text-[color:var(--brand-ink-muted)] whitespace-nowrap">
-                        {shiftHours(s.start_time, s.end_time)}h
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="text-xs text-[color:var(--brand-ink-muted)] whitespace-nowrap">
+                          {shiftHours(s.start_time, s.end_time)}h
+                        </span>
+                        <ShiftRequestButton shiftId={s.id} kind="drop" pending={pendingDrops.has(s.id)} />
                       </div>
                     </li>
                   ))}
@@ -85,6 +95,30 @@ export default async function StaffSchedulePage() {
             ))}
           </div>
         </>
+      )}
+
+      {/* Open shifts to pick up */}
+      {openShifts.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-black tracking-tight">Open shifts</h2>
+          <p className="text-sm text-[color:var(--brand-ink-muted)]">
+            Shifts that need coverage. Pick one up — your manager confirms it.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            {openShifts.map((s) => (
+              <li key={s.id} className="card py-3 flex items-center justify-between gap-3">
+                <div>
+                  <div className="font-semibold">{dayHeading(s.shift_date)}</div>
+                  <div className="text-sm">
+                    {formatTimeRange(s.start_time, s.end_time)}
+                    {s.role ? ` · ${s.role}` : ""}
+                  </div>
+                </div>
+                <ShiftRequestButton shiftId={s.id} kind="claim" pending={pendingClaims.has(s.id)} />
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
