@@ -18,7 +18,7 @@ import { generateToken } from "@/lib/tokens";
 import { fitByApplication, categoryBandsByApplication } from "@/lib/assessment/fit";
 import { nextReviewDue } from "@/lib/employees";
 import { REVIEW_CATEGORIES } from "@/lib/review-categories";
-import { weekDates } from "@/lib/shifts-core";
+import { weekDates, addDays } from "@/lib/shifts-core";
 import { orgRoles } from "@/lib/roles";
 import type { OrgBranding } from "@/lib/supabase/types";
 
@@ -500,4 +500,10 @@ async function seedDemoScheduleWeek(orgId: string, locationId: string | null): P
   if (emps[1]) blocks.push({ org_id: orgId, employee_id: emps[1].id, day_of_week: 3, all_day: false, start_time: "09:00:00", end_time: "15:00:00", note: "Second job" });
   if (emps[3]) blocks.push({ org_id: orgId, employee_id: emps[3].id, day_of_week: 0, all_day: true, note: "Family day" });
   if (blocks.length) await supa.from("employee_unavailability").insert(blocks as never);
+
+  // Time-off: one approved (shows on the schedule) + one pending (the queue).
+  const timeOff: Record<string, unknown>[] = [];
+  if (emps[4]) timeOff.push({ org_id: orgId, employee_id: emps[4].id, start_date: dates[4], end_date: dates[4], all_day: true, reason: "Wedding", status: "approved", reviewed_at: now });
+  if (emps[5]) timeOff.push({ org_id: orgId, employee_id: emps[5].id, start_date: addDays(dates[6], 3), end_date: addDays(dates[6], 5), all_day: true, reason: "Vacation", status: "pending" });
+  if (timeOff.length) await supa.from("time_off_requests").insert(timeOff as never);
 }

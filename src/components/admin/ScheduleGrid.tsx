@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   weekDates,
   addDays,
@@ -9,8 +10,10 @@ import {
   formatTimeRange,
   hasUnpublishedChanges,
   dayOfWeek,
+  dateHasTimeOff,
   type ShiftRow,
   type UnavailBlock,
+  type TimeOffRange,
 } from "@/lib/shifts-core";
 import {
   createShift,
@@ -52,6 +55,8 @@ export default function ScheduleGrid({
   locations,
   roles,
   unavail = {},
+  timeOff = {},
+  pendingTimeOff = 0,
 }: {
   weekStart: string;
   shifts: ShiftRow[];
@@ -59,6 +64,8 @@ export default function ScheduleGrid({
   locations: LocLite[];
   roles: string[];
   unavail?: Record<string, UnavailBlock[]>;
+  timeOff?: Record<string, TimeOffRange[]>;
+  pendingTimeOff?: number;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -215,6 +222,14 @@ export default function ScheduleGrid({
       <div className="flex items-center justify-between gap-3 flex-wrap mt-3">
         <div className="text-lg font-bold">{rangeLabel}</div>
         <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            href="/admin/schedule/time-off"
+            className={
+              "chip " + (pendingTimeOff > 0 ? "bg-rose-600 text-white" : "bg-gray-100 text-gray-600")
+            }
+          >
+            Time off{pendingTimeOff > 0 ? ` (${pendingTimeOff})` : ""}
+          </Link>
           <span
             className={
               "chip " +
@@ -267,6 +282,7 @@ export default function ScheduleGrid({
               dates={dates}
               cell={cell}
               blocks={[]}
+              timeOff={[]}
               onAdd={(d) => openNew(OPEN, d)}
               onEdit={openEdit}
             />
@@ -279,6 +295,7 @@ export default function ScheduleGrid({
                 dates={dates}
                 cell={cell}
                 blocks={unavail[e.id] ?? []}
+                timeOff={timeOff[e.id] ?? []}
                 onAdd={(d) => openNew(e.id, d)}
                 onEdit={openEdit}
               />
@@ -377,6 +394,7 @@ function ScheduleRowCells({
   dates,
   cell,
   blocks,
+  timeOff,
   onAdd,
   onEdit,
   highlight,
@@ -387,6 +405,7 @@ function ScheduleRowCells({
   dates: string[];
   cell: (empKey: string, date: string) => ShiftRow[];
   blocks: UnavailBlock[];
+  timeOff: TimeOffRange[];
   onAdd: (date: string) => void;
   onEdit: (s: ShiftRow) => void;
   highlight?: boolean;
@@ -400,8 +419,14 @@ function ScheduleRowCells({
       {dates.map((d) => {
         const shifts = cell(empKey, d);
         const dayBlocks = blocks.filter((b) => b.day_of_week === dayOfWeek(d));
+        const onTimeOff = dateHasTimeOff(d, timeOff);
         return (
           <td key={d} className="p-1 border-b border-l border-[color:var(--brand-line)] align-top min-w-[92px]">
+            {onTimeOff && (
+              <div className="mb-1 rounded bg-violet-100 text-violet-700 text-[10px] px-1.5 py-0.5 font-semibold">
+                🌴 Time off
+              </div>
+            )}
             {dayBlocks.length > 0 && (
               <div
                 className="mb-1 rounded bg-rose-50 text-rose-500 text-[10px] px-1.5 py-0.5"

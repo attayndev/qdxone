@@ -41,7 +41,10 @@ export default async function StaffSchedulePage() {
         </div>
         <div className="flex items-center gap-3">
           <Link href="/staff/availability" className="text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline whitespace-nowrap">
-            My availability →
+            Availability
+          </Link>
+          <Link href="/staff/time-off" className="text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline whitespace-nowrap">
+            Time off
           </Link>
           <LogoutButton />
         </div>

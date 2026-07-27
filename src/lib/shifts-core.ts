@@ -111,6 +111,37 @@ export function shiftHitsUnavailability(
   });
 }
 
+// ── Time-off (date-specific) helpers ────────────────────────────────────────
+
+export interface TimeOffRange {
+  start_date: string; // YYYY-MM-DD
+  end_date: string;
+  all_day: boolean;
+  start_time: string | null;
+  end_time: string | null;
+}
+
+/** Does a date fall within any approved time-off range (grid marker)? */
+export function dateHasTimeOff(dateStr: string, ranges: TimeOffRange[]): boolean {
+  return ranges.some((r) => dateStr >= r.start_date && dateStr <= r.end_date);
+}
+
+/** Does a shift land on approved time off (create/update warning)? */
+export function shiftHitsTimeOff(
+  shift: { shift_date: string; start_time: string; end_time: string },
+  ranges: TimeOffRange[]
+): boolean {
+  return ranges.some((r) => {
+    if (shift.shift_date < r.start_date || shift.shift_date > r.end_date) return false;
+    if (r.all_day) return true;
+    if (!r.start_time || !r.end_time) return false;
+    return shiftsOverlap(
+      { start_time: shift.start_time, end_time: shift.end_time },
+      { start_time: r.start_time, end_time: r.end_time }
+    );
+  });
+}
+
 // ── Week helpers (weeks run Monday→Sunday, UTC math to avoid DST drift) ──────
 
 /** Add whole days to a YYYY-MM-DD date, returning YYYY-MM-DD (UTC). */

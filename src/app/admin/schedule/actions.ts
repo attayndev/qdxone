@@ -12,26 +12,35 @@ import {
   addDays,
   shiftsOverlap,
   shiftHitsUnavailability,
+  shiftHitsTimeOff,
   copyWeekShifts,
   formatTimeRange,
   hasUnpublishedChanges,
   type ShiftRow,
 } from "@/lib/shifts-core";
 import { unavailabilityForEmployee } from "@/lib/availability";
+import { approvedTimeOffForEmployee } from "@/lib/time-off";
 
 type ActionResult = { ok: true; warning?: string } | { ok: false; error: string };
 
-/** Soft warning if this shift lands on the employee's blocked-off time. */
-async function unavailWarning(
+/** Soft warning if this shift lands on approved time off or blocked-off time. */
+async function conflictWarning(
   orgId: string,
   employeeId: string | null,
   shift: { shift_date: string; start_time: string; end_time: string }
 ): Promise<string | undefined> {
   if (!employeeId) return undefined;
-  const blocks = await unavailabilityForEmployee(orgId, employeeId);
-  return shiftHitsUnavailability(shift, blocks)
-    ? "Scheduled — but heads up, this is during a time they marked they can't work."
-    : undefined;
+  const [blocks, timeOff] = await Promise.all([
+    unavailabilityForEmployee(orgId, employeeId),
+    approvedTimeOffForEmployee(orgId, employeeId),
+  ]);
+  if (shiftHitsTimeOff(shift, timeOff)) {
+    return "Scheduled — but heads up, they have approved time off then.";
+  }
+  if (shiftHitsUnavailability(shift, blocks)) {
+    return "Scheduled — but heads up, this is during a time they marked they can't work.";
+  }
+  return undefined;
 }
 
 function revalidate() {
@@ -116,7 +125,7 @@ export async function createShift(formData: FormData): Promise<ActionResult> {
     console.error("createShift failed", error);
     return { ok: false, error: "Could not add the shift. Try again." };
   }
-  const warning = await unavailWarning(org.id, f.employee_id, {
+  const warning = await conflictWarning(org.id, f.employee_id, {
     shift_date: f.shift_date,
     start_time: f.start_time,
     end_time: f.end_time,
@@ -155,7 +164,7 @@ export async function updateShift(formData: FormData): Promise<ActionResult> {
     console.error("updateShift failed", error);
     return { ok: false, error: "Could not save the shift. Try again." };
   }
-  const warning = await unavailWarning(org.id, f.employee_id, {
+  const warning = await conflictWarning(org.id, f.employee_id, {
     shift_date: f.shift_date,
     start_time: f.start_time,
     end_time: f.end_time,
@@ -316,4 +325,59 @@ export async function publishWeek(
   });
 
   return { ok: true, published: toPublish.length, notified: affected.size };
+}
+
+function revalidateTimeOff() {
+  revalidatePath("/admin/schedule/time-off");
+  revalidatePath("/admin/schedule");
+}
+
+/** Approve a pending time-off request. */
+export async function approveTimeOff(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  const m = await requireMembership(org.id);
+  const id = String(formData.get("request_id") || "");
+  if (!id) return { ok: false, error: "Missing request." };
+  const supa = adminClient();
+  const { error } = await supa
+    .from("time_off_requests")
+    .update({
+      status: "approved",
+      reviewed_by: m.user_id,
+      reviewed_at: new Date().toISOString(),
+    } as never)
+    .eq("id", id)
+    .eq("org_id", org.id);
+  if (error) {
+    console.error("approveTimeOff failed", error);
+    return { ok: false, error: "Could not approve. Try again." };
+  }
+  revalidateTimeOff();
+  return { ok: true };
+}
+
+/** Deny a pending time-off request, with an optional note. */
+export async function denyTimeOff(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  const m = await requireMembership(org.id);
+  const id = String(formData.get("request_id") || "");
+  if (!id) return { ok: false, error: "Missing request." };
+  const note = String(formData.get("review_note") || "").trim() || null;
+  const supa = adminClient();
+  const { error } = await supa
+    .from("time_off_requests")
+    .update({
+      status: "denied",
+      reviewed_by: m.user_id,
+      reviewed_at: new Date().toISOString(),
+      review_note: note,
+    } as never)
+    .eq("id", id)
+    .eq("org_id", org.id);
+  if (error) {
+    console.error("denyTimeOff failed", error);
+    return { ok: false, error: "Could not update. Try again." };
+  }
+  revalidateTimeOff();
+  return { ok: true };
 }

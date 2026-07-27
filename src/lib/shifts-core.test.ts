@@ -12,6 +12,8 @@ import {
   hoursByDay,
   dayOfWeek,
   shiftHitsUnavailability,
+  dateHasTimeOff,
+  shiftHitsTimeOff,
   type ShiftRow,
 } from "./shifts-core";
 
@@ -98,6 +100,23 @@ describe("availability (block-off) conflict", () => {
     const blocks = [{ day_of_week: 3, all_day: true, start_time: null, end_time: null }];
     expect(shiftHitsUnavailability({ shift_date: "2026-08-05", start_time: "17:00", end_time: "22:00" }, blocks)).toBe(true); // Wed
     expect(shiftHitsUnavailability({ shift_date: "2026-08-06", start_time: "17:00", end_time: "22:00" }, blocks)).toBe(false); // Thu
+  });
+});
+
+describe("time-off conflict", () => {
+  const allDay = [{ start_date: "2026-08-10", end_date: "2026-08-12", all_day: true, start_time: null, end_time: null }];
+  it("marks dates inside an approved range", () => {
+    expect(dateHasTimeOff("2026-08-11", allDay)).toBe(true);
+    expect(dateHasTimeOff("2026-08-13", allDay)).toBe(false);
+  });
+  it("all-day time off hits any shift in the range", () => {
+    expect(shiftHitsTimeOff({ shift_date: "2026-08-11", start_time: "17:00", end_time: "22:00" }, allDay)).toBe(true);
+    expect(shiftHitsTimeOff({ shift_date: "2026-08-09", start_time: "17:00", end_time: "22:00" }, allDay)).toBe(false);
+  });
+  it("partial-day time off only hits overlapping times", () => {
+    const partial = [{ start_date: "2026-08-10", end_date: "2026-08-10", all_day: false, start_time: "09:00", end_time: "13:00" }];
+    expect(shiftHitsTimeOff({ shift_date: "2026-08-10", start_time: "17:00", end_time: "22:00" }, partial)).toBe(false);
+    expect(shiftHitsTimeOff({ shift_date: "2026-08-10", start_time: "11:00", end_time: "15:00" }, partial)).toBe(true);
   });
 });
 

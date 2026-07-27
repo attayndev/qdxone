@@ -1679,6 +1679,72 @@ export type Database = {
         }
         Relationships: []
       }
+      time_off_requests: {
+        Row: {
+          all_day: boolean
+          created_at: string
+          employee_id: string
+          end_date: string
+          end_time: string | null
+          id: string
+          org_id: string
+          reason: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          start_date: string
+          start_time: string | null
+          status: string
+        }
+        Insert: {
+          all_day?: boolean
+          created_at?: string
+          employee_id: string
+          end_date: string
+          end_time?: string | null
+          id?: string
+          org_id: string
+          reason?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date: string
+          start_time?: string | null
+          status?: string
+        }
+        Update: {
+          all_day?: boolean
+          created_at?: string
+          employee_id?: string
+          end_date?: string
+          end_time?: string | null
+          id?: string
+          org_id?: string
+          reason?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date?: string
+          start_time?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_off_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_off_requests_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
