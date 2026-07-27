@@ -10,6 +10,8 @@ import {
   copyWeekShifts,
   hoursByEmployee,
   hoursByDay,
+  dayOfWeek,
+  shiftHitsUnavailability,
   type ShiftRow,
 } from "./shifts-core";
 
@@ -75,6 +77,27 @@ describe("copyWeekShifts", () => {
     expect(copied[0].shift_date).toBe("2026-08-10");
     expect(copied[0].employee_id).toBe("e1");
     expect(copied[0].start_time).toBe("15:00:00");
+  });
+});
+
+describe("availability (block-off) conflict", () => {
+  // 2026-08-05 is a Wednesday → getUTCDay 3.
+  it("computes day-of-week (0=Sun..6=Sat)", () => {
+    expect(dayOfWeek("2026-08-05")).toBe(3); // Wed
+    expect(dayOfWeek("2026-08-09")).toBe(0); // Sun
+  });
+
+  it("flags a shift that overlaps a same-weekday block", () => {
+    const blocks = [{ day_of_week: 3, all_day: false, start_time: "09:00", end_time: "15:00" }];
+    // Wed shift 3–6pm doesn't hit a 9–3 block; a 1–4pm shift does.
+    expect(shiftHitsUnavailability({ shift_date: "2026-08-05", start_time: "15:00", end_time: "18:00" }, blocks)).toBe(false);
+    expect(shiftHitsUnavailability({ shift_date: "2026-08-05", start_time: "13:00", end_time: "16:00" }, blocks)).toBe(true);
+  });
+
+  it("all-day block hits any shift that weekday, none on other days", () => {
+    const blocks = [{ day_of_week: 3, all_day: true, start_time: null, end_time: null }];
+    expect(shiftHitsUnavailability({ shift_date: "2026-08-05", start_time: "17:00", end_time: "22:00" }, blocks)).toBe(true); // Wed
+    expect(shiftHitsUnavailability({ shift_date: "2026-08-06", start_time: "17:00", end_time: "22:00" }, blocks)).toBe(false); // Thu
   });
 });
 

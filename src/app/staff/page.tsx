@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { currentOrg } from "@/lib/tenancy";
 import { currentEmployee } from "@/lib/staff-auth";
+import Link from "next/link";
 import { listEmployeeUpcomingShifts, weekStart, formatTimeRange, shiftHours } from "@/lib/shifts";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -38,7 +39,12 @@ export default async function StaffSchedulePage() {
             Your upcoming shifts at {org.name}.
           </p>
         </div>
-        <LogoutButton />
+        <div className="flex items-center gap-3">
+          <Link href="/staff/availability" className="text-sm font-semibold text-[color:var(--brand-blue-600)] hover:underline whitespace-nowrap">
+            My availability →
+          </Link>
+          <LogoutButton />
+        </div>
       </div>
 
       {shifts.length === 0 ? (

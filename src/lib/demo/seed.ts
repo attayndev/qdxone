@@ -493,4 +493,11 @@ async function seedDemoScheduleWeek(orgId: string, locationId: string | null): P
     i++;
   }
   await supa.from("shifts").insert(rows as never);
+
+  // A few block-off (unavailability) examples so the availability feature shows.
+  const blocks: Record<string, unknown>[] = [];
+  if (emps[0]) blocks.push({ org_id: orgId, employee_id: emps[0].id, day_of_week: 1, all_day: true, note: "Class" });
+  if (emps[1]) blocks.push({ org_id: orgId, employee_id: emps[1].id, day_of_week: 3, all_day: false, start_time: "09:00:00", end_time: "15:00:00", note: "Second job" });
+  if (emps[3]) blocks.push({ org_id: orgId, employee_id: emps[3].id, day_of_week: 0, all_day: true, note: "Family day" });
+  if (blocks.length) await supa.from("employee_unavailability").insert(blocks as never);
 }

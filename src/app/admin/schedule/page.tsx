@@ -4,6 +4,8 @@ import { getOrgLocations } from "@/lib/locations";
 import { orgRoles } from "@/lib/roles";
 import { listEmployees } from "@/lib/employees";
 import { listShiftsForWeek, weekStart } from "@/lib/shifts";
+import { unavailabilityByEmployee } from "@/lib/availability";
+import type { UnavailBlock } from "@/lib/shifts-core";
 import ScheduleGrid from "@/components/admin/ScheduleGrid";
 
 export default async function SchedulePage({
@@ -21,11 +23,23 @@ export default async function SchedulePage({
     : new Date().toISOString().slice(0, 10);
   const monday = weekStart(anchor);
 
-  const [shifts, employees, locations] = await Promise.all([
+  const [shifts, employees, locations, unavailMap] = await Promise.all([
     listShiftsForWeek(org.id, monday),
     listEmployees(org.id),
     getOrgLocations(org.id),
+    unavailabilityByEmployee(org.id),
   ]);
+
+  // Serialize the unavailability map to a plain record for the client grid.
+  const unavail: Record<string, UnavailBlock[]> = {};
+  for (const [empId, blocks] of unavailMap) {
+    unavail[empId] = blocks.map((b) => ({
+      day_of_week: b.day_of_week,
+      all_day: b.all_day,
+      start_time: b.start_time,
+      end_time: b.end_time,
+    }));
+  }
 
   return (
     <ScheduleGrid
@@ -36,6 +50,7 @@ export default async function SchedulePage({
         .map((e) => ({ id: e.id, name: `${e.first_name} ${e.last_name}`.trim(), role: e.current_role_name }))}
       locations={locations.map((l) => ({ id: l.id, name: l.name }))}
       roles={orgRoles(org.branding)}
+      unavail={unavail}
     />
   );
 }

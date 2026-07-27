@@ -11,13 +11,28 @@ import {
   weekDates,
   addDays,
   shiftsOverlap,
+  shiftHitsUnavailability,
   copyWeekShifts,
   formatTimeRange,
   hasUnpublishedChanges,
   type ShiftRow,
 } from "@/lib/shifts-core";
+import { unavailabilityForEmployee } from "@/lib/availability";
 
-type ActionResult = { ok: true } | { ok: false; error: string };
+type ActionResult = { ok: true; warning?: string } | { ok: false; error: string };
+
+/** Soft warning if this shift lands on the employee's blocked-off time. */
+async function unavailWarning(
+  orgId: string,
+  employeeId: string | null,
+  shift: { shift_date: string; start_time: string; end_time: string }
+): Promise<string | undefined> {
+  if (!employeeId) return undefined;
+  const blocks = await unavailabilityForEmployee(orgId, employeeId);
+  return shiftHitsUnavailability(shift, blocks)
+    ? "Scheduled — but heads up, this is during a time they marked they can't work."
+    : undefined;
+}
 
 function revalidate() {
   revalidatePath("/admin/schedule");
@@ -101,8 +116,13 @@ export async function createShift(formData: FormData): Promise<ActionResult> {
     console.error("createShift failed", error);
     return { ok: false, error: "Could not add the shift. Try again." };
   }
+  const warning = await unavailWarning(org.id, f.employee_id, {
+    shift_date: f.shift_date,
+    start_time: f.start_time,
+    end_time: f.end_time,
+  });
   revalidate();
-  return { ok: true };
+  return { ok: true, warning };
 }
 
 export async function updateShift(formData: FormData): Promise<ActionResult> {
@@ -135,8 +155,13 @@ export async function updateShift(formData: FormData): Promise<ActionResult> {
     console.error("updateShift failed", error);
     return { ok: false, error: "Could not save the shift. Try again." };
   }
+  const warning = await unavailWarning(org.id, f.employee_id, {
+    shift_date: f.shift_date,
+    start_time: f.start_time,
+    end_time: f.end_time,
+  });
   revalidate();
-  return { ok: true };
+  return { ok: true, warning };
 }
 
 export async function deleteShift(formData: FormData): Promise<ActionResult> {

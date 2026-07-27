@@ -73,6 +73,44 @@ export function shiftsOverlap(
   return s1 < e2 && s2 < e1;
 }
 
+// ── Weekday + availability (block-off) helpers ──────────────────────────────
+
+/** Weekday labels indexed by getUTCDay (0=Sun … 6=Sat). */
+export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+/** Days in schedule order (Mon-first) as [index, label]. */
+export const WEEK_ORDER: Array<[number, string]> = [
+  [1, "Mon"], [2, "Tue"], [3, "Wed"], [4, "Thu"], [5, "Fri"], [6, "Sat"], [0, "Sun"],
+];
+
+/** Day-of-week (0=Sun … 6=Sat) for a YYYY-MM-DD date. */
+export function dayOfWeek(dateStr: string): number {
+  return new Date(`${dateStr}T00:00:00Z`).getUTCDay();
+}
+
+export interface UnavailBlock {
+  day_of_week: number;
+  all_day: boolean;
+  start_time: string | null;
+  end_time: string | null;
+}
+
+/** Does a shift fall within any of the employee's block-off (unavailable) times? */
+export function shiftHitsUnavailability(
+  shift: { shift_date: string; start_time: string; end_time: string },
+  blocks: UnavailBlock[]
+): boolean {
+  const dow = dayOfWeek(shift.shift_date);
+  return blocks.some((b) => {
+    if (b.day_of_week !== dow) return false;
+    if (b.all_day) return true;
+    if (!b.start_time || !b.end_time) return false;
+    return shiftsOverlap(
+      { start_time: shift.start_time, end_time: shift.end_time },
+      { start_time: b.start_time, end_time: b.end_time }
+    );
+  });
+}
+
 // ── Week helpers (weeks run Monday→Sunday, UTC math to avoid DST drift) ──────
 
 /** Add whole days to a YYYY-MM-DD date, returning YYYY-MM-DD (UTC). */

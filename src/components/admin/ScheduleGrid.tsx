@@ -8,7 +8,9 @@ import {
   shiftHours,
   formatTimeRange,
   hasUnpublishedChanges,
+  dayOfWeek,
   type ShiftRow,
+  type UnavailBlock,
 } from "@/lib/shifts-core";
 import {
   createShift,
@@ -49,12 +51,14 @@ export default function ScheduleGrid({
   employees,
   locations,
   roles,
+  unavail = {},
 }: {
   weekStart: string;
   shifts: ShiftRow[];
   employees: EmpLite[];
   locations: LocLite[];
   roles: string[];
+  unavail?: Record<string, UnavailBlock[]>;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -93,12 +97,17 @@ export default function ScheduleGrid({
     router.push(`/admin/schedule?week=${anchor}`);
   }
 
-  function run(fn: () => Promise<{ ok: boolean; error?: string }>, onOk?: () => void) {
+  function run(
+    fn: () => Promise<{ ok: boolean; error?: string; warning?: string }>,
+    onOk?: () => void
+  ) {
     setError(null);
+    setFlash(null);
     start(async () => {
       const res = await fn();
       if (res.ok) {
         onOk?.();
+        if (res.warning) setFlash(res.warning);
         router.refresh();
       } else setError(res.error ?? "Something went wrong.");
     });
@@ -223,7 +232,7 @@ export default function ScheduleGrid({
         </div>
       </div>
 
-      {flash && <div className="mt-2 text-sm text-emerald-700">{flash}</div>}
+      {flash && <div className="mt-2 text-sm text-amber-800">{flash}</div>}
       {error && <div className="mt-2 text-sm text-rose-600">{error}</div>}
 
       {/* Grid */}
@@ -257,6 +266,7 @@ export default function ScheduleGrid({
               empKey={OPEN}
               dates={dates}
               cell={cell}
+              blocks={[]}
               onAdd={(d) => openNew(OPEN, d)}
               onEdit={openEdit}
             />
@@ -268,6 +278,7 @@ export default function ScheduleGrid({
                 empKey={e.id}
                 dates={dates}
                 cell={cell}
+                blocks={unavail[e.id] ?? []}
                 onAdd={(d) => openNew(e.id, d)}
                 onEdit={openEdit}
               />
@@ -365,6 +376,7 @@ function ScheduleRowCells({
   empKey,
   dates,
   cell,
+  blocks,
   onAdd,
   onEdit,
   highlight,
@@ -374,6 +386,7 @@ function ScheduleRowCells({
   empKey: string;
   dates: string[];
   cell: (empKey: string, date: string) => ShiftRow[];
+  blocks: UnavailBlock[];
   onAdd: (date: string) => void;
   onEdit: (s: ShiftRow) => void;
   highlight?: boolean;
@@ -386,8 +399,17 @@ function ScheduleRowCells({
       </td>
       {dates.map((d) => {
         const shifts = cell(empKey, d);
+        const dayBlocks = blocks.filter((b) => b.day_of_week === dayOfWeek(d));
         return (
           <td key={d} className="p-1 border-b border-l border-[color:var(--brand-line)] align-top min-w-[92px]">
+            {dayBlocks.length > 0 && (
+              <div
+                className="mb-1 rounded bg-rose-50 text-rose-500 text-[10px] px-1.5 py-0.5"
+                title={dayBlocks.map((b) => (b.all_day ? "All day" : formatTimeRange(b.start_time ?? "", b.end_time ?? ""))).join(", ")}
+              >
+                🚫 {dayBlocks.some((b) => b.all_day) ? "Unavailable" : "Can't work part of day"}
+              </div>
+            )}
             <div className="space-y-1">
               {shifts.map((s) => (
                 <button
