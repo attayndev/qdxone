@@ -358,27 +358,51 @@ export async function importTeamCsv(
   const { generateToken } = await import("@/lib/tokens");
   const now = new Date();
   const nowIso = now.toISOString();
+  const likeLiteral = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
   let created = 0;
   for (const row of parsed.rows) {
     if (!row.ok) continue;
-    const { data: appRow } = await supa
+
+    // If this person already applied (has an application), link the employee to
+    // THAT application — don't create a duplicate shadow app. Mark it hired since
+    // they're now on staff, so they leave the active candidate pipeline.
+    const { data: candApp } = await supa
       .from("applications")
-      .insert({
-        org_id: org.id,
-        location_id: loc.id,
-        resume_token: generateToken(),
-        first_name: row.first_name,
-        last_name: row.last_name,
-        email: row.email,
-        phone: row.phone || null,
-        positions: row.role ? [row.role] : [],
-        status: "new",
-        source: "roster_import",
-        submitted_at: nowIso,
-      } as never)
-      .select("id")
-      .single();
-    const appId = (appRow as { id: string } | null)?.id;
+      .select("id, decision")
+      .eq("org_id", org.id)
+      .ilike("email", likeLiteral(row.email))
+      .order("submitted_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    let appId: string | undefined = (candApp as { id: string; decision: string | null } | null)?.id;
+
+    if (appId) {
+      if (!(candApp as { decision: string | null }).decision) {
+        await supa
+          .from("applications")
+          .update({ decision: "hired", decision_at: nowIso, status: "decision_made" } as never)
+          .eq("id", appId);
+      }
+    } else {
+      const { data: appRow } = await supa
+        .from("applications")
+        .insert({
+          org_id: org.id,
+          location_id: loc.id,
+          resume_token: generateToken(),
+          first_name: row.first_name,
+          last_name: row.last_name,
+          email: row.email,
+          phone: row.phone || null,
+          positions: row.role ? [row.role] : [],
+          status: "new",
+          source: "roster_import",
+          submitted_at: nowIso,
+        } as never)
+        .select("id")
+        .single();
+      appId = (appRow as { id: string } | null)?.id;
+    }
     if (!appId) continue;
 
     const { data: empRow } = await supa
