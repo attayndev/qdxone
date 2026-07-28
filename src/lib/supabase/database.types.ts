@@ -43,6 +43,7 @@ export type Database = {
           sms_consent: boolean
           sms_consent_at: string | null
           sms_consent_disclosure: string | null
+          source: string | null
           status: Database["public"]["Enums"]["application_status"]
           submitted_at: string
           updated_at: string
@@ -76,6 +77,7 @@ export type Database = {
           sms_consent?: boolean
           sms_consent_at?: string | null
           sms_consent_disclosure?: string | null
+          source?: string | null
           status?: Database["public"]["Enums"]["application_status"]
           submitted_at?: string
           updated_at?: string
@@ -109,6 +111,7 @@ export type Database = {
           sms_consent?: boolean
           sms_consent_at?: string | null
           sms_consent_disclosure?: string | null
+          source?: string | null
           status?: Database["public"]["Enums"]["application_status"]
           submitted_at?: string
           updated_at?: string

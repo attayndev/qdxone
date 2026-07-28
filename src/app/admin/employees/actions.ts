@@ -229,6 +229,97 @@ export async function revokeStaffAccess(formData: FormData): Promise<ActionResul
 }
 
 /**
+ * Import an existing (pre-qdx) team from a CSV. Each valid row becomes an
+ * employee + a "shadow application" (source='roster_import') so the assessment +
+ * fit analytics work for them. Dedupes by email against the current roster.
+ */
+export async function importTeamCsv(
+  formData: FormData
+): Promise<{ ok: true; created: number; skipped: number } | { ok: false; error: string }> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const csv = String(formData.get("csv") || "");
+  if (!csv.trim()) return { ok: false, error: "No file contents." };
+
+  const { getPrimaryLocation } = await import("@/lib/locations");
+  const loc = await getPrimaryLocation(org.id);
+  if (!loc) return { ok: false, error: "Add a store first (Store page), then import your team." };
+
+  const supa = adminClient();
+  const { data: existing } = await supa
+    .from("employees")
+    .select("email")
+    .eq("org_id", org.id)
+    .not("email", "is", null);
+  const existingEmails = new Set(
+    ((existing as { email: string | null }[] | null) ?? [])
+      .map((e) => (e.email ?? "").toLowerCase())
+      .filter(Boolean)
+  );
+
+  const { parseTeamCsv } = await import("@/lib/team-csv");
+  const parsed = parseTeamCsv(csv, existingEmails);
+  if (parsed.headerError) return { ok: false, error: parsed.headerError };
+
+  const { generateToken } = await import("@/lib/tokens");
+  const now = new Date();
+  const nowIso = now.toISOString();
+  let created = 0;
+  for (const row of parsed.rows) {
+    if (!row.ok) continue;
+    const { data: appRow } = await supa
+      .from("applications")
+      .insert({
+        org_id: org.id,
+        location_id: loc.id,
+        resume_token: generateToken(),
+        first_name: row.first_name,
+        last_name: row.last_name,
+        email: row.email,
+        phone: row.phone || null,
+        positions: row.role ? [row.role] : [],
+        status: "new",
+        source: "roster_import",
+        submitted_at: nowIso,
+      } as never)
+      .select("id")
+      .single();
+    const appId = (appRow as { id: string } | null)?.id;
+    if (!appId) continue;
+
+    const { data: empRow } = await supa
+      .from("employees")
+      .insert({
+        org_id: org.id,
+        location_id: loc.id,
+        application_id: appId,
+        first_name: row.first_name,
+        last_name: row.last_name,
+        email: row.email,
+        current_role_name: row.role || null,
+        employment_status: "employed",
+        hired_at: nowIso.slice(0, 10),
+        next_review_due: nextReviewDue(now, now),
+      } as never)
+      .select("id")
+      .single();
+    const empId = (empRow as { id: string } | null)?.id;
+    if (empId && row.role) {
+      await supa.from("employee_role_changes").insert({
+        employee_id: empId,
+        org_id: org.id,
+        from_role: null,
+        to_role: row.role,
+      } as never);
+    }
+    created++;
+  }
+
+  revalidatePath("/admin/employees");
+  return { ok: true, created, skipped: parsed.skipCount };
+}
+
+/**
  * Import existing hires that predate employee tracking (idempotent). Returns
  * a message with how many were created. Triggered from the Employees list.
  */

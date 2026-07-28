@@ -17,10 +17,12 @@ const DONE = new Set(["assessment_complete", "decision_made"]);
 
 export async function computeOrgReport(orgId: string): Promise<OrgReport> {
   const supa = adminClient();
+  // Exclude roster-import shadow apps from the hiring funnel (they're employees).
   const { data: appsData } = await supa
     .from("applications")
     .select("id, status, positions, location_id")
-    .eq("org_id", orgId);
+    .eq("org_id", orgId)
+    .or("source.is.null,source.neq.roster_import");
   const apps = appsData ?? [];
 
   const applied = apps.length;

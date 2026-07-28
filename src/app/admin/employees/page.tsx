@@ -4,6 +4,7 @@ import { currentOrg } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
 import { listEmployees, ratingLabel, type EmployeeView } from "@/lib/employees";
 import ImportHiresButton from "@/components/admin/ImportHiresButton";
+import ImportTeamCsv from "@/components/admin/ImportTeamCsv";
 
 const STATUS_CLS: Record<string, string> = {
   employed: "bg-emerald-100 text-emerald-800",
@@ -78,7 +79,10 @@ export default async function EmployeesPage({
             Does the assessment predict performance? See Reports →
           </Link>
         </div>
-        {untracked > 0 && <ImportHiresButton count={untracked} />}
+        <div className="flex items-start gap-2 flex-wrap">
+          <ImportTeamCsv />
+          {untracked > 0 && <ImportHiresButton count={untracked} />}
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-3 mt-6">

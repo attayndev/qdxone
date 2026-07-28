@@ -44,10 +44,12 @@ export default async function CandidatesPage({ searchParams }: PageProps) {
   const supa = adminClient();
 
   // Full-pipeline counts (unfiltered) for the overview cards.
+  // Exclude roster-import shadow apps — they're employees, not job applicants.
   const { data: allStatus } = await supa
     .from("applications")
     .select("status")
-    .eq("org_id", org.id);
+    .eq("org_id", org.id)
+    .or("source.is.null,source.neq.roster_import");
   const statusRows = (allStatus as { status: string }[] | null) ?? [];
   const counts: Record<string, number> = {
     new: 0,
@@ -62,6 +64,7 @@ export default async function CandidatesPage({ searchParams }: PageProps) {
     .from("applications")
     .select("*")
     .eq("org_id", org.id)
+    .or("source.is.null,source.neq.roster_import")
     .order("submitted_at", { ascending: false })
     .limit(200);
   if (view === "decided") query = query.not("decision", "is", null);
