@@ -45,6 +45,7 @@ export interface EmployeeRow {
   user_id: string | null;
   invited_at: string | null;
   activated_at: string | null;
+  hourly_wage: number | null;
   created_at: string;
   updated_at: string;
 }

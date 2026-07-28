@@ -162,6 +162,27 @@ export async function terminateEmployee(formData: FormData): Promise<ActionResul
   return { ok: true };
 }
 
+/** Set an employee's hourly wage (manager-only; drives labor-cost projection). */
+export async function setEmployeeWage(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const supa = adminClient();
+  const employeeId = String(formData.get("employee_id") || "");
+  if (!employeeId) return { ok: false, error: "Missing employee." };
+  const raw = String(formData.get("hourly_wage") || "").trim();
+  const wage = raw === "" ? null : Number(raw);
+  if (wage !== null && (!Number.isFinite(wage) || wage < 0 || wage > 100000)) {
+    return { ok: false, error: "Enter a valid hourly wage." };
+  }
+  await supa
+    .from("employees")
+    .update({ hourly_wage: wage } as never)
+    .eq("id", employeeId)
+    .eq("org_id", org.id);
+  revalidate(employeeId);
+  return { ok: true };
+}
+
 /** Invite (or re-invite) an employee to the /staff portal: email a set-password link. */
 export async function inviteEmployeeToStaff(formData: FormData): Promise<ActionResult> {
   const org = await currentOrgOrThrow();

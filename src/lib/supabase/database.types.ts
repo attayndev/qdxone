@@ -723,6 +723,7 @@ export type Database = {
           employment_status: string
           first_name: string
           hired_at: string
+          hourly_wage: number | null
           id: string
           invited_at: string | null
           last_name: string
@@ -743,6 +744,7 @@ export type Database = {
           employment_status?: string
           first_name: string
           hired_at?: string
+          hourly_wage?: number | null
           id?: string
           invited_at?: string | null
           last_name: string
@@ -763,6 +765,7 @@ export type Database = {
           employment_status?: string
           first_name?: string
           hired_at?: string
+          hourly_wage?: number | null
           id?: string
           invited_at?: string | null
           last_name?: string

@@ -14,6 +14,8 @@ import {
   shiftHitsUnavailability,
   dateHasTimeOff,
   shiftHitsTimeOff,
+  laborCostByDay,
+  totalLaborCost,
   type ShiftRow,
 } from "./shifts-core";
 
@@ -117,6 +119,25 @@ describe("time-off conflict", () => {
     const partial = [{ start_date: "2026-08-10", end_date: "2026-08-10", all_day: false, start_time: "09:00", end_time: "13:00" }];
     expect(shiftHitsTimeOff({ shift_date: "2026-08-10", start_time: "17:00", end_time: "22:00" }, partial)).toBe(false);
     expect(shiftHitsTimeOff({ shift_date: "2026-08-10", start_time: "11:00", end_time: "15:00" }, partial)).toBe(true);
+  });
+});
+
+describe("labor cost", () => {
+  const wage = { e1: 16, e2: 20 }; // $/hr
+  const shifts = [
+    { shift_date: "2026-08-03", start_time: "15:00", end_time: "18:00", employee_id: "e1" }, // 3h × 16 = 48
+    { shift_date: "2026-08-03", start_time: "17:00", end_time: "23:00", employee_id: "e2" }, // 6h × 20 = 120
+    { shift_date: "2026-08-04", start_time: "10:00", end_time: "16:00", employee_id: "e1" }, // 6h × 16 = 96
+    { shift_date: "2026-08-04", start_time: "18:00", end_time: "22:00", employee_id: null }, // open → 0
+    { shift_date: "2026-08-04", start_time: "18:00", end_time: "22:00", employee_id: "e3" }, // no wage → 0
+  ];
+  it("sums cost per day (open + wage-less contribute 0)", () => {
+    const byDay = laborCostByDay(shifts, wage);
+    expect(byDay.get("2026-08-03")).toBe(168); // 48 + 120
+    expect(byDay.get("2026-08-04")).toBe(96); // 96 + 0 + 0
+  });
+  it("totals the week", () => {
+    expect(totalLaborCost(shifts, wage)).toBe(264);
   });
 });
 

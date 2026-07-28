@@ -214,3 +214,29 @@ export function hoursByDay(shifts: ShiftRow[]): Map<string, number> {
   }
   return out;
 }
+
+// ── Labor cost (straight hours × wage; open/wage-less shifts contribute 0) ────
+
+type WageLookup = Record<string, number | null | undefined>;
+type CostShift = { shift_date: string; start_time: string; end_time: string; employee_id: string | null };
+
+function shiftCost(s: CostShift, wage: WageLookup): number {
+  const w = s.employee_id ? wage[s.employee_id] : null;
+  if (w == null) return 0;
+  return shiftHours(s.start_time, s.end_time) * w;
+}
+
+/** Projected labor cost per date (YYYY-MM-DD → $). */
+export function laborCostByDay(shifts: CostShift[], wage: WageLookup): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const s of shifts) {
+    const c = shiftCost(s, wage);
+    if (c > 0) out.set(s.shift_date, (out.get(s.shift_date) ?? 0) + c);
+  }
+  return out;
+}
+
+/** Total projected labor cost for a set of shifts. */
+export function totalLaborCost(shifts: CostShift[], wage: WageLookup): number {
+  return shifts.reduce((sum, s) => sum + shiftCost(s, wage), 0);
+}

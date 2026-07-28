@@ -11,10 +11,15 @@ import {
   hasUnpublishedChanges,
   dayOfWeek,
   dateHasTimeOff,
+  laborCostByDay,
+  totalLaborCost,
   type ShiftRow,
   type UnavailBlock,
   type TimeOffRange,
 } from "@/lib/shifts-core";
+
+const money = (n: number) =>
+  n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 import {
   createShift,
   updateShift,
@@ -57,6 +62,7 @@ export default function ScheduleGrid({
   unavail = {},
   timeOff = {},
   pendingRequests = 0,
+  wages = {},
 }: {
   weekStart: string;
   shifts: ShiftRow[];
@@ -66,6 +72,7 @@ export default function ScheduleGrid({
   unavail?: Record<string, UnavailBlock[]>;
   timeOff?: Record<string, TimeOffRange[]>;
   pendingRequests?: number;
+  wages?: Record<string, number | null>;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -92,8 +99,16 @@ export default function ScheduleGrid({
       dayHours.set(s.shift_date, (dayHours.get(s.shift_date) ?? 0) + h);
       if (hasUnpublishedChanges(s)) unpublished++;
     }
-    return { byEmpDate, weekHours, dayHours, unpublished };
-  }, [shifts]);
+    const dayCost = laborCostByDay(shifts, wages);
+    const totalCost = totalLaborCost(shifts, wages);
+    const totalHours = [...dayHours.values()].reduce((a, b) => a + b, 0);
+    return { byEmpDate, weekHours, dayHours, unpublished, dayCost, totalCost, totalHours };
+  }, [shifts, wages]);
+
+  // Employees who are scheduled this week but have no wage set (cost is understated).
+  const missingWage = employees.filter(
+    (e) => (grid.weekHours.get(e.id) ?? 0) > 0 && wages[e.id] == null
+  ).length;
 
   const cell = (empKey: string, date: string) =>
     (grid.byEmpDate.get(`${empKey}|${date}`) ?? []).sort((a, b) =>
@@ -220,7 +235,16 @@ export default function ScheduleGrid({
       </div>
 
       <div className="flex items-center justify-between gap-3 flex-wrap mt-3">
-        <div className="text-lg font-bold">{rangeLabel}</div>
+        <div>
+          <div className="text-lg font-bold">{rangeLabel}</div>
+          <div className="text-xs text-[color:var(--brand-ink-muted)]">
+            {grid.totalHours}h scheduled
+            {grid.totalCost > 0 ? ` · ${money(grid.totalCost)} projected labor` : ""}
+            {missingWage > 0 && (
+              <span className="text-amber-700"> · {missingWage} need a wage</span>
+            )}
+          </div>
+        </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/admin/schedule/requests"
@@ -266,6 +290,7 @@ export default function ScheduleGrid({
                     <div className="text-xs text-[color:var(--brand-ink-muted)]">{l.day}</div>
                     <div className="text-[10px] text-[color:var(--brand-ink-muted)] mt-0.5">
                       {(grid.dayHours.get(d) ?? 0) > 0 ? `${grid.dayHours.get(d)}h` : ""}
+                      {(grid.dayCost.get(d) ?? 0) > 0 ? ` · ${money(grid.dayCost.get(d)!)}` : ""}
                     </div>
                   </th>
                 );

@@ -274,6 +274,13 @@ const BAND_RANK: Record<string, number> = {
   Incomplete: 4,
 };
 
+const WAGE_BY_ROLE: Record<string, number> = {
+  "Team Member": 16,
+  "Shift Lead": 18.5,
+  "Assistant Manager": 21,
+  Manager: 25,
+};
+
 // Per-dimension on-job ratings trend with the assessment band on that dimension,
 // so the "assessment accuracy by dimension" view shows a real relationship.
 const DIM_BAND_RATINGS: Record<string, number[]> = {
@@ -378,6 +385,7 @@ async function seedDemoEmployees(orgId: string, ladder: string[]): Promise<void>
         terminated_at: terminate ? daysAgoUTC(10).toISOString().slice(0, 10) : null,
         termination_reason: terminate ? "Attendance" : null,
         next_review_due: terminate ? null : nextReviewDue(lastReview, hiredAt),
+        hourly_wage: WAGE_BY_ROLE[currentRole] ?? 16,
       } as never)
       .select("id")
       .single();

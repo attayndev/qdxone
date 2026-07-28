@@ -6,6 +6,7 @@ import { getEmployee, ratingLabel } from "@/lib/employees";
 import { REVIEW_CATEGORIES } from "@/lib/review-categories";
 import EmployeeActions from "@/components/admin/EmployeeActions";
 import StaffAccessControl from "@/components/admin/StaffAccessControl";
+import WageControl from "@/components/admin/WageControl";
 
 const RATING_CLS: Record<number, string> = {
   1: "bg-rose-100 text-rose-700",
@@ -99,6 +100,11 @@ export default async function EmployeeDetailPage({
           invitedAt={e.invited_at}
           activatedAt={e.activated_at}
         />
+      )}
+
+      {/* Hourly wage — manager-only, drives labor-cost projection (Phase 5) */}
+      {e.employment_status === "employed" && (
+        <WageControl employeeId={e.id} wage={e.hourly_wage} />
       )}
 
       {/* Interactive controls (add review / change role / terminate) */}

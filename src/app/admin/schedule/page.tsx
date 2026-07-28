@@ -48,18 +48,25 @@ export default async function SchedulePage({
   const timeOff: Record<string, TimeOffRange[]> = {};
   for (const [empId, ranges] of timeOffMap) timeOff[empId] = ranges;
 
+  const employedEmployees = employees.filter((e) => e.employment_status === "employed");
+  const wages: Record<string, number | null> = {};
+  for (const e of employedEmployees) wages[e.id] = e.hourly_wage;
+
   return (
     <ScheduleGrid
       weekStart={monday}
       shifts={shifts}
-      employees={employees
-        .filter((e) => e.employment_status === "employed")
-        .map((e) => ({ id: e.id, name: `${e.first_name} ${e.last_name}`.trim(), role: e.current_role_name }))}
+      employees={employedEmployees.map((e) => ({
+        id: e.id,
+        name: `${e.first_name} ${e.last_name}`.trim(),
+        role: e.current_role_name,
+      }))}
       locations={locations.map((l) => ({ id: l.id, name: l.name }))}
       roles={orgRoles(org.branding)}
       unavail={unavail}
       timeOff={timeOff}
       pendingRequests={pendingTO + pendingSR}
+      wages={wages}
     />
   );
 }
