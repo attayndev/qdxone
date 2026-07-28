@@ -331,15 +331,24 @@ export async function importTeamCsv(
   if (!loc) return { ok: false, error: "Add a store first (Store page), then import your team." };
 
   const supa = adminClient();
+  // Dedupe against BOTH the employee's own email AND their application's email —
+  // older records (e.g. imported hires) can have a blank employees.email.
   const { data: existing } = await supa
     .from("employees")
-    .select("email")
-    .eq("org_id", org.id)
-    .not("email", "is", null);
+    .select("email, application_id")
+    .eq("org_id", org.id);
+  const empRows = (existing as { email: string | null; application_id: string | null }[] | null) ?? [];
+  const appIds = empRows.map((e) => e.application_id).filter((x): x is string => !!x);
+  const { data: appEmails } = appIds.length
+    ? await supa.from("applications").select("email").in("id", appIds)
+    : { data: [] as { email: string | null }[] };
   const existingEmails = new Set(
-    ((existing as { email: string | null }[] | null) ?? [])
-      .map((e) => (e.email ?? "").toLowerCase())
-      .filter(Boolean)
+    [
+      ...empRows.map((e) => e.email),
+      ...((appEmails as { email: string | null }[] | null) ?? []).map((a) => a.email),
+    ]
+      .filter((x): x is string => !!x)
+      .map((x) => x.toLowerCase())
   );
 
   const { parseTeamCsv } = await import("@/lib/team-csv");

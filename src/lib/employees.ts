@@ -247,7 +247,7 @@ export async function ensureEmployeeForHire(params: {
 
   const { data: appRow } = await supa
     .from("applications")
-    .select("org_id, location_id, first_name, last_name, positions, decision_at")
+    .select("org_id, location_id, first_name, last_name, email, positions, decision_at")
     .eq("id", params.applicationId)
     .maybeSingle();
   const app = appRow as {
@@ -255,6 +255,7 @@ export async function ensureEmployeeForHire(params: {
     location_id: string | null;
     first_name: string;
     last_name: string;
+    email: string | null;
     positions: string[] | null;
     decision_at: string | null;
   } | null;
@@ -272,6 +273,7 @@ export async function ensureEmployeeForHire(params: {
       application_id: params.applicationId,
       first_name: app.first_name,
       last_name: app.last_name,
+      email: app.email,
       current_role_name: startRole,
       employment_status: "employed",
       hired_at: hiredAt.toISOString().slice(0, 10),

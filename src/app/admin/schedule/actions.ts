@@ -184,6 +184,49 @@ export async function deleteShift(formData: FormData): Promise<ActionResult> {
   return { ok: true };
 }
 
+/**
+ * Move a shift to a new day and/or employee (drag-and-drop). Employee "" = the
+ * Open row. Same overlap block + soft conflict warning as create/update.
+ */
+export async function moveShift(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const id = String(formData.get("shift_id") || "");
+  const shiftDate = String(formData.get("shift_date") || "");
+  if (!id || !shiftDate) return { ok: false, error: "Missing shift or day." };
+  const employeeId = String(formData.get("employee_id") || "").trim() || null;
+
+  const supa = adminClient();
+  const { data: shiftRow } = await supa
+    .from("shifts")
+    .select("start_time, end_time")
+    .eq("id", id)
+    .eq("org_id", org.id)
+    .maybeSingle();
+  const shift = shiftRow as { start_time: string; end_time: string } | null;
+  if (!shift) return { ok: false, error: "Shift not found." };
+
+  if (employeeId && (await hasConflict(org.id, employeeId, shiftDate, shift.start_time, shift.end_time, id))) {
+    return { ok: false, error: "That person already has an overlapping shift then." };
+  }
+  const { error } = await supa
+    .from("shifts")
+    .update({ employee_id: employeeId, shift_date: shiftDate } as never)
+    .eq("id", id)
+    .eq("org_id", org.id);
+  if (error) {
+    console.error("moveShift failed", error);
+    return { ok: false, error: "Could not move the shift. Try again." };
+  }
+  const warning = await conflictWarning(org.id, employeeId, {
+    shift_date: shiftDate,
+    start_time: shift.start_time,
+    end_time: shift.end_time,
+  });
+  revalidate();
+  return { ok: true, warning };
+}
+
 /** Convert an assigned shift into an open (unassigned) shift. */
 export async function moveShiftToOpen(formData: FormData): Promise<ActionResult> {
   const org = await currentOrgOrThrow();

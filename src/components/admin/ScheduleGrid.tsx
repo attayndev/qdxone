@@ -24,6 +24,7 @@ import {
   createShift,
   updateShift,
   deleteShift,
+  moveShift,
   moveShiftToOpen,
   copyPreviousWeek,
   publishWeek,
@@ -79,6 +80,7 @@ export default function ScheduleGrid({
   const [error, setError] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogState | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
+  const [dragOverKey, setDragOverKey] = useState<string | null>(null);
 
   const dates = useMemo(() => weekDates(weekStart), [weekStart]);
   const defaultLoc = locations[0]?.id ?? "";
@@ -117,6 +119,19 @@ export default function ScheduleGrid({
 
   function go(anchor: string) {
     router.push(`/admin/schedule?week=${anchor}`);
+  }
+
+  // Drag-and-drop: move a shift to a new employee row and/or day.
+  function onDropShift(shiftId: string, toEmpKey: string, toDate: string) {
+    const s = shifts.find((x) => x.id === shiftId);
+    if (!s) return;
+    const curEmp = s.employee_id ?? OPEN;
+    if (curEmp === toEmpKey && s.shift_date === toDate) return; // dropped where it was
+    const fd = new FormData();
+    fd.set("shift_id", shiftId);
+    fd.set("employee_id", toEmpKey === OPEN ? "" : toEmpKey);
+    fd.set("shift_date", toDate);
+    run(() => moveShift(fd));
   }
 
   function run(
@@ -310,6 +325,9 @@ export default function ScheduleGrid({
               timeOff={[]}
               onAdd={(d) => openNew(OPEN, d)}
               onEdit={openEdit}
+              onDropShift={onDropShift}
+              dragOverKey={dragOverKey}
+              setDragOverKey={setDragOverKey}
             />
             {employees.map((e) => (
               <ScheduleRowCells
@@ -323,6 +341,9 @@ export default function ScheduleGrid({
                 timeOff={timeOff[e.id] ?? []}
                 onAdd={(d) => openNew(e.id, d)}
                 onEdit={openEdit}
+                onDropShift={onDropShift}
+                dragOverKey={dragOverKey}
+                setDragOverKey={setDragOverKey}
               />
             ))}
             {employees.length === 0 && (
@@ -422,6 +443,9 @@ function ScheduleRowCells({
   timeOff,
   onAdd,
   onEdit,
+  onDropShift,
+  dragOverKey,
+  setDragOverKey,
   highlight,
 }: {
   label: string;
@@ -433,6 +457,9 @@ function ScheduleRowCells({
   timeOff: TimeOffRange[];
   onAdd: (date: string) => void;
   onEdit: (s: ShiftRow) => void;
+  onDropShift: (shiftId: string, empKey: string, date: string) => void;
+  dragOverKey: string | null;
+  setDragOverKey: (k: string | null) => void;
   highlight?: boolean;
 }) {
   return (
@@ -445,8 +472,23 @@ function ScheduleRowCells({
         const shifts = cell(empKey, d);
         const dayBlocks = blocks.filter((b) => b.day_of_week === dayOfWeek(d));
         const onTimeOff = dateHasTimeOff(d, timeOff);
+        const cellKey = `${empKey}|${d}`;
         return (
-          <td key={d} className="p-1 border-b border-l border-[color:var(--brand-line)] align-top min-w-[92px]">
+          <td
+            key={d}
+            onDragOver={(e) => { e.preventDefault(); if (dragOverKey !== cellKey) setDragOverKey(cellKey); }}
+            onDragLeave={() => setDragOverKey(dragOverKey === cellKey ? null : dragOverKey)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOverKey(null);
+              const id = e.dataTransfer.getData("text/plain");
+              if (id) onDropShift(id, empKey, d);
+            }}
+            className={
+              "p-1 border-b border-l border-[color:var(--brand-line)] align-top min-w-[92px] " +
+              (dragOverKey === cellKey ? "bg-[color:var(--brand-soft)] ring-1 ring-inset ring-[color:var(--brand-blue)]" : "")
+            }
+          >
             {onTimeOff && (
               <div className="mb-1 rounded bg-violet-100 text-violet-700 text-[10px] px-1.5 py-0.5 font-semibold">
                 🌴 Time off
@@ -464,8 +506,13 @@ function ScheduleRowCells({
               {shifts.map((s) => (
                 <button
                   key={s.id}
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData("text/plain", s.id);
+                    e.dataTransfer.effectAllowed = "move";
+                  }}
                   onClick={() => onEdit(s)}
-                  className="w-full text-left rounded-md bg-[color:var(--brand-soft)] hover:bg-[color:var(--brand-blue)]/15 px-2 py-1 text-xs"
+                  className="w-full text-left rounded-md bg-[color:var(--brand-soft)] hover:bg-[color:var(--brand-blue)]/15 px-2 py-1 text-xs cursor-grab active:cursor-grabbing"
                 >
                   <div className="font-semibold">{formatTimeRange(s.start_time, s.end_time)}</div>
                   {s.role && <div className="text-[10px] text-[color:var(--brand-ink-muted)] truncate">{s.role}</div>}
