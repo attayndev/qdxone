@@ -351,8 +351,17 @@ export async function importTeamCsv(
       .map((x) => x.toLowerCase())
   );
 
-  const { parseTeamCsv } = await import("@/lib/team-csv");
-  const parsed = parseTeamCsv(csv, existingEmails);
+  const csvLib = await import("@/lib/team-csv");
+  const hasHeader = String(formData.get("has_header") ?? "true") !== "false";
+  const mappingRaw = String(formData.get("mapping") || "");
+  let parsed;
+  if (mappingRaw) {
+    const mapping = JSON.parse(mappingRaw) as import("@/lib/team-csv").FieldMapping;
+    const { dataRows } = csvLib.csvColumns(csv, hasHeader);
+    parsed = csvLib.buildRows(dataRows, mapping, existingEmails);
+  } else {
+    parsed = csvLib.parseTeamCsv(csv, existingEmails);
+  }
   if (parsed.headerError) return { ok: false, error: parsed.headerError };
 
   const { generateToken } = await import("@/lib/tokens");

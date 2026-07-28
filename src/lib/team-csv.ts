@@ -1,8 +1,8 @@
 /**
  * Pure CSV parsing for the "import existing team" upload — no server/DOM deps so
  * the preview (client) and the create action (server) share one parser, and it's
- * unit-tested. Maps a header row to first/last/email/phone/role, validates each
- * row, and flags rows to skip (missing name/email, bad email, already on roster).
+ * unit-tested. Supports an explicit column→field mapping and a "first row is
+ * headings" toggle; falls back to auto-mapping the header row.
  */
 
 export interface ParsedTeamRow {
@@ -22,6 +22,23 @@ export interface ParsedTeamCsv {
   okCount: number;
   skipCount: number;
 }
+
+/** Column index per field; -1 = not mapped. */
+export interface FieldMapping {
+  first_name: number;
+  last_name: number;
+  email: number;
+  phone: number;
+  role: number;
+}
+
+export const MAPPING_FIELDS: Array<{ key: keyof FieldMapping; label: string; required: boolean }> = [
+  { key: "first_name", label: "First name", required: true },
+  { key: "last_name", label: "Last name", required: false },
+  { key: "email", label: "Email", required: true },
+  { key: "phone", label: "Phone", required: false },
+  { key: "role", label: "Role", required: false },
+];
 
 /** RFC-ish CSV → rows of cells. Handles quoted fields, embedded commas, "" escapes, CRLF. */
 export function parseCsv(text: string): string[][] {
@@ -59,6 +76,13 @@ export function parseCsv(text: string): string[][] {
 }
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+const emailValid = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+function splitName(full: string): [string, string] {
+  const parts = full.trim().split(/\s+/);
+  if (parts.length <= 1) return [parts[0] ?? "", ""];
+  return [parts[0], parts.slice(1).join(" ")];
+}
 
 const HEADER_ALIASES: Record<string, string[]> = {
   first_name: ["firstname", "first", "fname", "givenname"],
@@ -69,51 +93,51 @@ const HEADER_ALIASES: Record<string, string[]> = {
   role: ["role", "position", "title", "jobtitle", "job"],
 };
 
-function mapHeaders(headers: string[]): Record<string, number> {
+/** Split a parsed grid into column labels + data rows, honoring the header toggle. */
+export function csvColumns(text: string, hasHeader: boolean): { columns: string[]; dataRows: string[][] } {
+  const grid = parseCsv(text).filter((r) => r.some((c) => c.trim() !== ""));
+  if (grid.length === 0) return { columns: [], dataRows: [] };
+  if (hasHeader) return { columns: grid[0], dataRows: grid.slice(1) };
+  const width = Math.max(...grid.map((r) => r.length));
+  const columns = Array.from({ length: width }, (_, i) => `Column ${i + 1}`);
+  return { columns, dataRows: grid };
+}
+
+/** Best-guess mapping from column labels (used to pre-fill the interstitial). */
+export function autoMap(columns: string[]): FieldMapping {
   const idx: Record<string, number> = {};
-  headers.forEach((h, i) => {
+  columns.forEach((h, i) => {
     const n = norm(h);
     for (const [field, aliases] of Object.entries(HEADER_ALIASES)) {
       if (idx[field] === undefined && aliases.includes(n)) idx[field] = i;
     }
   });
-  return idx;
+  return {
+    first_name: idx.first_name ?? idx.name ?? -1, // a single "name" column maps here (auto-split)
+    last_name: idx.last_name ?? -1,
+    email: idx.email ?? -1,
+    phone: idx.phone ?? -1,
+    role: idx.role ?? -1,
+  };
 }
 
-const emailValid = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+/** Build validated rows from data rows + an explicit mapping. */
+export function buildRows(
+  dataRows: string[][],
+  mapping: FieldMapping,
+  existingEmails?: Set<string>
+): ParsedTeamCsv {
+  if (mapping.first_name < 0) return { rows: [], headerError: "Map a name column.", okCount: 0, skipCount: 0 };
+  if (mapping.email < 0) return { rows: [], headerError: "Map an email column — it's required to send the assessment.", okCount: 0, skipCount: 0 };
 
-function splitName(full: string): [string, string] {
-  const parts = full.trim().split(/\s+/);
-  if (parts.length <= 1) return [parts[0] ?? "", ""];
-  return [parts[0], parts.slice(1).join(" ")];
-}
-
-/**
- * Parse a team CSV. `existingEmails` (lowercased) marks rows already on the roster.
- */
-export function parseTeamCsv(text: string, existingEmails?: Set<string>): ParsedTeamCsv {
-  const grid = parseCsv(text).filter((r) => r.some((c) => c.trim() !== ""));
-  if (grid.length === 0) return { rows: [], headerError: "The file is empty.", okCount: 0, skipCount: 0 };
-
-  const headers = grid[0];
-  const col = mapHeaders(headers);
-  if (col.email === undefined) {
-    return { rows: [], headerError: "No email column found — an email is required to send the assessment.", okCount: 0, skipCount: 0 };
-  }
-  if (col.first_name === undefined && col.name === undefined) {
-    return { rows: [], headerError: "No name column found (add a 'name', or 'first name' + 'last name').", okCount: 0, skipCount: 0 };
-  }
-
-  const cell = (r: string[], i: number | undefined) => (i === undefined ? "" : (r[i] ?? "").trim());
-  const rows: ParsedTeamRow[] = [];
-  for (let i = 1; i < grid.length; i++) {
-    const r = grid[i];
-    let first = cell(r, col.first_name);
-    let last = cell(r, col.last_name);
-    if (!first && col.name !== undefined) [first, last] = splitName(cell(r, col.name));
-    const email = cell(r, col.email).toLowerCase();
-    const phone = cell(r, col.phone);
-    const role = cell(r, col.role);
+  const cell = (r: string[], i: number) => (i < 0 ? "" : (r[i] ?? "").trim());
+  const rows: ParsedTeamRow[] = dataRows.map((r, i) => {
+    let first = cell(r, mapping.first_name);
+    let last = cell(r, mapping.last_name);
+    if (mapping.last_name < 0 && first) [first, last] = splitName(first); // single name column
+    const email = cell(r, mapping.email).toLowerCase();
+    const phone = cell(r, mapping.phone);
+    const role = cell(r, mapping.role);
 
     let ok = true;
     let reason: string | undefined;
@@ -121,12 +145,18 @@ export function parseTeamCsv(text: string, existingEmails?: Set<string>): Parsed
     else if (!email || !emailValid(email)) { ok = false; reason = "Missing or invalid email"; }
     else if (existingEmails?.has(email)) { ok = false; reason = "Already on roster"; }
 
-    rows.push({ rowNum: i, first_name: first, last_name: last, email, phone, role, ok, reason });
-  }
-
+    return { rowNum: i + 1, first_name: first, last_name: last, email, phone, role, ok, reason };
+  });
   return {
     rows,
     okCount: rows.filter((r) => r.ok).length,
     skipCount: rows.filter((r) => !r.ok).length,
   };
+}
+
+/** Convenience: parse with the header row auto-mapped (server default / simple path). */
+export function parseTeamCsv(text: string, existingEmails?: Set<string>): ParsedTeamCsv {
+  const { columns, dataRows } = csvColumns(text, true);
+  if (columns.length === 0) return { rows: [], headerError: "The file is empty.", okCount: 0, skipCount: 0 };
+  return buildRows(dataRows, autoMap(columns), existingEmails);
 }
