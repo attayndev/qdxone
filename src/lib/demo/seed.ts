@@ -526,4 +526,45 @@ async function seedDemoScheduleWeek(orgId: string, locationId: string | null): P
   if (os && emps[6]) reqs.push({ org_id: orgId, shift_id: os.id, employee_id: emps[6].id, kind: "claim" });
   if (as) reqs.push({ org_id: orgId, shift_id: as.id, employee_id: as.employee_id, kind: "drop" });
   if (reqs.length) await supa.from("shift_requests").insert(reqs as never);
+
+  // Two-party swaps: one proposed (waiting on coworker), one accepted (waiting on manager).
+  // Pick assigned upcoming shifts from four distinct employees so no shift is reused.
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: assignedRows } = await supa
+    .from("shifts")
+    .select("id, employee_id, shift_date")
+    .eq("org_id", orgId)
+    .not("employee_id", "is", null)
+    .gte("shift_date", today)
+    .order("shift_date", { ascending: true });
+  const seen = new Set<string>();
+  const oneEach: { id: string; employee_id: string }[] = [];
+  for (const s of (assignedRows as { id: string; employee_id: string }[] | null) ?? []) {
+    if (seen.has(s.employee_id)) continue;
+    seen.add(s.employee_id);
+    oneEach.push({ id: s.id, employee_id: s.employee_id });
+    if (oneEach.length === 4) break;
+  }
+  const swaps: Record<string, unknown>[] = [];
+  if (oneEach.length >= 2) {
+    swaps.push({
+      org_id: orgId,
+      from_employee_id: oneEach[0].employee_id,
+      from_shift_id: oneEach[0].id,
+      to_employee_id: oneEach[1].employee_id,
+      to_shift_id: oneEach[1].id,
+      status: "proposed",
+    });
+  }
+  if (oneEach.length >= 4) {
+    swaps.push({
+      org_id: orgId,
+      from_employee_id: oneEach[2].employee_id,
+      from_shift_id: oneEach[2].id,
+      to_employee_id: oneEach[3].employee_id,
+      to_shift_id: oneEach[3].id,
+      status: "accepted",
+    });
+  }
+  if (swaps.length) await supa.from("shift_swaps").insert(swaps as never);
 }

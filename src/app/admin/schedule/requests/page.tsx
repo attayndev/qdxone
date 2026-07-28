@@ -3,15 +3,18 @@ import Link from "next/link";
 import { currentOrg } from "@/lib/tenancy";
 import { pendingTimeOff } from "@/lib/time-off";
 import { pendingShiftRequests } from "@/lib/shift-requests";
+import { acceptedSwapsQueue } from "@/lib/shift-swaps";
 import TimeOffQueue from "@/components/admin/TimeOffQueue";
 import ShiftRequestQueue from "@/components/admin/ShiftRequestQueue";
+import SwapQueue from "@/components/admin/SwapQueue";
 
 export default async function RequestsPage() {
   const org = await currentOrg();
   if (!org) notFound();
-  const [timeOff, shiftReqs] = await Promise.all([
+  const [timeOff, shiftReqs, swaps] = await Promise.all([
     pendingTimeOff(org.id),
     pendingShiftRequests(org.id),
+    acceptedSwapsQueue(org.id),
   ]);
 
   return (
@@ -23,6 +26,9 @@ export default async function RequestsPage() {
       <p className="text-[color:var(--brand-ink-muted)]">
         Approve or deny your team&apos;s time-off and shift pickups/drops.
       </p>
+
+      <h2 className="text-lg font-black tracking-tight mt-6">Shift swaps</h2>
+      <SwapQueue items={swaps} />
 
       <h2 className="text-lg font-black tracking-tight mt-6">Shift pickups & drops</h2>
       <ShiftRequestQueue items={shiftReqs} />

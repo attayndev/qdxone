@@ -507,6 +507,125 @@ export async function denyShiftRequest(formData: FormData): Promise<ActionResult
   return { ok: true };
 }
 
+/**
+ * Approve a peer-accepted swap: the two shifts change hands (A's → B, B's → A).
+ * Hard overlap block on both sides; soft conflict warning otherwise.
+ */
+export async function approveSwap(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  const m = await requireMembership(org.id);
+  const id = String(formData.get("swap_id") || "");
+  if (!id) return { ok: false, error: "Missing swap." };
+  const supa = adminClient();
+  const now = new Date().toISOString();
+
+  const { data: swapRow } = await supa
+    .from("shift_swaps")
+    .select("id, from_employee_id, from_shift_id, to_employee_id, to_shift_id, status")
+    .eq("id", id)
+    .eq("org_id", org.id)
+    .maybeSingle();
+  const swap = swapRow as {
+    id: string;
+    from_employee_id: string;
+    from_shift_id: string;
+    to_employee_id: string;
+    to_shift_id: string;
+    status: string;
+  } | null;
+  if (!swap || swap.status !== "accepted") return { ok: false, error: "This swap was already handled." };
+
+  // Re-read both shifts; guard against a shift that moved or changed hands since.
+  const { data: shiftRows } = await supa
+    .from("shifts")
+    .select("id, employee_id, shift_date, start_time, end_time")
+    .in("id", [swap.from_shift_id, swap.to_shift_id])
+    .eq("org_id", org.id);
+  const shifts = (shiftRows as {
+    id: string;
+    employee_id: string | null;
+    shift_date: string;
+    start_time: string;
+    end_time: string;
+  }[] | null) ?? [];
+  const fromShift = shifts.find((s) => s.id === swap.from_shift_id);
+  const toShift = shifts.find((s) => s.id === swap.to_shift_id);
+  if (!fromShift || !toShift) return { ok: false, error: "One of the shifts no longer exists." };
+  if (fromShift.employee_id !== swap.from_employee_id || toShift.employee_id !== swap.to_employee_id) {
+    return { ok: false, error: "These shifts have changed since the swap was proposed." };
+  }
+
+  // Overlap check: B taking A's shift, and A taking B's shift (excluding the shifts being traded).
+  if (
+    (await hasConflict(
+      org.id,
+      swap.to_employee_id,
+      fromShift.shift_date,
+      fromShift.start_time,
+      fromShift.end_time,
+      toShift.id
+    )) ||
+    (await hasConflict(
+      org.id,
+      swap.from_employee_id,
+      toShift.shift_date,
+      toShift.start_time,
+      toShift.end_time,
+      fromShift.id
+    ))
+  ) {
+    return { ok: false, error: "The trade would double-book someone. Not applied." };
+  }
+
+  const stamp = { status: "published" as const, published_at: now };
+  const [r1, r2] = await Promise.all([
+    supa
+      .from("shifts")
+      .update({ employee_id: swap.to_employee_id, ...stamp } as never)
+      .eq("id", fromShift.id)
+      .eq("org_id", org.id),
+    supa
+      .from("shifts")
+      .update({ employee_id: swap.from_employee_id, ...stamp } as never)
+      .eq("id", toShift.id)
+      .eq("org_id", org.id),
+  ]);
+  if (r1.error || r2.error) {
+    console.error("approveSwap failed", r1.error, r2.error);
+    return { ok: false, error: "Could not apply the trade. Try again." };
+  }
+
+  await supa
+    .from("shift_swaps")
+    .update({ status: "approved", reviewed_by: m.user_id, reviewed_at: now } as never)
+    .eq("id", id)
+    .eq("org_id", org.id);
+
+  const [w1, w2] = await Promise.all([
+    conflictWarning(org.id, swap.to_employee_id, fromShift),
+    conflictWarning(org.id, swap.from_employee_id, toShift),
+  ]);
+  revalidateRequests();
+  return { ok: true, warning: w1 ?? w2 };
+}
+
+/** Deny a peer-accepted swap. */
+export async function denySwap(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  const m = await requireMembership(org.id);
+  const id = String(formData.get("swap_id") || "");
+  if (!id) return { ok: false, error: "Missing swap." };
+  const supa = adminClient();
+  await supa
+    .from("shift_swaps")
+    .update({ status: "declined", reviewed_by: m.user_id, reviewed_at: new Date().toISOString() } as never)
+    .eq("id", id)
+    .eq("org_id", org.id)
+    .eq("status", "accepted");
+  revalidateRequests();
+  return { ok: true };
+}
+
 /** Deny a pending time-off request, with an optional note. */
 export async function denyTimeOff(formData: FormData): Promise<ActionResult> {
   const org = await currentOrgOrThrow();

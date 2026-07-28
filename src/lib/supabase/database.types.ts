@@ -1629,6 +1629,81 @@ export type Database = {
           },
         ]
       }
+      shift_swaps: {
+        Row: {
+          created_at: string
+          from_employee_id: string
+          from_shift_id: string
+          id: string
+          org_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          to_employee_id: string
+          to_shift_id: string
+        }
+        Insert: {
+          created_at?: string
+          from_employee_id: string
+          from_shift_id: string
+          id?: string
+          org_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          to_employee_id: string
+          to_shift_id: string
+        }
+        Update: {
+          created_at?: string
+          from_employee_id?: string
+          from_shift_id?: string
+          id?: string
+          org_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          to_employee_id?: string
+          to_shift_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_swaps_from_employee_id_fkey"
+            columns: ["from_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_swaps_from_shift_id_fkey"
+            columns: ["from_shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_swaps_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_swaps_to_employee_id_fkey"
+            columns: ["to_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_swaps_to_shift_id_fkey"
+            columns: ["to_shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shifts: {
         Row: {
           created_at: string

@@ -4,8 +4,16 @@ import { currentEmployee } from "@/lib/staff-auth";
 import Link from "next/link";
 import { listEmployeeUpcomingShifts, weekStart, formatTimeRange, shiftHours } from "@/lib/shifts";
 import { openShiftsForEmployee, pendingShiftIds } from "@/lib/shift-requests";
+import {
+  swapTargetsForEmployee,
+  incomingSwaps,
+  outgoingSwaps,
+  activeSwapShiftIds,
+} from "@/lib/shift-swaps";
 import LogoutButton from "@/components/LogoutButton";
 import ShiftRequestButton from "@/components/staff/ShiftRequestButton";
+import ShiftSwapButton from "@/components/staff/ShiftSwapButton";
+import SwapsSection from "@/components/staff/SwapsSection";
 
 function dayHeading(d: string): string {
   return new Date(`${d}T00:00:00`).toLocaleDateString(undefined, {
@@ -22,12 +30,17 @@ export default async function StaffSchedulePage() {
   if (!emp) redirect("/staff/login");
 
   const from = weekStart(new Date().toISOString().slice(0, 10));
-  const [shifts, openShifts, pendingDrops, pendingClaims] = await Promise.all([
-    listEmployeeUpcomingShifts(org.id, emp.id, from),
-    openShiftsForEmployee(org.id, emp.id),
-    pendingShiftIds(org.id, emp.id, "drop"),
-    pendingShiftIds(org.id, emp.id, "claim"),
-  ]);
+  const [shifts, openShifts, pendingDrops, pendingClaims, swapTargets, incoming, outgoing, swapPending] =
+    await Promise.all([
+      listEmployeeUpcomingShifts(org.id, emp.id, from),
+      openShiftsForEmployee(org.id, emp.id),
+      pendingShiftIds(org.id, emp.id, "drop"),
+      pendingShiftIds(org.id, emp.id, "claim"),
+      swapTargetsForEmployee(org.id, emp.id),
+      incomingSwaps(org.id, emp.id),
+      outgoingSwaps(org.id, emp.id),
+      activeSwapShiftIds(org.id, emp.id),
+    ]);
 
   // Group by date.
   const byDate = new Map<string, typeof shifts>();
@@ -86,6 +99,11 @@ export default async function StaffSchedulePage() {
                         <span className="text-xs text-[color:var(--brand-ink-muted)] whitespace-nowrap">
                           {shiftHours(s.start_time, s.end_time)}h
                         </span>
+                        <ShiftSwapButton
+                          fromShiftId={s.id}
+                          targets={swapTargets}
+                          pending={swapPending.has(s.id)}
+                        />
                         <ShiftRequestButton shiftId={s.id} kind="drop" pending={pendingDrops.has(s.id)} />
                       </div>
                     </li>
@@ -120,6 +138,8 @@ export default async function StaffSchedulePage() {
           </ul>
         </div>
       )}
+
+      <SwapsSection incoming={incoming} outgoing={outgoing} />
     </div>
   );
 }
