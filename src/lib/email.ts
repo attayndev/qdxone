@@ -101,6 +101,44 @@ export async function sendAssessmentEmail(args: {
 }
 
 /**
+ * The same assessment, sent to an EXISTING employee as a team benchmark (not a
+ * job application). Same link/items as sendAssessmentEmail, different framing.
+ */
+export async function sendBenchmarkAssessmentEmail(args: {
+  to: string;
+  firstName: string;
+  orgSlug: string;
+  orgName: string;
+  token: string;
+  replyTo?: string;
+}) {
+  if (!process.env.RESEND_API_KEY) return; // email optional
+  const link = orgUrl(args.orgSlug, `/a/${args.token}`);
+  await client().emails.send({
+    from: orgFrom(args.orgName),
+    replyTo: args.replyTo,
+    to: args.to,
+    subject: `A quick team check-in from ${args.orgName}`,
+    html: `
+      <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:540px;margin:0 auto;color:#16223d">
+        <p style="font-size:18px">Hi ${escape(args.firstName)},</p>
+        <p>The team at <strong>${escape(args.orgName)}</strong> is getting everyone on the same page with a short, five-minute check-in you can do right from your phone. There are no right or wrong answers — it just helps your manager understand how to set you up to do your best work.</p>
+        <p style="margin:28px 0">
+          <a href="${link}" style="background:#43568a;color:white;padding:14px 22px;border-radius:9999px;text-decoration:none;font-weight:700;display:inline-block">
+            Start the check-in
+          </a>
+        </p>
+        <p>Take it when you have a few quiet minutes.</p>
+        <p style="font-size:13px;color:#5a6b8c">Your link is active for 72 hours. You can also copy and paste it:<br>
+          <span style="word-break:break-all">${link}</span>
+        </p>
+      </div>
+    `,
+    text: `Hi ${args.firstName},\n\nThe team at ${args.orgName} is getting everyone on the same page with a short, five-minute check-in you can do from your phone. No right or wrong answers — it just helps your manager set you up to do your best work.\n\nStart the check-in: ${link}\n\nTake it when you have a few quiet minutes.\n\nYour link is active for 72 hours. You can also copy and paste it:\n${link}`,
+  });
+}
+
+/**
  * Alert the org's owners when a candidate scores Strong fit. Email only —
  * resolves owner emails via the auth admin API.
  */

@@ -3,8 +3,10 @@ import Link from "next/link";
 import { currentOrg } from "@/lib/tenancy";
 import { adminClient } from "@/lib/supabase/admin";
 import { listEmployees, ratingLabel, type EmployeeView } from "@/lib/employees";
+import { assessmentGapCount } from "@/lib/employee-assessment";
 import ImportHiresButton from "@/components/admin/ImportHiresButton";
 import ImportTeamCsv from "@/components/admin/ImportTeamCsv";
+import SendTeamAssessments from "@/components/admin/SendTeamAssessments";
 
 const STATUS_CLS: Record<string, string> = {
   employed: "bg-emerald-100 text-emerald-800",
@@ -56,6 +58,7 @@ export default async function EmployeesPage({
   const dueCount = all.filter((e) => e.reviewDue).length;
   const employedCount = all.filter((e) => e.employment_status === "employed").length;
   const terminatedCount = all.filter((e) => e.employment_status === "terminated").length;
+  const notAssessed = await assessmentGapCount(org.id);
 
   let list: EmployeeView[] = all;
   if (view === "due") list = all.filter((e) => e.reviewDue);
@@ -84,6 +87,8 @@ export default async function EmployeesPage({
           {untracked > 0 && <ImportHiresButton count={untracked} />}
         </div>
       </div>
+
+      {notAssessed > 0 && <SendTeamAssessments count={notAssessed} />}
 
       <div className="grid grid-cols-3 gap-3 mt-6">
         <div className="card">

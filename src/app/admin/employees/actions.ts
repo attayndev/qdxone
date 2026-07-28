@@ -183,6 +183,91 @@ export async function setEmployeeWage(formData: FormData): Promise<ActionResult>
   return { ok: true };
 }
 
+/** Send the assessment (as a team benchmark) to one employee. Skips if already sent. */
+async function sendOneAssessment(
+  ctx: { orgId: string; orgSlug: string; orgName: string; replyTo?: string },
+  emp: { application_id: string | null; email: string | null; first_name: string; location_id: string | null }
+): Promise<"sent" | "skip"> {
+  if (!emp.application_id || !emp.email) return "skip";
+  const supa = adminClient();
+  const { data: existing } = await supa
+    .from("assessment_sessions")
+    .select("id")
+    .eq("application_id", emp.application_id)
+    .eq("subject_type", "candidate")
+    .maybeSingle();
+  if (existing) return "skip";
+
+  const { createCandidateAssessment } = await import("@/lib/assessment/session");
+  const token = await createCandidateAssessment({
+    orgId: ctx.orgId,
+    locationId: emp.location_id,
+    applicationId: emp.application_id,
+  });
+  const { sendBenchmarkAssessmentEmail } = await import("@/lib/email");
+  await sendBenchmarkAssessmentEmail({
+    to: emp.email,
+    firstName: emp.first_name,
+    orgSlug: ctx.orgSlug,
+    orgName: ctx.orgName,
+    token,
+    replyTo: ctx.replyTo,
+  });
+  await supa.from("applications").update({ status: "assessment_sent" } as never).eq("id", emp.application_id);
+  return "sent";
+}
+
+/** Send the assessment to one employee (benchmark). */
+export async function sendEmployeeAssessment(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const supa = adminClient();
+  const employeeId = String(formData.get("employee_id") || "");
+  if (!employeeId) return { ok: false, error: "Missing employee." };
+  const { data: emp } = await supa
+    .from("employees")
+    .select("application_id, email, first_name, location_id")
+    .eq("id", employeeId)
+    .eq("org_id", org.id)
+    .maybeSingle();
+  const e = emp as { application_id: string | null; email: string | null; first_name: string; location_id: string | null } | null;
+  if (!e) return { ok: false, error: "Employee not found." };
+  if (!e.email) return { ok: false, error: "This employee has no email on file." };
+
+  const { orgReplyTo } = await import("@/lib/email");
+  const replyTo = await orgReplyTo(org.id);
+  const res = await sendOneAssessment({ orgId: org.id, orgSlug: org.slug, orgName: org.name, replyTo }, e);
+  if (res === "skip") return { ok: false, error: "The assessment was already sent to this person." };
+  revalidate(employeeId);
+  return { ok: true };
+}
+
+/** Bulk: send the assessment to every employee who hasn't been sent it. */
+export async function sendTeamAssessments(): Promise<
+  { ok: true; sent: number } | { ok: false; error: string }
+> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const supa = adminClient();
+  const { data: emps } = await supa
+    .from("employees")
+    .select("application_id, email, first_name, location_id")
+    .eq("org_id", org.id)
+    .eq("employment_status", "employed");
+  const rows = (emps as { application_id: string | null; email: string | null; first_name: string; location_id: string | null }[] | null) ?? [];
+
+  const { orgReplyTo } = await import("@/lib/email");
+  const replyTo = await orgReplyTo(org.id);
+  const ctx = { orgId: org.id, orgSlug: org.slug, orgName: org.name, replyTo };
+  let sent = 0;
+  for (const e of rows) {
+    const res = await sendOneAssessment(ctx, e);
+    if (res === "sent") sent++;
+  }
+  revalidatePath("/admin/employees");
+  return { ok: true, sent };
+}
+
 /** Invite (or re-invite) an employee to the /staff portal: email a set-password link. */
 export async function inviteEmployeeToStaff(formData: FormData): Promise<ActionResult> {
   const org = await currentOrgOrThrow();
