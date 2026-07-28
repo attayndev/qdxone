@@ -9,6 +9,7 @@ import StaffAccessControl from "@/components/admin/StaffAccessControl";
 import WageControl from "@/components/admin/WageControl";
 import EmployeeAssessmentControl from "@/components/admin/EmployeeAssessmentControl";
 import { assessmentStatusByEmployee } from "@/lib/employee-assessment";
+import { employeeAssessmentScore } from "@/lib/employee-assessment-score";
 
 const RATING_CLS: Record<number, string> = {
   1: "bg-rose-100 text-rose-700",
@@ -16,6 +17,19 @@ const RATING_CLS: Record<number, string> = {
   3: "bg-emerald-50 text-emerald-700",
   4: "bg-emerald-100 text-emerald-800",
   5: "bg-blue-100 text-blue-800",
+};
+
+const BAND_CLS: Record<string, string> = {
+  High: "bg-emerald-100 text-emerald-800",
+  Mid: "bg-amber-100 text-amber-800",
+  Low: "bg-rose-100 text-rose-700",
+};
+const FIT_CLS: Record<string, string> = {
+  "Strong fit": "bg-blue-100 text-blue-800",
+  Consider: "bg-emerald-100 text-emerald-800",
+  Caution: "bg-amber-100 text-amber-800",
+  "Not recommended": "bg-rose-100 text-rose-700",
+  Incomplete: "bg-gray-200 text-gray-600",
 };
 
 function fmtDate(d: string | null): string {
@@ -34,6 +48,7 @@ export default async function EmployeeDetailPage({
   if (!detail) notFound();
   const { employee: e, reviews, roleChanges } = detail;
   const assessStatus = (await assessmentStatusByEmployee(org.id)).get(e.id) ?? "none";
+  const assessment = await employeeAssessmentScore(org.id, e.application_id);
   const roles = orgRoles(org.branding);
 
   return (
@@ -76,7 +91,48 @@ export default async function EmployeeDetailPage({
         </span>
       </div>
 
-      {e.application_id && (
+      {/* Assessment scores (from their completed assessment) */}
+      {assessment && (
+        <div className="card mt-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold">Assessment</span>
+              <span className={`chip ${FIT_CLS[assessment.overall] ?? "bg-gray-200 text-gray-600"}`}>
+                {assessment.overall}
+              </span>
+              {!assessment.reliable && (
+                <span
+                  className="chip bg-gray-200 text-gray-600"
+                  title="Response quality was low, so the fit is capped — read with caution."
+                >
+                  Low-quality responses
+                </span>
+              )}
+            </div>
+            {e.application_id && (
+              <Link
+                href={`/admin/candidates/${e.application_id}`}
+                className="text-sm text-[color:var(--brand-blue-600)] hover:underline whitespace-nowrap"
+              >
+                Full assessment →
+              </Link>
+            )}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {assessment.categories.map((c) => (
+              <span
+                key={c.categoryUi}
+                className={`chip ${BAND_CLS[c.band] ?? "bg-gray-100 text-gray-700"}`}
+                title={`${c.mean.toFixed(1)} / 5`}
+              >
+                {c.categoryUi}: {c.band}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!assessment && e.application_id && (
         <Link
           href={`/admin/candidates/${e.application_id}`}
           className="inline-block mt-2 text-sm text-[color:var(--brand-blue-600)] hover:underline"
