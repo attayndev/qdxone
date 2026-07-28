@@ -9,6 +9,7 @@ import { adminClient } from "@/lib/supabase/admin";
 import { currentOrgOrThrow, requireMembership } from "@/lib/tenancy";
 import { nextReviewDue, type EmployeeRow } from "@/lib/employees";
 import { REVIEW_CATEGORIES } from "@/lib/review-categories";
+import { STALE_ASSESSMENT_DAYS } from "@/lib/assessment/reset-stale";
 
 /** Parse a 1–5 rating from form data; null if blank, out-of-range treated as null. */
 function parseRating(raw: FormDataEntryValue | null): number | null {
@@ -192,11 +193,23 @@ async function sendOneAssessment(
   const supa = adminClient();
   const { data: existing } = await supa
     .from("assessment_sessions")
-    .select("id")
+    .select("id, status, started_at, created_at")
     .eq("application_id", emp.application_id)
     .eq("subject_type", "candidate")
     .maybeSingle();
-  if (existing) return "skip";
+  const prior = existing as
+    | { id: string; status: string; started_at: string | null; created_at: string }
+    | null;
+  if (prior) {
+    // Only re-send when the prior invite is stale: never opened, never completed,
+    // and older than the reset window. Otherwise leave the live/complete one be.
+    const stale =
+      prior.status !== "complete" &&
+      !prior.started_at &&
+      new Date(prior.created_at).getTime() < Date.now() - STALE_ASSESSMENT_DAYS * 86_400_000;
+    if (!stale) return "skip";
+    await supa.from("assessment_sessions").delete().eq("id", prior.id);
+  }
 
   const { createCandidateAssessment } = await import("@/lib/assessment/session");
   const token = await createCandidateAssessment({

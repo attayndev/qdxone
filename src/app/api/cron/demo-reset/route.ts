@@ -8,6 +8,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { resetDemoOrg } from "@/lib/demo/seed";
+import { resetStaleAssessments } from "@/lib/assessment/reset-stale";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -26,6 +27,9 @@ export async function POST(request: NextRequest) {
   if (!secretMatches(request.headers.get("x-cron-secret") ?? "", secret)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
+  // Nightly tick: rebuild the demo org, then reset stale assessment sends
+  // (all orgs) so anyone who didn't respond in 3 days is unblocked for a re-send.
   const { orgId, candidates } = await resetDemoOrg();
-  return NextResponse.json({ ok: true, orgId, candidates });
+  const { reset } = await resetStaleAssessments();
+  return NextResponse.json({ ok: true, orgId, candidates, assessmentsReset: reset });
 }
