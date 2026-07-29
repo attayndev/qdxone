@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 
 export const metadata = {
-  title: "QDXone pricing — Shift-Ready Hiring per location",
+  title: "QDXone pricing — The Shift-Ready Platform, per location",
   description:
-    "Simple pricing with unlimited assessments — every applicant assessed and scored. Solo $59/mo. Operator $79/mo plus $50 per additional location. Enterprise for brands. 30-day free trial.",
+    "The whole platform on every plan — hiring, SMS, AI job posts, scheduling, and team management, with unlimited assessments. Solo $79/mo. Operator $99/mo plus $59 per additional location. Enterprise for brands. 30-day free trial.",
 };
 
 export default function PricingPage() {
@@ -18,31 +18,32 @@ export default function PricingPage() {
             Simple per-location pricing.
           </h1>
           <p className="text-center text-[color:var(--brand-ink-muted)] mt-3 max-w-xl mx-auto">
-            <strong>Unlimited assessments on every plan</strong> — Shift-Ready
-            Hiring only works if every applicant gets assessed, so we never
-            cap it. Flat rate per location, no per-assessment fees; Operator adds
-            the multi-store power tools. 30-day free trial.
+            <strong>The whole platform on every plan</strong> — hiring, SMS, AI job
+            posts, scheduling, and team management, with <strong>unlimited
+            assessments</strong> (we never cap them). Flat rate per location, no
+            per-assessment fees; Operator just adds the multi-store layer. 30-day
+            free trial.
           </p>
 
           <div className="mt-10 grid md:grid-cols-3 gap-5 items-start">
             <PlanCard
               name="Solo"
-              priceLine="$59"
+              priceLine="$79"
               priceSub="/mo"
-              annualNote="or $590/yr (2 months free)"
+              annualNote="or $790/yr (2 months free)"
               meta="1 location · 2 users"
-              tagline="Everything you need to hire for one store."
+              tagline="The full platform for one store."
               features={SOLO_FEATURES}
             />
             <PlanCard
               name="Operator"
-              priceLine="$79"
-              priceSub="/mo + $50 per additional location"
+              priceLine="$99"
+              priceSub="/mo + $59 per additional location"
               annualNote="2 months free when you pay yearly"
               meta="2+ locations · 2 + 1/location users"
-              tagline="Everything in Solo, plus:"
+              tagline="Everything in Solo, across every store:"
               features={OPERATOR_FEATURES}
-              note="The $29 over a Solo store buys the multi-location toolkit — one login for every store, SMS + candidate texting, cross-store reporting. Each additional location is $50. No separate signup: start free, add locations, and you move to Operator automatically."
+              note="Operator adds the multi-location layer — one login for every store, one careers page, and reporting that compares them. Each additional location is $59. No separate signup: start free, add locations, and you move to Operator automatically."
               highlight
             />
             <EnterpriseCard />
@@ -72,22 +73,23 @@ export default function PricingPage() {
 const SOLO_FEATURES = [
   "Unlimited assessments",
   "Your own hiring page + QR codes",
-  "Custom application form & roles",
   "Five-minute assessment + Low/Mid/High bands",
   "A scored shortlist as your starting point",
-  "Benchmark against your own crew",
-  "Basic fairness checks",
+  "SMS + candidate texting",
+  "AI-written job posts",
+  "Staff scheduling — availability, time off, shift pickup/drop & swaps",
+  "Team management — reviews + assessment-vs-performance",
   "Interview scheduling — candidates self-book",
-  "Email notifications",
+  "Email + SMS notifications",
+  "Basic fairness checks",
 ];
 
 const OPERATOR_FEATURES = [
   "Manage every location from one login",
   "One hiring page + one shortlist across stores",
-  "SMS notifications + candidate texting",
-  "AI-written job posts",
   "Reports that compare your stores",
   "Fairness checks across your stores",
+  "Role-specific assessment modules",
 ];
 
 const ENTERPRISE_FEATURES = [

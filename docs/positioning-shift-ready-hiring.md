@@ -1,5 +1,11 @@
 # QDXone positioning — Shift-Ready Hiring
 
+> **This doc is now the Hiring-pillar canon.** Platform-level positioning
+> (the umbrella "Shift-Ready Platform," spanning hire → schedule → manage)
+> lives in `docs/positioning-shift-ready-v2.md`. Everything below still governs
+> the Shift-Ready Hiring™ pillar — the Applicant Volume Trap narrative, the
+> mechanism, and the ™ usage convention.
+
 Yan's canonical positioning statement (2026-07-14). This is the message every
 surface should ladder up to: marketing pages, store listings, onboarding,
 sales conversations, partner applications.

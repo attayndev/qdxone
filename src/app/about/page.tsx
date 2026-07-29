@@ -5,7 +5,7 @@ import { CommercialVideo } from "@/components/CommercialVideo";
 export const metadata = {
   title: "About QDXone — built by an operator, for operators",
   description:
-    "QDXone was built by Yan, the owner-operator of a 16 Handles franchise. Shift-Ready Hiring for restaurants, made from real operating pain.",
+    "QDXone was built by Yan, the owner-operator of a 16 Handles franchise. The Shift-Ready Platform for restaurants, made from real operating pain.",
 };
 
 export default function AboutPage() {

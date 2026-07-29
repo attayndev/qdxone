@@ -87,6 +87,13 @@ export default function ForIndependentsPage() {
                 restaurant&apos;s name and your wording. And nobody gets
                 auto-rejected — every decision is yours.
               </Bullet>
+              <Bullet>
+                <strong>It doesn&apos;t stop at the hire.</strong>&nbsp;The
+                same platform builds your weekly schedule and keeps track of
+                your team&apos;s performance, so running the shift and running
+                the hiring finally live in one place instead of a separate
+                app for each.
+              </Bullet>
             </ul>
           </div>
         </section>
@@ -97,7 +104,7 @@ export default function ForIndependentsPage() {
               Try it on your next applicant.
             </h2>
             <p className="mt-4 text-white/80">
-              30-day free trial. Solo is $59 a month per location after that.
+              30-day free trial. Solo is $79 a month per location after that.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/signup" className="btn-primary">

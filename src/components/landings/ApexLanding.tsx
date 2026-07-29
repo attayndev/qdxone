@@ -4,8 +4,9 @@ import { CommercialVideo } from "@/components/CommercialVideo";
 
 /**
  * Apex marketing site — qdx.one
- * QDXone: Shift-Ready Hiring for restaurants — mobile application, 5-minute
- * assessment, scored shortlist. Positioning: docs/positioning-shift-ready-hiring.md
+ * QDXone: The Shift-Ready Platform for restaurants — hire (apply + 5-minute
+ * assessment + scored shortlist), schedule, and manage the team, all in one place.
+ * It begins with Shift-Ready Hiring™. Positioning: docs/positioning-shift-ready-v2.md
  */
 export default function ApexLanding() {
   return (
@@ -17,6 +18,7 @@ export default function ApexLanding() {
           heading="What a resume can't show you."
           sub="A 15-second film about the small moments that reveal who's shift-ready."
         />
+        <PlatformPillars />
         <VolumeTrap />
         <HowItWorks />
         <WhatWeMeasure />
@@ -42,24 +44,24 @@ function Hero() {
     <section className="px-4 sm:px-6 pt-12 sm:pt-20 pb-10">
       <div className="max-w-4xl mx-auto text-center">
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.02]">
-          Shift-Ready Hiring™
+          The Shift-Ready Platform
           <br />
           <span className="text-[color:var(--brand-blue)]">
             for restaurants.
           </span>
         </h1>
         <p className="mt-5 text-2xl sm:text-3xl font-extrabold tracking-tight">
-          Know who to call first.
+          Hire shift-ready. Then run the shift.
         </p>
         <p className="mt-4 text-lg sm:text-xl text-[color:var(--brand-ink-muted)] max-w-2xl mx-auto">
-          Every applicant completes a mobile application and a five-minute
-          assessment. QDXone scores the qualities that matter in restaurant
-          work — reliability, people skills, ownership — and hands you a
-          shortlist as your starting point.
+          It begins with hiring — every applicant takes a five-minute assessment,
+          so you know who to call first instead of drowning in resumes. Then the
+          same platform runs your schedule and your team, so the people you hire
+          stay shift-ready.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/signup" className="btn-primary">
-            Start building your shortlist
+            Start free
           </Link>
           <Link href="/how-it-works" className="btn-ghost">
             See how it works
@@ -68,6 +70,65 @@ function Hero() {
         <p className="mt-4 text-sm text-[color:var(--brand-ink-muted)]">
           30-day free trial. Cancel anytime.
         </p>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+function PlatformPillars() {
+  const pillars = [
+    {
+      badge: "Start here",
+      name: "Shift-Ready Hiring™",
+      body: "Every applicant takes a five-minute assessment, so you get a scored shortlist — who to call first, not just a fuller inbox.",
+      href: "/shift-ready-hiring",
+    },
+    {
+      badge: "Then",
+      name: "Scheduling",
+      body: "Build the week and publish it to your team. Staff set availability, request time off, and pick up, drop, or swap shifts — with labor cost as you build.",
+      href: "/how-it-works",
+    },
+    {
+      badge: "And",
+      name: "Team management",
+      body: "Track your crew, run reviews on the same qualities you hired for, and finally see whether the assessment predicted how they'd do on the floor.",
+      href: "/how-it-works",
+    },
+  ];
+  return (
+    <section className="px-4 sm:px-6 py-16 border-b border-[color:var(--brand-line)]">
+      <div className="max-w-5xl mx-auto">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
+            One platform, from application to schedule.
+          </h2>
+          <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg">
+            It begins with Shift-Ready Hiring™ — and keeps working long after the
+            hire. The same signal that told you who to call first follows the person
+            onto the schedule and into their reviews.
+          </p>
+        </div>
+        <div className="mt-10 grid md:grid-cols-3 gap-4">
+          {pillars.map((p) => (
+            <div key={p.name} className="card flex flex-col">
+              <span className="chip bg-[color:var(--brand-soft)] text-[color:var(--brand-blue-600)] self-start">
+                {p.badge}
+              </span>
+              <h3 className="mt-3 font-black text-xl tracking-tight">{p.name}</h3>
+              <p className="mt-2 text-[color:var(--brand-ink-muted)] text-[15px] leading-relaxed flex-1">
+                {p.body}
+              </p>
+              <Link
+                href={p.href}
+                className="mt-4 inline-block font-semibold text-[color:var(--brand-blue-600)] hover:underline"
+              >
+                Learn more →
+              </Link>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -400,13 +461,14 @@ function PricingPeek() {
           <span className="text-[color:var(--brand-blue)]">No fluff.</span>
         </h2>
         <p className="mt-3 text-[color:var(--brand-ink-muted)] text-lg max-w-xl mx-auto">
-          Unlimited assessments on every plan — no caps, no surprise bills.
-          One store on Solo; Operator brings every location under one login
-          with SMS, AI-written job posts, and cross-store reporting.
+          The whole platform on every plan — hiring, SMS, AI job posts, scheduling,
+          and team management, with unlimited assessments and no surprise bills.
+          One store on Solo; Operator brings every location under one login with
+          cross-store reporting.
         </p>
         <div className="mt-8 grid sm:grid-cols-3 gap-4 text-left">
-          <PricePeek name="Solo" price={59} priceSub="/mo · 1 location" quota="Unlimited assessments" />
-          <PricePeek name="Operator" price={79} priceSub="/mo + $50 per added location" quota="Unlimited assessments" highlight />
+          <PricePeek name="Solo" price={79} priceSub="/mo · 1 location" quota="The full platform" />
+          <PricePeek name="Operator" price={99} priceSub="/mo + $59 per added location" quota="Everything in Solo, across stores" highlight />
           <PricePeek name="Enterprise" price="Let's talk" quota="For brands & multi-location groups" />
         </div>
         <div className="mt-7">
@@ -550,15 +612,15 @@ function FinalCta() {
         <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
           Stop collecting applicants.{" "}
           <span className="text-[color:var(--brand-blue)]">
-            Start identifying the people most ready to join the shift.
+            Hire shift-ready, then run the shift.
           </span>
         </h2>
         <p className="mt-5 text-white/70 text-lg max-w-xl mx-auto">
-          Shift-Ready Hiring, built for the restaurant world.
+          The Shift-Ready Platform, built for the restaurant world.
         </p>
         <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/signup" className="btn-primary">
-            Try Shift-Ready Hiring
+            Start free
           </Link>
           <Link
             href="/demo"

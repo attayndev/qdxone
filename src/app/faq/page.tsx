@@ -4,7 +4,7 @@ import { ApexHeader, ApexFooter } from "@/components/apex/ApexHeader";
 export const metadata = {
   title: "QDXone — Restaurant hiring FAQs",
   description:
-    "Plain answers to the questions restaurant owners ask about QDXone and Shift-Ready Hiring: how it works, how it compares, applying, consistency, accounts, pricing, and setup.",
+    "Plain answers to the questions restaurant owners ask about QDXone, The Shift-Ready Platform for hiring, scheduling, and team management: how it works, how it compares, applying, consistency, accounts, pricing, and setup.",
 };
 
 type Item = { q: string; a: React.ReactNode };
@@ -22,7 +22,7 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "What is QDXone?",
-        a: "QDXone is Shift-Ready Hiring for restaurants. You post your open jobs, people apply on your own hiring page, and every applicant takes a short five-minute assessment on their phone. You get back a scored shortlist — a clear starting point instead of a pile to dig through. QDXone evaluates job-relevant signals; it never makes the hiring decision for you.",
+        a: "QDXone is the Shift-Ready Platform for restaurants — it begins with hiring: you post your open jobs, people apply on your own hiring page, and every applicant takes a short five-minute assessment on their phone. You get back a scored shortlist — a clear starting point instead of a pile to dig through. QDXone evaluates job-relevant signals; it never makes the hiring decision for you.",
       },
       {
         q: "Why use QDXone instead of just interviewing people myself?",
@@ -142,24 +142,23 @@ const SECTIONS: Section[] = [
             pay for the year:
             <ul className="mt-3 space-y-3 list-none">
               <li>
-                <strong>Solo — $59 a month per store</strong> (or $590 a year).
-                One store, 2 logins, <strong>unlimited assessments</strong>.
-                Everything you need to hire for one store: your own hiring page
-                and QR codes, the five-minute assessment, Low/Mid/High bands, a
-                comparison against your own crew, basic fairness checks, and
-                your scored shortlist.
+                <strong>Solo — $79 a month per store</strong> (or $790 a year).
+                One store, 2 logins, <strong>unlimited assessments</strong>. The
+                full platform for one store: your own hiring page and QR codes,
+                the five-minute assessment, Low/Mid/High bands, your scored
+                shortlist, SMS + candidate texting, AI-written job posts, staff
+                scheduling, and team management.
               </li>
               <li>
                 <strong>
-                  Operator — $79 a month plus $50 for each additional
+                  Operator — $99 a month plus $59 for each additional
                   location
                 </strong>{" "}
                 (two months free paid yearly). Two or more stores, 2 logins
                 plus 1 per store, <strong>unlimited assessments</strong>.
-                Everything in Solo plus one login across all stores, a shared
-                hiring page and shortlist, SMS notifications and candidate
-                texting, AI-written job posts, and reports that compare your
-                stores.
+                Everything in Solo, now across every store: one login for all
+                locations, a shared hiring page and shortlist, reports that
+                compare your stores, and role-specific assessment modules.
               </li>
               <li>
                 <strong>Enterprise — let&apos;s talk.</strong> For brands and
@@ -178,7 +177,7 @@ const SECTIONS: Section[] = [
       },
       {
         q: "When should I use Operator instead of separate Solo accounts?",
-        a: "As soon as you run a second store. Operator is $79 for your first location and $50 for each additional one. The $29 over a Solo store is the multi-location toolkit: one login for every store, one hiring page and shortlist across them, SMS + candidate texting, AI-written job posts, and cross-store reports. Do the math and it's close to separate Solo accounts at two stores — and cheaper from four on — but the real difference is running everything from one place instead of juggling logins.",
+        a: "As soon as you run a second store. Operator is $99 for your first location and $59 for each additional one. The step up from Solo is the multi-location layer: one login for every store, one hiring page and shortlist across them, and reports that compare your stores. (SMS, AI-written job posts, scheduling, and team management are on every plan, including Solo.) The real difference is running everything from one place instead of juggling separate logins.",
       },
       {
         q: "Can my managers each have their own login?",
@@ -208,6 +207,10 @@ const SECTIONS: Section[] = [
       {
         q: "Does it connect to my POS, scheduling, payroll, or other systems?",
         a: "QDXone is your front door for hiring — post, apply, assess, decide. Connections to other systems (POS, scheduling, payroll, and the like) are planned; tell us which system matters to you and we'll factor it into the order.",
+      },
+      {
+        q: "Does QDXone do scheduling and manage my team?",
+        a: "Yes. Once you've hired someone, the same platform builds your weekly schedule — staff set their own availability and time off, and can pick up, drop, or swap shifts — and lets you run performance reviews on the same qualities the assessment measures. That means you can see whether the assessment predicted how someone actually does on the floor. It's included on every plan, no separate signup.",
       },
     ],
   },

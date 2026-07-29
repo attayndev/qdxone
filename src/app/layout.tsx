@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "QDXone — Shift-Ready Hiring for restaurants",
+  title: "QDXone — The Shift-Ready Platform for restaurants",
   description:
-    "Every applicant completes a mobile application and a five-minute assessment. QDXone scores the qualities that matter in restaurant work and hands you a shortlist — so you know who to call first.",
+    "Hire, schedule, and manage your restaurant team in one place. It begins with Shift-Ready Hiring — every applicant takes a five-minute assessment, so you know who to call first — then the same platform runs your schedule and reviews.",
 };
 
 export default async function RootLayout({

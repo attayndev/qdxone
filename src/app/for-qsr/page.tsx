@@ -68,6 +68,10 @@ export default function ForMultiUnitPage() {
                 title="Hire the behaviors guests notice."
                 body="Reliability, people skills, ownership, composure — the things that show up at the counter and on the floor. Hire them in instead of trying to coach them in."
               />
+              <Bullet
+                title="One platform for the whole lifecycle, at every location."
+                body="QDXone isn't just the hiring step anymore. The same login runs scheduling — weekly builds, availability, shift pickup and swap — and team management, with performance reviews on the same qualities the assessment measures, across every store you operate."
+              />
             </ul>
           </div>
         </section>
@@ -85,8 +89,8 @@ export default function ForMultiUnitPage() {
             <p className="mt-4 text-white/80">
               Operator is self-serve for two or more stores — one account across
               every location, a shared hiring page, reports that compare your
-              stores, and unlimited assessments. $79 for your first location,
-              $50 for each additional. Running a brand, or several brands?
+              stores, and unlimited assessments. $99 for your first location,
+              $59 for each additional. Running a brand, or several brands?
               Enterprise is custom — let&apos;s talk.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">

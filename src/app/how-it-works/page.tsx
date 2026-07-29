@@ -78,6 +78,32 @@ export default function HowItWorksPage() {
           </div>
         </section>
 
+        <section className="px-4 sm:px-6 py-16 bg-[color:var(--brand-cream)] border-y border-[color:var(--brand-line)]">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl font-black tracking-tight">
+              After you hire.
+            </h2>
+            <p className="mt-4 text-[17px] text-[color:var(--brand-ink-muted)] leading-relaxed">
+              Shift-Ready Hiring is where it starts, not where it ends. Once
+              someone&apos;s hired, they move into scheduling — a weekly
+              builder, staff-set availability and time off, and shift
+              pickup, drop, and swap — and into team management, where you
+              run performance reviews on the same four qualities the
+              assessment measures, so you can see whether the assessment
+              predicted how they actually do on the floor. Same login, same
+              platform, included on every plan.
+            </p>
+            <p className="mt-4">
+              <Link
+                href="/pricing"
+                className="underline text-[color:var(--brand-blue-600)] font-semibold"
+              >
+                See what&apos;s included on every plan →
+              </Link>
+            </p>
+          </div>
+        </section>
+
         <section className="px-4 sm:px-6 py-12 bg-[color:var(--brand-ink)] text-white">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight">

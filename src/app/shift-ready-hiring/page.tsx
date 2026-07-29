@@ -21,6 +21,16 @@ export default function ShiftReadyHiringPage() {
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
               What is Shift-Ready Hiring?
             </h1>
+            <p className="mt-3 text-sm text-[color:var(--brand-ink-muted)]">
+              Shift-Ready Hiring is the first pillar of{" "}
+              <Link
+                href="/how-it-works"
+                className="underline text-[color:var(--brand-blue-600)]"
+              >
+                The Shift-Ready Platform
+              </Link>{" "}
+              — it also handles scheduling and team management.
+            </p>
             <p className="mt-5 text-lg text-[color:var(--brand-ink-muted)] leading-relaxed">
               <strong className="text-[color:var(--brand-ink)]">
                 Shift-Ready Hiring is a way of hiring hourly restaurant staff

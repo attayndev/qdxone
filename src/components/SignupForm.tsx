@@ -132,7 +132,7 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
         </div>
         <div className="mt-2 rounded-xl border-2 border-[color:var(--brand-blue)] bg-[color:var(--brand-soft)] p-3">
           <div className="font-bold">
-            Solo — {cycle === "annual" ? "$590/yr" : "$59/mo"}
+            Solo — {cycle === "annual" ? "$790/yr" : "$79/mo"}
           </div>
           <div className="text-xs text-[color:var(--brand-ink-muted)] mt-0.5">
             Unlimited assessments · 2 users
@@ -142,7 +142,7 @@ export default function SignupForm({ rootDomain }: { rootDomain: string }) {
           Card captured now, first charge after your 30-day trial.{" "}
           <span className="font-semibold">Run more than one store?</span> Start
           here — add your locations and you move to{" "}
-          <span className="font-semibold">Operator</span> ($79 + $50 per
+          <span className="font-semibold">Operator</span> ($99 + $59 per
           additional location) automatically.
           Big group or brand?{" "}
           <a href="/demo" className="font-semibold underline">

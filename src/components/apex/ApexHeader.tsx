@@ -80,12 +80,13 @@ export function ApexFooter() {
         <div>
           <QdxWordmark size="sm" />
           <p className="mt-2 text-xs text-[color:var(--brand-ink-muted)]">
-            Shift-Ready Hiring™ for restaurants. Know who to call first.
+            The Shift-Ready Platform for restaurants. Hire shift-ready, then run the shift.
           </p>
         </div>
         <FooterCol title="Product">
           <FL href="/shift-ready-hiring">Shift-Ready Hiring™</FL>
-          <FL href="/how-it-works">How it works</FL>
+          <FL href="/how-it-works">Scheduling</FL>
+          <FL href="/how-it-works">Team management</FL>
           <FL href="/assessments">Assessments</FL>
           <FL href="/pricing">Pricing</FL>
           <FL href="/faq">FAQ</FL>

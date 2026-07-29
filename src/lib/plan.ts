@@ -2,13 +2,16 @@
 // Pricing — the single source of truth for tiers, prices, and features.
 // ─────────────────────────────────────────────────────────────────────
 // Tier is driven by LOCATION COUNT for self-serve; Enterprise is a manual flag.
-// Pricing is a flat per-location subscription — UNLIMITED assessments on every
-// tier (no caps, no metered overage). The Operator premium ($20/location over
-// Solo) buys features, not volume: unified login across stores, SMS, AI, and
-// extra testing modules. Compute "what can this org do / what does it cost"
-// from here — don't hardcode tier numbers elsewhere.
+// UNLIMITED assessments on every tier (no caps, no metered overage). As of
+// 2026-07-29 the whole platform — hiring, SMS, AI job posts, scheduling, and team
+// management — is on BOTH self-serve plans; the Operator premium buys MULTI-LOCATION
+// only: one login across stores, cross-store reporting/benchmark, one careers page,
+// and advanced modules. Solo is a single store; Operator is 2+ locations at
+// $99 for the first + $59 per additional location. Compute "what can this org do /
+// what does it cost" from here — don't hardcode tier numbers elsewhere.
 //
-// Canonical pricing doc: docs/pricing-strategy-v1.md.
+// Canonical pricing doc: docs/pricing-strategy-v1.md; positioning:
+// docs/positioning-shift-ready-v2.md.
 
 import type { PlanTier, BillingCycle } from "./supabase/types";
 
@@ -35,9 +38,11 @@ export const TIER_LABEL: Record<PlanTier, string> = {
   enterprise: "Enterprise",
 };
 
-// Flat per-location monthly prices.
-export const SOLO_PRICE = 59;
-export const OPERATOR_PRICE = 79;
+// Monthly prices. Solo is a flat single-store price; Operator is the first
+// location + ADDED_LOCATION_PRICE for each location beyond it.
+export const SOLO_PRICE = 79;
+export const OPERATOR_PRICE = 99;
+export const ADDED_LOCATION_PRICE = 59;
 
 /**
  * The org's effective tier. Self-serve tier derives purely from location count
@@ -63,15 +68,16 @@ export function perLocationPrice(tier: PlanTier): number {
 }
 
 /**
- * Monthly base price in dollars (display/MRR). Solo = $59 (one location);
- * Operator = $79 × locations; Enterprise = max($2,500 floor, $50/loc).
+ * Monthly base price in dollars (display/MRR). Solo = $79 (one location);
+ * Operator = $99 first location + $59 per additional; Enterprise = max($2,500
+ * floor, $50/loc).
  */
 export function monthlyBasePrice(tier: PlanTier, locations: number): number {
   switch (tier) {
     case "solo":
       return SOLO_PRICE;
     case "operator":
-      return OPERATOR_PRICE * Math.max(2, locations);
+      return OPERATOR_PRICE + ADDED_LOCATION_PRICE * (Math.max(2, locations) - 1);
     case "enterprise":
       return Math.max(2500, 50 * locations);
   }
@@ -96,10 +102,11 @@ export function planLimits(tier: PlanTier, locations: number): PlanLimits {
 }
 
 // ── Feature gating ──────────────────────────────────────────────────────
-// The Operator premium buys these; this is the authoritative map.
+// SMS + AI job posts are on every plan (ungated 2026-07-29). The Operator premium
+// buys the MULTI-LOCATION features below; this is the authoritative map.
 export type Feature =
-  | "sms" //                      candidate SMS (notifications + comms)
-  | "ai_job_descriptions" //      AI-written job posts
+  | "sms" //                      candidate SMS (notifications + comms) — all plans
+  | "ai_job_descriptions" //      AI-written job posts — all plans
   | "unified_login" //            one login across all locations
   | "multi_location_careers" //   one careers page across stores
   | "cross_location_benchmark" // compare candidates across stores
@@ -135,6 +142,7 @@ export function hasFeature(
   switch (feature) {
     case "sms":
     case "ai_job_descriptions":
+      return true; // ungated — on every plan (2026-07-29)
     case "unified_login":
     case "cross_location_benchmark":
     case "testing_modules":
