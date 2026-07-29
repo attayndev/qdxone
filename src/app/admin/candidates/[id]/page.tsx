@@ -287,14 +287,17 @@ export default async function CandidateDetail({ params }: PageProps) {
         </p>
       )}
 
-      <div className="mt-6">
-        <InviteToInterview
-          applicationId={a.id}
-          types={interviewTypes}
-          candidateEmail={a.email}
-          senderHasAvailability={senderHasAvailability}
-        />
-      </div>
+      {/* No point inviting someone already hired to interview. */}
+      {currentDecision !== "hired" && (
+        <div className="mt-6">
+          <InviteToInterview
+            applicationId={a.id}
+            types={interviewTypes}
+            candidateEmail={a.email}
+            senderHasAvailability={senderHasAvailability}
+          />
+        </div>
+      )}
 
       <div className="mt-6">
         <DecisionControl

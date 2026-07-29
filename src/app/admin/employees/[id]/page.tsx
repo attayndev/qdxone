@@ -8,6 +8,7 @@ import EmployeeActions from "@/components/admin/EmployeeActions";
 import StaffAccessControl from "@/components/admin/StaffAccessControl";
 import WageControl from "@/components/admin/WageControl";
 import EmployeeAssessmentControl from "@/components/admin/EmployeeAssessmentControl";
+import EditEmployeeDetails from "@/components/admin/EditEmployeeDetails";
 import { assessmentStatusByEmployee } from "@/lib/employee-assessment";
 import { employeeAssessmentScore } from "@/lib/employee-assessment-score";
 
@@ -90,6 +91,13 @@ export default async function EmployeeDetailPage({
           {e.employment_status === "employed" ? "Employed" : "Terminated"}
         </span>
       </div>
+
+      <EditEmployeeDetails
+        employeeId={e.id}
+        firstName={e.first_name}
+        lastName={e.last_name}
+        email={e.email}
+      />
 
       {/* Assessment scores (from their completed assessment) */}
       {assessment && (

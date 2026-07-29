@@ -24,6 +24,57 @@ function revalidate(id: string) {
   revalidatePath(`/admin/employees/${id}`);
 }
 
+/**
+ * Edit an employee's basic details (name + email) — e.g. fixing a doubled last
+ * name from an import. Keeps the linked application in sync so the assessment
+ * page (which reads the application) shows the corrected name too.
+ */
+export async function updateEmployeeDetails(formData: FormData): Promise<ActionResult> {
+  const org = await currentOrgOrThrow();
+  await requireMembership(org.id);
+  const employeeId = String(formData.get("employee_id") || "");
+  if (!employeeId) return { ok: false, error: "Missing employee." };
+  const first_name = String(formData.get("first_name") || "").trim();
+  const last_name = String(formData.get("last_name") || "").trim();
+  const emailRaw = String(formData.get("email") || "").trim();
+  if (!first_name) return { ok: false, error: "First name is required." };
+  if (!last_name) return { ok: false, error: "Last name is required." };
+  if (emailRaw && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailRaw)) {
+    return { ok: false, error: "That email doesn't look right." };
+  }
+  const email = emailRaw || null;
+
+  const supa = adminClient();
+  const { data: emp } = await supa
+    .from("employees")
+    .select("application_id")
+    .eq("id", employeeId)
+    .eq("org_id", org.id)
+    .maybeSingle();
+  if (!emp) return { ok: false, error: "Employee not found." };
+
+  const { error } = await supa
+    .from("employees")
+    .update({ first_name, last_name, email } as never)
+    .eq("id", employeeId)
+    .eq("org_id", org.id);
+  if (error) {
+    console.error("updateEmployeeDetails failed", error);
+    return { ok: false, error: "Could not save. Try again." };
+  }
+
+  const appId = (emp as { application_id: string | null }).application_id;
+  if (appId) {
+    await supa
+      .from("applications")
+      .update({ first_name, last_name, ...(email ? { email } : {}) } as never)
+      .eq("id", appId)
+      .eq("org_id", org.id);
+  }
+  revalidate(employeeId);
+  return { ok: true };
+}
+
 /** Record a quarterly review. "No longer employed" terminates the employee. */
 export async function addReview(formData: FormData): Promise<ActionResult> {
   const org = await currentOrgOrThrow();
