@@ -1,7 +1,28 @@
 # QDX One — Pricing Strategy v1
 
-**Last updated:** 2026-07-15
-**Status:** Live model below. `src/lib/plan.ts` is the source of truth.
+**Last updated:** 2026-07-29
+**Status:** Live model in the top note. `src/lib/plan.ts` is the source of truth.
+
+> **Pricing update (2026-07-29) — THE SHIFT-READY PLATFORM. CURRENT MODEL;
+> supersedes every note below.** The product is now hire → schedule → manage
+> (Shift-Ready Hiring™ + Scheduling + Team management), and pricing reflects it:
+> - **Solo — $79/mo** (1 location; annual $790). **Operator — $99/mo for the
+>   first location + $59/mo each additional** (annual $990 + $590; a single
+>   graduated-tier Stripe price, quantity = location count). **Enterprise** —
+>   custom ($2,500 floor + $50/loc).
+> - **The whole platform is on every plan** — unlimited assessments, **SMS +
+>   AI-written job posts (now UNGATED — no longer Operator-only)**, scheduling,
+>   and team management. The Solo → Operator upgrade is now **purely single- vs
+>   multi-location**: one login across stores, cross-store reporting/benchmark,
+>   one careers page, role-specific modules, advanced EEO.
+> - This **removes the old "SMS/AI = Operator-only" gate.** `src/lib/plan.ts` is
+>   canonical: `SOLO_PRICE=79`, `OPERATOR_PRICE=99`, `ADDED_LOCATION_PRICE=59`,
+>   graduated `monthlyBasePrice`, `hasFeature('sms'|'ai_job_descriptions')`=all tiers.
+> - **Stripe reconciled (test/sandbox) 2026-07-29** — account "QDXone sandbox"
+>   `acct_1TnhmWKhW8nMupF2`: four new prices created, Worker secrets repointed,
+>   verified via test Checkout (Solo×1=$79, Operator×2=$158). ⚠️ LIVE billing
+>   still needs a live Stripe account with these prices recreated live before
+>   launch. Positioning: `docs/positioning-shift-ready-v2.md`.
 
 > **Pricing update (2026-07-15) — Operator goes graduated: $79 + $50 per
 > additional location.** Supersedes the flat $79/location below. Solo stays
