@@ -285,7 +285,7 @@ function WhatWeMeasure() {
         <p className="mt-6 text-sm text-[color:var(--brand-ink-muted)]">
           QDXone is a personality-based assessment built specifically for
           restaurant work — it measures job-relevant behaviors, not
-          personality types. The framework is built on validated personality
+          personality types. The framework is built on established personality
           and motivation research and reviewed by a credentialed I/O
           psychologist. Results are plain-English bands — never a black-box
           number.
