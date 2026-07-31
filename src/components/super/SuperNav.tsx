@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 /** Top nav for the platform console. `active` highlights the current section. */
-export function SuperNav({ active }: { active: "orgs" | "leads" }) {
+export function SuperNav({ active }: { active: "orgs" | "leads" | "validation" }) {
   return (
     <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
       <div className="flex items-center gap-4">
@@ -9,6 +9,7 @@ export function SuperNav({ active }: { active: "orgs" | "leads" }) {
         <nav className="flex items-center gap-3 text-sm">
           <Tab href="/super" label="Organizations" on={active === "orgs"} />
           <Tab href="/super/leads" label="Leads" on={active === "leads"} />
+          <Tab href="/super/validation" label="Validation" on={active === "validation"} />
         </nav>
       </div>
       <Link href="/" className="text-sm font-semibold underline">

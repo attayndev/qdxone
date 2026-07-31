@@ -20,7 +20,7 @@ import {
  * internal early-warning signal for assessment-level disparate impact.
  */
 
-const MIN_CELL = 5; // suppress groups smaller than this (privacy + noise)
+export const MIN_CELL = 5; // suppress groups smaller than this (privacy + noise)
 const FAVORABLE: OverallFit[] = ["Strong fit", "Consider"];
 
 export type GroupStat = {
