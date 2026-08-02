@@ -116,108 +116,13 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
     } as never);
   }
 
-  // Clone candidates + their assessments, scrubbing PII. Sample ACROSS fit bands
-  // (not just the most recent) so the demo always shows the full spectrum —
-  // Strong fit, Consider, Caution, Not recommended — not whatever happened to
-  // apply last.
-  const { data: srcApps } = await supa
-    .from("applications")
-    .select("*")
-    .eq("org_id", source.id)
-    .order("submitted_at", { ascending: false });
-  const srcFit = await fitByApplication(source.id);
-  const apps = sampleAcrossBands(
-    (srcApps as Record<string, unknown>[] | null) ?? [],
-    (a) => srcFit.get(a.id as string) ?? "Incomplete",
-    40
-  );
-
-  let i = 0;
-  for (const a of apps) {
-    const [first, last] = FAKE_NAMES[i % FAKE_NAMES.length];
-    const suffix = i >= FAKE_NAMES.length ? String(Math.floor(i / FAKE_NAMES.length) + 1) : "";
-    const refs = ((a.job_references as { name: string; contact: string }[] | null) ?? []).map((_r, j) => ({
-      name: FAKE_NAMES[(i + j + 5) % FAKE_NAMES.length].join(" "),
-      contact: `${100 + j} Broadway`,
-    }));
-
-    const { data: newApp } = await supa
-      .from("applications")
-      .insert({
-        org_id: orgId,
-        location_id: locationId,
-        resume_token: generateToken(), // NOT NULL; fresh per clone
-        first_name: first,
-        last_name: last + suffix,
-        email: `${first}.${last}${suffix}@example.com`.toLowerCase(),
-        phone: fakePhone(i + 1),
-        positions: a.positions,
-        status: a.status,
-        submitted_at: a.submitted_at,
-        eligible_to_work: a.eligible_to_work,
-        postal_code: a.postal_code,
-        earliest_start_date: a.earliest_start_date,
-        availability: a.availability,
-        work_history: a.work_history,
-        job_references: refs,
-        custom_answers: a.custom_answers,
-        decision: a.decision ?? null,
-        decision_at: a.decision_at ?? null,
-      } as never)
-      .select("id")
-      .single();
-    const newAppId = (newApp as { id: string } | null)?.id;
-    if (!newAppId) {
-      i++;
-      continue;
-    }
-
-    // Clone the candidate assessment session + every response verbatim.
-    const { data: srcSess } = await supa
-      .from("assessment_sessions")
-      .select("*")
-      .eq("application_id", a.id as string)
-      .eq("subject_type", "candidate")
-      .maybeSingle();
-    const s = srcSess as Record<string, unknown> | null;
-    if (s) {
-      const { data: newSess } = await supa
-        .from("assessment_sessions")
-        .insert({
-          org_id: orgId,
-          location_id: locationId,
-          subject_type: "candidate",
-          application_id: newAppId,
-          methodology_version: s.methodology_version,
-          form_item_ids: s.form_item_ids,
-          status: s.status,
-          delivery_channels: [],
-          access_token: generateToken(),
-          expires_at: s.expires_at,
-          started_at: s.started_at,
-          completed_at: s.completed_at,
-        } as never)
-        .select("id")
-        .single();
-      const newSessId = (newSess as { id: string } | null)?.id;
-      if (newSessId) {
-        const { data: srcResp } = await supa
-          .from("assessment_responses")
-          .select("item_id, item_kind, value_int, value_text, response_ms, sequence")
-          .eq("session_id", s.id as string);
-        const rows = ((srcResp as Record<string, unknown>[] | null) ?? []).map((r) => ({
-          session_id: newSessId,
-          item_id: r.item_id,
-          item_kind: r.item_kind,
-          value_int: r.value_int,
-          value_text: r.value_text,
-          response_ms: r.response_ms,
-          sequence: r.sequence,
-        }));
-        if (rows.length) await supa.from("assessment_responses").insert(rows as never);
-      }
-    }
-    i++;
+  // Restore candidates + assessments from the FROZEN anonymized snapshot, so the
+  // demo is identical every night and independent of the live source changing.
+  // Bootstrap-capture one from live on first run (or if it's ever been cleared).
+  let restored = await restoreDemoFromSnapshot(orgId, locationId);
+  if (restored === 0) {
+    await captureDemoSnapshot();
+    restored = await restoreDemoFromSnapshot(orgId, locationId);
   }
 
   // Populate the Employees module + its analytics: a coherent roster of hires
@@ -254,7 +159,168 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
       .upsert({ org_id: orgId, user_id: demoUserId, role: "admin" } as never, { onConflict: "org_id,user_id" });
   }
 
-  return { orgId, candidates: apps.length };
+  return { orgId, candidates: restored };
+}
+
+// ── Frozen anonymized snapshot ─────────────────────────────────────────────
+interface SnapshotResponse {
+  item_id: unknown;
+  item_kind: unknown;
+  value_int: unknown;
+  value_text: unknown;
+  response_ms: unknown;
+  sequence: unknown;
+}
+interface SnapshotCandidate {
+  app: Record<string, unknown>; // already-anonymized application fields
+  session: Record<string, unknown> | null;
+  responses: SnapshotResponse[];
+}
+interface DemoSnapshot {
+  candidates: SnapshotCandidate[];
+}
+
+/**
+ * Capture a fresh anonymized snapshot from live 16 Handles: band-stratified
+ * sampling + PII scrub (fake names/email/phone/references), frozen to
+ * `demo_snapshot`. Nightly resets reload THIS, so the demo is stable; call this
+ * (via the /super "Refresh demo from live" button) only to intentionally update
+ * the canonical data. Returns how many candidates were captured.
+ */
+export async function captureDemoSnapshot(): Promise<{ captured: number }> {
+  const supa = adminClient();
+  const { data: srcRow } = await supa
+    .from("organizations")
+    .select("id")
+    .ilike("name", SOURCE_NAME_MATCH)
+    .limit(1)
+    .maybeSingle();
+  const source = srcRow as { id: string } | null;
+  if (!source) throw new Error("Source org (16 Handles) not found — cannot capture demo snapshot.");
+
+  const { data: srcApps } = await supa
+    .from("applications")
+    .select("*")
+    .eq("org_id", source.id)
+    .order("submitted_at", { ascending: false });
+  const srcFit = await fitByApplication(source.id);
+  const apps = sampleAcrossBands(
+    (srcApps as Record<string, unknown>[] | null) ?? [],
+    (a) => srcFit.get(a.id as string) ?? "Incomplete",
+    40
+  );
+
+  const candidates: SnapshotCandidate[] = [];
+  let i = 0;
+  for (const a of apps) {
+    const [first, last] = FAKE_NAMES[i % FAKE_NAMES.length];
+    const suffix = i >= FAKE_NAMES.length ? String(Math.floor(i / FAKE_NAMES.length) + 1) : "";
+    const refs = ((a.job_references as { name: string; contact: string }[] | null) ?? []).map((_r, j) => ({
+      name: FAKE_NAMES[(i + j + 5) % FAKE_NAMES.length].join(" "),
+      contact: `${100 + j} Broadway`,
+    }));
+
+    const { data: srcSess } = await supa
+      .from("assessment_sessions")
+      .select("*")
+      .eq("application_id", a.id as string)
+      .eq("subject_type", "candidate")
+      .maybeSingle();
+    const s = srcSess as Record<string, unknown> | null;
+    let session: Record<string, unknown> | null = null;
+    let responses: SnapshotResponse[] = [];
+    if (s) {
+      session = {
+        methodology_version: s.methodology_version,
+        form_item_ids: s.form_item_ids,
+        status: s.status,
+        expires_at: s.expires_at,
+        started_at: s.started_at,
+        completed_at: s.completed_at,
+      };
+      const { data: srcResp } = await supa
+        .from("assessment_responses")
+        .select("item_id, item_kind, value_int, value_text, response_ms, sequence")
+        .eq("session_id", s.id as string);
+      responses = (srcResp as SnapshotResponse[] | null) ?? [];
+    }
+
+    candidates.push({
+      app: {
+        first_name: first,
+        last_name: last + suffix,
+        email: `${first}.${last}${suffix}@example.com`.toLowerCase(),
+        phone: fakePhone(i + 1),
+        positions: a.positions,
+        status: a.status,
+        submitted_at: a.submitted_at,
+        eligible_to_work: a.eligible_to_work,
+        postal_code: a.postal_code,
+        earliest_start_date: a.earliest_start_date,
+        availability: a.availability,
+        work_history: a.work_history,
+        job_references: refs,
+        custom_answers: a.custom_answers,
+        decision: a.decision ?? null,
+        decision_at: a.decision_at ?? null,
+      },
+      session,
+      responses,
+    });
+    i++;
+  }
+
+  // Keep exactly one canonical snapshot.
+  await supa.from("demo_snapshot").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  await supa.from("demo_snapshot").insert({ data: { candidates } } as never);
+  return { captured: candidates.length };
+}
+
+/** Reload the frozen snapshot into the demo org (fresh ids/tokens, re-parented). */
+async function restoreDemoFromSnapshot(orgId: string, locationId: string | null): Promise<number> {
+  const supa = adminClient();
+  const { data: snapRow } = await supa
+    .from("demo_snapshot")
+    .select("data")
+    .order("captured_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const snap = (snapRow as { data: DemoSnapshot } | null)?.data;
+  if (!snap?.candidates?.length) return 0;
+
+  let count = 0;
+  for (const c of snap.candidates) {
+    const { data: newApp } = await supa
+      .from("applications")
+      .insert({ org_id: orgId, location_id: locationId, resume_token: generateToken(), ...c.app } as never)
+      .select("id")
+      .single();
+    const newAppId = (newApp as { id: string } | null)?.id;
+    if (!newAppId) continue;
+    count++;
+    if (c.session) {
+      const { data: newSess } = await supa
+        .from("assessment_sessions")
+        .insert({
+          org_id: orgId,
+          location_id: locationId,
+          subject_type: "candidate",
+          application_id: newAppId,
+          delivery_channels: [],
+          access_token: generateToken(),
+          ...c.session,
+        } as never)
+        .select("id")
+        .single();
+      const newSessId = (newSess as { id: string } | null)?.id;
+      if (newSessId && c.responses.length) {
+        await supa
+          .from("assessment_responses")
+          .insert(c.responses.map((r) => ({ session_id: newSessId, ...r })) as never);
+      }
+    }
+  }
+  return count;
 }
 
 /**

@@ -5,6 +5,8 @@
  * them into that admin section — so it works whether they're on the public
  * landing or already inside the dashboard.
  */
+import { DemoRestoreButton } from "./DemoRestoreButton";
+
 const LINKS = [
   { to: "/admin", label: "Dashboard" },
   { to: "/admin/candidates", label: "Candidates" },
@@ -32,6 +34,9 @@ export function DemoBar() {
             </a>
           ))}
         </nav>
+        <div className="ml-auto shrink-0">
+          <DemoRestoreButton />
+        </div>
       </div>
     </div>
   );

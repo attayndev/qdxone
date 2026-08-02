@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requirePlatformOwner } from "@/lib/super/guard";
 import { adminClient } from "@/lib/supabase/admin";
-import { resetDemoOrg, DEMO_SLUG } from "@/lib/demo/seed";
+import { resetDemoOrg, captureDemoSnapshot, DEMO_SLUG } from "@/lib/demo/seed";
 
 /** Rebuild the demo org from the live 16 Handles data (PII scrubbed). Staff only. */
 export async function seedDemo(): Promise<
@@ -11,6 +11,10 @@ export async function seedDemo(): Promise<
 > {
   await requirePlatformOwner();
   try {
+    // /super = intentionally REFRESH the frozen snapshot from live 16 Handles,
+    // then reload it. (The nightly reset + the demo-bar Restore button reload the
+    // existing frozen snapshot without re-capturing.)
+    await captureDemoSnapshot();
     const { candidates } = await resetDemoOrg();
     return { ok: true, candidates };
   } catch (e) {

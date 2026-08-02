@@ -10,7 +10,7 @@ export function SeedDemoButton() {
   const [msg, setMsg] = useState<string | null>(null);
 
   function run() {
-    if (!confirm("Rebuild the demo org from live 16 Handles data (scrubbed)? This wipes the current demo candidates.")) {
+    if (!confirm("Refresh the demo's frozen snapshot from live 16 Handles data (band-sampled, PII-scrubbed), then reload it? This updates the canonical demo data that every nightly reset restores.")) {
       return;
     }
     setMsg(null);
@@ -28,7 +28,7 @@ export function SeedDemoButton() {
         disabled={pending}
         className="rounded-lg border border-[color:var(--brand-line)] bg-white px-3 py-1.5 text-sm font-semibold hover:bg-[color:var(--brand-soft)] disabled:opacity-50"
       >
-        {pending ? "Rebuilding…" : "Reset demo data"}
+        {pending ? "Refreshing…" : "Refresh demo from live"}
       </button>
       <a
         href={`https://demo.${ROOT_DOMAIN}/admin`}

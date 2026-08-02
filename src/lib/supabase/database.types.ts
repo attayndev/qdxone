@@ -551,6 +551,24 @@ export type Database = {
           },
         ]
       }
+      demo_snapshot: {
+        Row: {
+          captured_at: string
+          data: Json
+          id: string
+        }
+        Insert: {
+          captured_at?: string
+          data: Json
+          id?: string
+        }
+        Update: {
+          captured_at?: string
+          data?: Json
+          id?: string
+        }
+        Relationships: []
+      }
       employee_reviews: {
         Row: {
           created_at: string
