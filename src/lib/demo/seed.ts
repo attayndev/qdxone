@@ -116,14 +116,21 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
     } as never);
   }
 
-  // Clone candidates + their assessments, scrubbing PII.
+  // Clone candidates + their assessments, scrubbing PII. Sample ACROSS fit bands
+  // (not just the most recent) so the demo always shows the full spectrum —
+  // Strong fit, Consider, Caution, Not recommended — not whatever happened to
+  // apply last.
   const { data: srcApps } = await supa
     .from("applications")
     .select("*")
     .eq("org_id", source.id)
-    .order("submitted_at", { ascending: false })
-    .limit(40);
-  const apps = (srcApps as Record<string, unknown>[] | null) ?? [];
+    .order("submitted_at", { ascending: false });
+  const srcFit = await fitByApplication(source.id);
+  const apps = sampleAcrossBands(
+    (srcApps as Record<string, unknown>[] | null) ?? [],
+    (a) => srcFit.get(a.id as string) ?? "Incomplete",
+    40
+  );
 
   let i = 0;
   for (const a of apps) {
@@ -250,6 +257,32 @@ export async function resetDemoOrg(): Promise<{ orgId: string; candidates: numbe
   return { orgId, candidates: apps.length };
 }
 
+/**
+ * Round-robin across fit bands so a capped sample GUARANTEES coverage of every
+ * band present (Strong fit / Consider / Caution / Not recommended), rather than
+ * skewing to whatever band dominates the raw list. This is what makes the demo
+ * show all assessment outcome types, per the demo's whole purpose.
+ */
+function sampleAcrossBands<T>(items: T[], bandOf: (t: T) => string, cap: number): T[] {
+  const ORDER = ["Strong fit", "Consider", "Caution", "Not recommended", "Incomplete"];
+  const buckets = new Map<string, T[]>(ORDER.map((b) => [b, []]));
+  for (const it of items) (buckets.get(bandOf(it)) ?? buckets.get("Incomplete")!).push(it);
+  const out: T[] = [];
+  let progressed = true;
+  while (out.length < cap && progressed) {
+    progressed = false;
+    for (const b of ORDER) {
+      const bucket = buckets.get(b)!;
+      if (bucket.length) {
+        out.push(bucket.shift()!);
+        progressed = true;
+        if (out.length >= cap) break;
+      }
+    }
+  }
+  return out;
+}
+
 /** UTC date `days` before now (date math stays in UTC — no DST drift). */
 function daysAgoUTC(days: number): Date {
   const d = new Date();
@@ -322,10 +355,11 @@ async function seedDemoEmployees(orgId: string, ladder: string[]): Promise<void>
       | null) ?? []
   ).map((a) => ({ ...a, band: fit.get(a.id) ?? "Incomplete" }));
 
-  // Roster: everyone already hired, then fill with the best-fit remaining
-  // candidates up to a believable headcount for one store.
+  // Roster: everyone already hired, then fill with a SPREAD across fit bands (not
+  // just best-fit) up to a believable headcount — so the Employees module and the
+  // "does the assessment predict performance?" analytics show the full spectrum
+  // (including a Caution/Not-recommended hire who then underperforms/departs).
   const TARGET = 10;
-  apps.sort((x, y) => (BAND_RANK[x.band] ?? 5) - (BAND_RANK[y.band] ?? 5));
   const roster: typeof apps = [];
   const chosen = new Set<string>();
   for (const a of apps)
@@ -333,13 +367,14 @@ async function seedDemoEmployees(orgId: string, ladder: string[]): Promise<void>
       roster.push(a);
       chosen.add(a.id);
     }
-  for (const a of apps) {
+  const rest = apps.filter((a) => !chosen.has(a.id) && a.band !== "Incomplete");
+  for (const a of sampleAcrossBands(rest, (x) => x.band, TARGET)) {
     if (roster.length >= TARGET) break;
-    if (!chosen.has(a.id) && a.band !== "Incomplete") {
-      roster.push(a);
-      chosen.add(a.id);
-    }
+    roster.push(a);
+    chosen.add(a.id);
   }
+  // Present the roster best-fit first for a tidy list.
+  roster.sort((x, y) => (BAND_RANK[x.band] ?? 5) - (BAND_RANK[y.band] ?? 5));
 
   let idx = 0;
   for (const a of roster) {

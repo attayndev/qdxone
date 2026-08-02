@@ -10,8 +10,8 @@
 
   // scheduled() branches on which pattern fired:
   //   */2 * * * *  → drain the interview-scheduling outbox (every 2 min)
-  //   0 5 * * *    → rebuild the demo org (05:00 UTC = midnight EST / 1 AM EDT)
-  "triggers": { "crons": ["*/2 * * * *", "0 5 * * *"] },
+  //   0 8 * * *    → rebuild the demo org (08:00 UTC = midnight PST / 1 AM PDT)
+  "triggers": { "crons": ["*/2 * * * *", "0 8 * * *"] },
 
   // The container: Cloudflare builds this Dockerfile, pushes it to its registry,
   // and routes the Worker's requests to running instances.
