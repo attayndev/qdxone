@@ -233,6 +233,7 @@ export async function captureDemoSnapshot(): Promise<{ captured: number }> {
       .eq("application_id", a.id as string)
       .eq("subject_type", "candidate")
       .maybeSingle();
+    const band = srcFit.get(a.id as string);
     const s = srcSess as Record<string, unknown> | null;
     let session: Record<string, unknown> | null = null;
     let responses: SnapshotResponse[] = [];
@@ -268,8 +269,11 @@ export async function captureDemoSnapshot(): Promise<{ captured: number }> {
         work_history: a.work_history,
         job_references: refs,
         custom_answers: a.custom_answers,
-        decision: a.decision ?? null,
-        decision_at: a.decision_at ?? null,
+        // Leave Caution candidates UNDECIDED so a couple show in the open pipeline
+        // as flagged-and-awaiting-a-call (the demo's whole "scored shortlist" point);
+        // otherwise the source's decisions hide them in the decided view.
+        decision: band === "Caution" ? null : a.decision ?? null,
+        decision_at: band === "Caution" ? null : a.decision_at ?? null,
       },
       session,
       responses,
