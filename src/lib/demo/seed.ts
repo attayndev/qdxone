@@ -28,12 +28,12 @@ const DEMO_NAME = "Broadway Scoops (Demo)";
 const SOURCE_NAME_MATCH = "%16 handles%"; // resolve the source org by name
 
 const FAKE_NAMES: [string, string][] = [
-  ["Maya", "Rivera"], ["Devin", "Carter"], ["Aisha", "Bello"], ["Cody", "Nguyen"],
-  ["Brianna", "Hughes"], ["Jordan", "Pierce"], ["Tyler", "Owens"], ["Sam", "Whitfield"],
-  ["Riley", "Dawson"], ["Priya", "Anand"], ["Marcus", "Bennett"], ["Chloe", "Foster"],
-  ["Diego", "Marsh"], ["Nina", "Patel"], ["Owen", "Brooks"], ["Zoe", "Callahan"],
-  ["Isaiah", "Reed"], ["Lena", "Ortiz"], ["Caleb", "Nash"], ["Grace", "Sullivan"],
-  ["Andre", "Coleman"], ["Sofia", "Mercado"], ["Ethan", "Park"], ["Talia", "Weiss"],
+  ["Devin", "Carter"], ["Aisha", "Bello"], ["Jordan", "Pierce"], ["Sam", "Whitfield"],
+  ["Riley", "Dawson"], ["Marcus", "Bennett"], ["Chloe", "Foster"], ["Nina", "Patel"],
+  ["Isaiah", "Reed"], ["Lena", "Ortiz"], ["Grace", "Sullivan"], ["Andre", "Coleman"],
+  ["Ethan", "Park"], ["Talia", "Weiss"], ["Naomi", "Fields"], ["Elias", "Romano"],
+  ["Simone", "Clarke"], ["Darnell", "Boyd"], ["Yuki", "Tanaka"], ["Rosa", "Delgado"],
+  ["Malik", "Osei"], ["Freya", "Lindqvist"], ["Hector", "Villa"], ["Amara", "Okafor"],
 ];
 
 const fakePhone = (i: number) => `(845) 555-12${String(i % 100).padStart(2, "0")}`;
