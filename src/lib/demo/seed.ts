@@ -204,10 +204,17 @@ export async function captureDemoSnapshot(): Promise<{ captured: number }> {
     .eq("org_id", source.id)
     .order("submitted_at", { ascending: false });
   const srcFit = await fitByApplication(source.id);
+  // Only candidates with a REAL, complete fit — never Incomplete/unassessed ones
+  // (they'd render "—" and look like broken junk in the demo). Cap at the
+  // fake-name pool size so every demo name is unique (no "Name2" suffixes).
+  const scored = ((srcApps as Record<string, unknown>[] | null) ?? []).filter((a) => {
+    const b = srcFit.get(a.id as string);
+    return !!b && b !== "Incomplete";
+  });
   const apps = sampleAcrossBands(
-    (srcApps as Record<string, unknown>[] | null) ?? [],
+    scored,
     (a) => srcFit.get(a.id as string) ?? "Incomplete",
-    40
+    FAKE_NAMES.length
   );
 
   const candidates: SnapshotCandidate[] = [];
